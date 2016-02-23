@@ -1,6 +1,7 @@
 package ru.wutiarn.edustor.repository
 
 import org.springframework.data.mongodb.repository.MongoRepository
+import org.springframework.data.mongodb.repository.Query
 import org.springframework.stereotype.Repository
 import ru.wutiarn.edustor.models.User
 
@@ -11,5 +12,6 @@ import ru.wutiarn.edustor.models.User
 interface UserRepository: MongoRepository<User, String> {
     fun findByLogin(login: String): User?
     fun countByLogin(login: String): Long
-    fun deleteByLogin(login: String): Long
+    @Query("{'sessions': {'\$elemMatch': {'token': ?0}}}")
+    fun findBySession(session: String): User?
 }
