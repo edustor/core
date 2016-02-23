@@ -9,7 +9,7 @@ import ru.wutiarn.edustor.models.User
  */
 @Repository
 interface UserRepository: MongoRepository<User, String> {
-    fun findByLogin(login: String): User
+    fun findByLogin(login: String): User?
     fun countByLogin(login: String): Long
     fun deleteByLogin(login: String): Long
 }

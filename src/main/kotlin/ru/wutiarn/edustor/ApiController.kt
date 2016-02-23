@@ -12,26 +12,22 @@ import ru.wutiarn.edustor.repository.UserRepository
  */
 @RestController
 @RequestMapping("/api")
-class ApiController {
-
-    @Autowired
-    var repo: UserRepository? = null
-
+open class ApiController @Autowired constructor(val repo: UserRepository) {
 
     @RequestMapping("/register")
     fun register(@RequestParam login: String, @RequestParam password: String): String {
-        if (repo!!.countByLogin(login) > 0) {
+        if (repo.countByLogin(login) > 0) {
             return "Already exists"
         }
 
         val user = User(login, password)
-        repo!!.save(user)
+        repo.save(user)
         return "Registered $login $password"
     }
 
     @RequestMapping("/login")
     fun login(@RequestParam login: String, @RequestParam password: String): String {
-        val user = repo?.findByLogin(login)
+        val user = repo.findByLogin(login)
         if (user?.password == password) {
             return "Logged in as $login"
         }
@@ -40,7 +36,7 @@ class ApiController {
 
     @RequestMapping("/deregister")
     fun deregister(@RequestParam login: String): String {
-        repo?.deleteByLogin(login)
+        repo.deleteByLogin(login)
         return "Successfully deregistered"
     }
 }
