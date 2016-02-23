@@ -7,6 +7,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import ru.wutiarn.edustor.api.SecurityFilter
+import ru.wutiarn.edustor.repository.UserRepository
 import ru.wutiarn.edustor.service.UserDetailsService
 
 /**
@@ -18,14 +22,20 @@ import ru.wutiarn.edustor.service.UserDetailsService
 open class WebSecurityConfig : WebSecurityConfigurerAdapter() {
 
     @Autowired
+    val usersRepo: UserRepository? = null
+
+    @Autowired
     fun configureGlobal(auth: AuthenticationManagerBuilder, uds: UserDetailsService) {
         auth.userDetailsService(uds)
     }
 
     override fun configure(http: HttpSecurity) {
         http.authorizeRequests()
-            .anyRequest().permitAll()
-        http.formLogin()
+                .antMatchers("/api/login/**").permitAll()
+                .antMatchers("/api/**").authenticated()
+                .anyRequest().permitAll()
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         http.csrf().disable()
+        http.addFilterBefore(SecurityFilter(usersRepo!!), UsernamePasswordAuthenticationFilter::class.java)
     }
 }
