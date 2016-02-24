@@ -47,7 +47,7 @@ module.exports = {
             // Somehow this doesn't work with css/styl loader.
             //assets: path.resolve(__dirname, "frontend/assets")
         },
-        extensions: ['', '.js', 'jsx', '.styl']
+        extensions: ['', '.js', '.jsx', '.styl']
     },
     devtool: "source-map"
 };
