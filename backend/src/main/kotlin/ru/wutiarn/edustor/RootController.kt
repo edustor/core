@@ -6,9 +6,9 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 import ru.wutiarn.edustor.models.User
+import ru.wutiarn.edustor.utils.getImageAsByteArray
+import ru.wutiarn.edustor.utils.getPdf
 import ru.wutiarn.edustor.utils.getQR
-import java.io.ByteArrayOutputStream
-import javax.imageio.ImageIO
 
 /**
  * Created by wutiarn on 22.02.16.
@@ -21,12 +21,17 @@ class RootController {
         return if(user != null) "Hello ${user.login}" else "Hello world"
     }
 
-    @RequestMapping("/pdf", produces = arrayOf(MediaType.IMAGE_PNG_VALUE))
+    @RequestMapping("/qr", produces = arrayOf(MediaType.IMAGE_PNG_VALUE))
     @ResponseBody
-    fun pdf(): ByteArray? {
-        val bufferedImage = getQR()
-        val outputStream = ByteArrayOutputStream()
-        ImageIO.write(bufferedImage, "png", outputStream)
-        return outputStream.toByteArray()
+    fun qr(): ByteArray {
+        return getImageAsByteArray(getQR())
+
+    }
+
+    @RequestMapping("/pdf", produces = arrayOf("application/pdf"))
+    @ResponseBody
+    fun pdf(): ByteArray {
+        val pdf = getPdf()
+        return pdf
     }
 }
