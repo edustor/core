@@ -21,7 +21,7 @@ class Login extends React.Component {
             <RaisedButton
                 label="Login"
                 primary={true}
-                onMouseDown={this.login}/>
+                onClick={this.login}/>
             <Link to="/">
                 <RaisedButton
                     label="Back"/>
@@ -29,4 +29,4 @@ class Login extends React.Component {
         </div>
     };
 }
-export default Login;
+export default Login

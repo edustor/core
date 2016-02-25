@@ -3,10 +3,9 @@ import RaisedButton from 'material-ui/lib/raised-button';
 import { Link } from 'react-router'
 
 
-
 class App extends React.Component {
     constructor() {
-        super();
+        super()
     }
 
     static defaultProps = {
@@ -20,4 +19,4 @@ class App extends React.Component {
         </div>
     };
 }
-export default App;
+export default App
