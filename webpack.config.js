@@ -38,6 +38,9 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: "index.html",
             inject: true
+        }),
+        new webpack.DefinePlugin({
+            __DEV__: JSON.stringify(JSON.parse(process.env.DEBUG || 'false'))
         })
     ],
     resolve: {
