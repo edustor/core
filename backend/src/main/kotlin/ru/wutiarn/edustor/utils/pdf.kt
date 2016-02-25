@@ -30,7 +30,7 @@ fun getImageAsByteArray(image: BufferedImage): ByteArray {
     return outputStream.toByteArray()
 }
 
-fun getPdf(): ByteArray {
+fun getPdf(count: Int=1): ByteArray {
     val origPdfReader = PdfReader("page.pdf")
     val out1 = ByteArrayOutputStream()
 
@@ -39,10 +39,10 @@ fun getPdf(): ByteArray {
     val copy = PdfSmartCopy(document, out1)
 
     document.open()
-    document.addTitle("Edustor pages")
+    document.addTitle("Edustor blank pages")
 
     val page = copy.getImportedPage(origPdfReader, 1)
-    for (i in 1..5) {
+    for (i in 1..count) {
         copy.addPage(page)
     }
     document.close()
