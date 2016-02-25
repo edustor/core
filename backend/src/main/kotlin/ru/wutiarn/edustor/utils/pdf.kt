@@ -4,9 +4,11 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.client.j2se.MatrixToImageWriter
+import com.itextpdf.text.Document
 import com.itextpdf.text.Image
 import com.itextpdf.text.Rectangle
 import com.itextpdf.text.pdf.PdfReader
+import com.itextpdf.text.pdf.PdfSmartCopy
 import com.itextpdf.text.pdf.PdfStamper
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
@@ -29,18 +31,37 @@ fun getImageAsByteArray(image: BufferedImage): ByteArray {
 }
 
 fun getPdf(): ByteArray {
-    val pdfReader = PdfReader("page.pdf")
-    val out = ByteArrayOutputStream()
+    val origPdfReader = PdfReader("page.pdf")
+    val out1 = ByteArrayOutputStream()
 
-    val pdfStamper = PdfStamper(pdfReader, out)
-    val image = Image.getInstance(getImageAsByteArray(getQR()))
 
-    val content = pdfStamper.getOverContent(1)
-    image.scaleAbsolute(Rectangle(60f, 60f))
-    image.setAbsolutePosition(500f, 55f)
-    content.addImage(image)
+    val document = Document()
+    val copy = PdfSmartCopy(document, out1)
+
+    document.open()
+    document.addTitle("Edustor pages")
+
+    val page = copy.getImportedPage(origPdfReader, 1)
+    for (i in 1..5) {
+        copy.addPage(page)
+    }
+    document.close()
+
+    val pdfReader = PdfReader(out1.toByteArray())
+
+    val out2 = ByteArrayOutputStream()
+    val pdfStamper = PdfStamper(pdfReader, out2)
+
+    for (i in 1..pdfReader.numberOfPages) {
+        val image = Image.getInstance(getImageAsByteArray(getQR()))
+
+        val content = pdfStamper.getOverContent(i)
+        image.scaleAbsolute(Rectangle(60f, 60f))
+        image.setAbsolutePosition(500f, 55f)
+        content.addImage(image)
+    }
 
     pdfStamper.close()
 
-    return out.toByteArray()
+    return out2.toByteArray()
 }
