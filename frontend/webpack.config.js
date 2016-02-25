@@ -4,7 +4,7 @@ var path = require('path');
 
 
 module.exports = {
-    context: __dirname + "/src/frontend/es6",
+    context: __dirname + "/src/main/es6",
     entry: {
         main: "./index"
     },
