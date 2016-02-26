@@ -32,7 +32,8 @@ open class WebSecurityConfig : WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
         http.authorizeRequests()
                 .antMatchers("/api/login/**").permitAll()
-                .antMatchers("/api/**").authenticated()
+                //TODO: Uncomment on release
+                //                .antMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         http.csrf().disable()
