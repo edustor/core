@@ -1,15 +1,18 @@
 package ru.wutiarn.edustor.utils
 
+import com.google.zxing.BarcodeFormat
 import com.google.zxing.BinaryBitmap
 import com.google.zxing.DecodeHintType
 import com.google.zxing.NotFoundException
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource
 import com.google.zxing.common.HybridBinarizer
+import com.google.zxing.datamatrix.DataMatrixReader
 import com.google.zxing.qrcode.QRCodeReader
 import org.ghost4j.document.PDFDocument
 import org.ghost4j.renderer.SimpleRenderer
 import org.slf4j.LoggerFactory
 import java.awt.image.BufferedImage
+import java.io.FileOutputStream
 
 val logger = LoggerFactory.getLogger("ru.wutiarn.edustor.utils.pdfGenerator")
 
@@ -24,33 +27,40 @@ fun processPdfUpload(file: ByteArray): Map<String, ByteArray> {
     val document = PDFDocument()
     document.load(file.inputStream())
     val renderer = SimpleRenderer()
-    renderer.resolution = 100
+    renderer.resolution = 300
     val qrImages = renderer.render(document)
 
-    val qrCodeReader = QRCodeReader()
+    val codeReader = QRCodeReader()
 
-    renderer.resolution = 300
+    val found = mutableMapOf<Int, String>()
     for (i in 0..qrImages.lastIndex) {
-        //            FileOutputStream("$i.png").use { it.write(getImageAsByteArray(page_img)) }
 
         val qrImage = qrImages[i] as BufferedImage
+        FileOutputStream("$i.png").use { it.write(getImageAsByteArray(qrImage)) }
+
 
         try {
-            val qrResult = qrCodeReader.decode(BinaryBitmap(HybridBinarizer(BufferedImageLuminanceSource(qrImage))),
-                    mapOf(DecodeHintType.TRY_HARDER to true))
+            val qrResult = codeReader.decode(BinaryBitmap(HybridBinarizer(BufferedImageLuminanceSource(qrImage))))
             val uuid = qrResult.text
 
             logger.info("found: $uuid")
-            val image = renderer.render(document, i, i).first() as BufferedImage
-            val byteImage = getImageAsByteArray(image)
-            logger.info("Done converting")
+            found[i] = uuid
 
-            result[uuid] = byteImage
         } catch(e: NotFoundException) {
             logger.info("not found")
             continue
         }
     }
+
+    //    renderer.resolution = 300
+    //    val images = renderer.render(document)
+    //
+    //    for (i in 0..qrImages.lastIndex) {
+    //        if (i !in found.keys) continue
+    //        val image = images[i] as BufferedImage
+    //        val byteImage = getImageAsByteArray(image)
+    //        result[found[i]!!] = byteImage
+    //    }
 
     return result
 

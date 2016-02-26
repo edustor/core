@@ -4,6 +4,7 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.client.j2se.MatrixToImageWriter
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import com.itextpdf.text.Document
 import com.itextpdf.text.Image
 import com.itextpdf.text.Rectangle
@@ -19,12 +20,14 @@ import java.util.UUID.randomUUID
  * Created by wutiarn on 25.02.16.
  */
 fun getQR(text: String = randomUUID().toString()): BufferedImage {
-    val bitMatrix = MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, 100, 100, mapOf(EncodeHintType.MARGIN to 0));
+    val bitMatrix = MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, 100, 100, mapOf(
+            EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.H
+    ));
     val bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix)
     return bufferedImage
 }
 
-fun getPdf(count: Int=1): ByteArray {
+fun getPdf(count: Int = 1): ByteArray {
     val origPdfReader = PdfReader("page.pdf")
     val out1 = ByteArrayOutputStream()
 
