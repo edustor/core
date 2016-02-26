@@ -29,7 +29,10 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-data-mongodb"
     compile "org.springframework.boot:spring-boot-starter-security"
     compile "org.springframework.boot:spring-boot-starter-freemarker"
+    compile "org.springframework.boot:spring-boot-starter-logging"
     compile "com.google.zxing:core:3.2.1"
     compile "com.google.zxing:javase:3.2.1"
     compile 'com.itextpdf:itextpdf:5.5.8'
+    compile 'org.apache.pdfbox:pdfbox:2.0.0-RC3'
+    compile 'org.apache.pdfbox:pdfbox-tools:2.0.0-RC3'
 }

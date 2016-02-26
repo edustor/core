@@ -13,7 +13,7 @@ import com.itextpdf.text.pdf.PdfStamper
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.util.UUID.randomUUID
-import javax.imageio.ImageIO
+
 
 /**
  * Created by wutiarn on 25.02.16.
@@ -22,12 +22,6 @@ fun getQR(text: String = randomUUID().toString()): BufferedImage {
     val bitMatrix = MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, 100, 100, mapOf(EncodeHintType.MARGIN to 0));
     val bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix)
     return bufferedImage
-}
-
-fun getImageAsByteArray(image: BufferedImage): ByteArray {
-    val outputStream = ByteArrayOutputStream()
-    ImageIO.write(image, "png", outputStream)
-    return outputStream.toByteArray()
 }
 
 fun getPdf(count: Int=1): ByteArray {

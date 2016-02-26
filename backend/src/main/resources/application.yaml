@@ -1,0 +1,3 @@
+multipart:
+  max-file-size: 300Mb
+  max-request-size: 300Mb
