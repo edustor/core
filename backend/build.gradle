@@ -35,4 +35,5 @@ dependencies {
     compile 'com.itextpdf:itextpdf:5.5.8'
     compile 'org.apache.pdfbox:pdfbox:2.0.0-RC3'
     compile 'org.apache.pdfbox:pdfbox-tools:2.0.0-RC3'
+    compile 'org.ghost4j:ghost4j:1.0.0'
 }

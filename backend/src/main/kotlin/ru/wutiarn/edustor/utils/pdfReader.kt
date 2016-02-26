@@ -6,12 +6,12 @@ import com.google.zxing.NotFoundException
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource
 import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.qrcode.QRCodeReader
-import org.apache.pdfbox.pdmodel.PDDocument
-import org.apache.pdfbox.rendering.PDFRenderer
+import org.ghost4j.document.PDFDocument
+import org.ghost4j.renderer.SimpleRenderer
 import org.slf4j.LoggerFactory
-import java.io.FileOutputStream
+import java.awt.image.BufferedImage
 
-val logger = LoggerFactory.getLogger("wu.wutiarn.edustor.utils.pdfGenerator")
+val logger = LoggerFactory.getLogger("ru.wutiarn.edustor.utils.pdfGenerator")
 
 
 /**
@@ -19,37 +19,39 @@ val logger = LoggerFactory.getLogger("wu.wutiarn.edustor.utils.pdfGenerator")
  */
 
 fun processPdfUpload(file: ByteArray): Map<String, ByteArray> {
-    val images = mutableMapOf<String, ByteArray>()
+    val result = mutableMapOf<String, ByteArray>()
 
-    val pdDocument = PDDocument.load(file)
-    pdDocument.use {
-        val pdfRenderer = PDFRenderer(pdDocument)
-        val qrCodeReader = QRCodeReader()
+    val document = PDFDocument()
+    document.load(file.inputStream())
+    val renderer = SimpleRenderer()
+    renderer.resolution = 100
+    val qrImages = renderer.render(document)
 
-        for (i in 0..pdDocument.numberOfPages-1) {
-            logger.info("Processing page $i")
-            val qr_image = pdfRenderer.renderImageWithDPI(i, 100f)
-            logger.info("Done qr image $i")
+    val qrCodeReader = QRCodeReader()
 
-//            FileOutputStream("$i.png").use { it.write(getImageAsByteArray(page_img)) }
+    renderer.resolution = 300
+    for (i in 0..qrImages.lastIndex) {
+        //            FileOutputStream("$i.png").use { it.write(getImageAsByteArray(page_img)) }
 
-            try {
-                val qrResult = qrCodeReader.decode(BinaryBitmap(HybridBinarizer(BufferedImageLuminanceSource(qr_image))),
-                        mapOf(DecodeHintType.TRY_HARDER to false))
-                val uuid = qrResult.text
+        val qrImage = qrImages[i] as BufferedImage
 
-                logger.info("found: $uuid")
-                val byteImage = getImageAsByteArray(pdfRenderer.renderImageWithDPI(i, 300f))
-                logger.info("Done converting $i")
+        try {
+            val qrResult = qrCodeReader.decode(BinaryBitmap(HybridBinarizer(BufferedImageLuminanceSource(qrImage))),
+                    mapOf(DecodeHintType.TRY_HARDER to true))
+            val uuid = qrResult.text
 
-                images[uuid] = byteImage
-            } catch(e: NotFoundException) {
-                logger.info("not found")
-                continue
-            }
+            logger.info("found: $uuid")
+            val image = renderer.render(document, i, i).first() as BufferedImage
+            val byteImage = getImageAsByteArray(image)
+            logger.info("Done converting")
+
+            result[uuid] = byteImage
+        } catch(e: NotFoundException) {
+            logger.info("not found")
+            continue
         }
     }
 
-    return images
+    return result
 
 }
