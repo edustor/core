@@ -33,7 +33,7 @@ fun processPdfUpload(file: ByteArray): Map<String, ByteArray> {
     for (i in 0..qrImages.lastIndex) {
         logger.info("$i processing started")
         val image = qrImages[i] as BufferedImage
-                FileOutputStream("$i.png").use { it.write(getImageAsByteArray(image)) }
+//        FileOutputStream("$i.png").use { it.write(getImageAsByteArray(image)) }
         val byteImage = getImageAsByteArray(image)
         result[readQR(image)] = byteImage
     }
@@ -50,13 +50,13 @@ private fun readQR(image: BufferedImage): String {
     val cropped = image.getSubimage(
             (image.width * 0.8f).toInt(),
             (image.height * 0.85f).toInt(),
-            400,
-            400
+            (image.width * 0.15f).toInt(),
+            (image.height * 0.1f).toInt()
     ).getScaledInstance(QR_DOWNSCALE_SIZE, QR_DOWNSCALE_SIZE, Image.SCALE_DEFAULT)
     val qrImage = BufferedImage(QR_DOWNSCALE_SIZE, QR_DOWNSCALE_SIZE, BufferedImage.TYPE_BYTE_BINARY)
     val bwGraphics = qrImage.createGraphics()
     bwGraphics.drawImage(cropped, 0, 0, null)
-    FileOutputStream("bw.png").use { it.write(getImageAsByteArray(qrImage)) }
+//    FileOutputStream("bw.png").use { it.write(getImageAsByteArray(qrImage)) }
 
     val binaryBitmap = BinaryBitmap(HybridBinarizer(BufferedImageLuminanceSource(qrImage)))
     val qrResult = codeReader.decode(binaryBitmap, mapOf(
