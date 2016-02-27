@@ -1,12 +1,14 @@
 package ru.wutiarn.edustor.utils
 
 import com.google.zxing.BinaryBitmap
+import com.google.zxing.DecodeHintType
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource
 import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.qrcode.QRCodeReader
 import org.ghost4j.document.PDFDocument
 import org.ghost4j.renderer.SimpleRenderer
 import org.slf4j.LoggerFactory
+import java.awt.Image
 import java.awt.image.BufferedImage
 import java.io.FileOutputStream
 
@@ -31,7 +33,7 @@ fun processPdfUpload(file: ByteArray): Map<String, ByteArray> {
     for (i in 0..qrImages.lastIndex) {
         logger.info("$i processing started")
         val image = qrImages[i] as BufferedImage
-        //        FileOutputStream("$i.png").use { it.write(getImageAsByteArray(image)) }
+                FileOutputStream("$i.png").use { it.write(getImageAsByteArray(image)) }
         val byteImage = getImageAsByteArray(image)
         result[readQR(image)] = byteImage
     }
@@ -39,6 +41,7 @@ fun processPdfUpload(file: ByteArray): Map<String, ByteArray> {
 }
 
 private val codeReader = QRCodeReader()
+private val QR_DOWNSCALE_SIZE = 200
 
 /**
  * @throws NotFoundException code not found
@@ -47,16 +50,18 @@ private fun readQR(image: BufferedImage): String {
     val cropped = image.getSubimage(
             (image.width * 0.8f).toInt(),
             (image.height * 0.85f).toInt(),
-            (image.width * 0.15f).toInt(),
-            (image.height * 0.1f).toInt()
-    )
-    val qrImage = BufferedImage(cropped.width, cropped.height, BufferedImage.TYPE_BYTE_BINARY)
+            400,
+            400
+    ).getScaledInstance(QR_DOWNSCALE_SIZE, QR_DOWNSCALE_SIZE, Image.SCALE_DEFAULT)
+    val qrImage = BufferedImage(QR_DOWNSCALE_SIZE, QR_DOWNSCALE_SIZE, BufferedImage.TYPE_BYTE_BINARY)
     val bwGraphics = qrImage.createGraphics()
     bwGraphics.drawImage(cropped, 0, 0, null)
     FileOutputStream("bw.png").use { it.write(getImageAsByteArray(qrImage)) }
 
     val binaryBitmap = BinaryBitmap(HybridBinarizer(BufferedImageLuminanceSource(qrImage)))
-    val qrResult = codeReader.decode(binaryBitmap)
+    val qrResult = codeReader.decode(binaryBitmap, mapOf(
+            DecodeHintType.TRY_HARDER to true
+    ))
     val result = qrResult.text
     logger.info("found $result")
     return result
