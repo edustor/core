@@ -3,10 +3,10 @@ package ru.wutiarn.edustor.utils
 import com.google.zxing.BinaryBitmap
 import com.google.zxing.DecodeHintType
 import com.google.zxing.NotFoundException
+import com.google.zxing.ResultPointCallback
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource
 import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.qrcode.QRCodeReader
-import com.google.zxing.qrcode.detector.Detector
 import org.ghost4j.document.PDFDocument
 import org.ghost4j.renderer.SimpleRenderer
 import org.slf4j.LoggerFactory
@@ -41,7 +41,14 @@ fun processPdfUpload(file: ByteArray): Map<String, ByteArray> {
         val image = qrImages[i] as BufferedImage
         FileOutputStream("$i.png").use { it.write(getImageAsByteArray(image)) }
 
-        val cropped = image.getSubimage(2000, 2900, 400, 400)
+        val crop_x = (image.width * 0.8f).toInt()
+        val crop_y = (image.height * 0.85f).toInt()
+        val cropped = image.getSubimage(
+                crop_x,
+                crop_y,
+                image.width - crop_x,
+                image.height - crop_y
+        )
 
         val qrImage = BufferedImage(cropped.width, cropped.height, BufferedImage.TYPE_BYTE_BINARY)
         val bwGraphics = qrImage.createGraphics()
@@ -61,7 +68,11 @@ fun processPdfUpload(file: ByteArray): Map<String, ByteArray> {
 
             val binaryBitmap = BinaryBitmap(hybridBinarizer)
 
-            val qrResult = codeReader.decode(binaryBitmap)
+            val qrResult = codeReader.decode(binaryBitmap, mapOf(
+                    DecodeHintType.NEED_RESULT_POINT_CALLBACK to ResultPointCallback {
+                        it.toString()
+                    }
+            ))
             val uuid = qrResult.text
 
             logger.info("$i found: $uuid")
