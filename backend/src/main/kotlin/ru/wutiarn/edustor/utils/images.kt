@@ -9,6 +9,7 @@ import javax.imageio.ImageIO
  */
 fun getImageAsByteArray(image: BufferedImage): ByteArray {
     val outputStream = ByteArrayOutputStream()
+    ImageIO.setUseCache(false)
     ImageIO.write(image, "png", outputStream)
     return outputStream.toByteArray()
 }

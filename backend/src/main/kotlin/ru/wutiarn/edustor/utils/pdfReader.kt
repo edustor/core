@@ -34,8 +34,11 @@ fun processPdfUpload(file: ByteArray): Map<String, ByteArray> {
         logger.info("$i processing started")
         val image = qrImages[i] as BufferedImage
 //        FileOutputStream("$i.png").use { it.write(getImageAsByteArray(image)) }
+        val uuid = readQR(image)
+        logger.info("Converting to bytes")
         val byteImage = getImageAsByteArray(image)
-        result[readQR(image)] = byteImage
+        logger.info("Converting done")
+        result[uuid] = byteImage
     }
     return result
 }
@@ -47,18 +50,22 @@ private val QR_DOWNSCALE_SIZE = 200
  * @throws NotFoundException code not found
  */
 private fun readQR(image: BufferedImage): String {
+    logger.info("Cropping and scaling")
     val cropped = image.getSubimage(
             (image.width * 0.8f).toInt(),
             (image.height * 0.85f).toInt(),
             (image.width * 0.15f).toInt(),
             (image.height * 0.1f).toInt()
     ).getScaledInstance(QR_DOWNSCALE_SIZE, QR_DOWNSCALE_SIZE, Image.SCALE_DEFAULT)
+    logger.info("Drawing")
     val qrImage = BufferedImage(QR_DOWNSCALE_SIZE, QR_DOWNSCALE_SIZE, BufferedImage.TYPE_BYTE_BINARY)
     val bwGraphics = qrImage.createGraphics()
     bwGraphics.drawImage(cropped, 0, 0, null)
+    bwGraphics.dispose()
 //    FileOutputStream("bw.png").use { it.write(getImageAsByteArray(qrImage)) }
-
+    logger.info("Preparing scan")
     val binaryBitmap = BinaryBitmap(HybridBinarizer(BufferedImageLuminanceSource(qrImage)))
+    logger.info("Scanning")
     val qrResult = codeReader.decode(binaryBitmap, mapOf(
             DecodeHintType.TRY_HARDER to true
     ))
