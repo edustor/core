@@ -20,7 +20,7 @@ import java.util.UUID.randomUUID
  * Created by wutiarn on 25.02.16.
  */
 fun getQR(text: String = randomUUID().toString()): BufferedImage {
-    val bitMatrix = MultiFormatWriter().encode(text, BarcodeFormat.DATA_MATRIX, 300, 300, mapOf(
+    val bitMatrix = MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, 300, 300, mapOf(
             EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.L,
             EncodeHintType.MARGIN to 0
     ));
