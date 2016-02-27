@@ -43,19 +43,17 @@ private val codeReader = QRCodeReader()
 /**
  * @throws NotFoundException code not found
  */
-private fun readQR(image: BufferedImage): String{
-    val crop_x = (image.width * 0.8f).toInt()
-    val crop_y = (image.height * 0.85f).toInt()
+private fun readQR(image: BufferedImage): String {
     val cropped = image.getSubimage(
-            crop_x,
-            crop_y,
-            image.width - crop_x,
-            image.height - crop_y
+            (image.width * 0.8f).toInt(),
+            (image.height * 0.85f).toInt(),
+            (image.width * 0.15f).toInt(),
+            (image.height * 0.1f).toInt()
     )
     val qrImage = BufferedImage(cropped.width, cropped.height, BufferedImage.TYPE_BYTE_BINARY)
     val bwGraphics = qrImage.createGraphics()
     bwGraphics.drawImage(cropped, 0, 0, null)
-        FileOutputStream("bw.png").use { it.write(getImageAsByteArray(qrImage)) }
+    FileOutputStream("bw.png").use { it.write(getImageAsByteArray(qrImage)) }
 
     val binaryBitmap = BinaryBitmap(HybridBinarizer(BufferedImageLuminanceSource(qrImage)))
     val qrResult = codeReader.decode(binaryBitmap)
