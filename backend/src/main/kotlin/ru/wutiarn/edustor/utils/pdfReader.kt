@@ -1,12 +1,9 @@
 package ru.wutiarn.edustor.utils
 
-import com.google.zxing.BarcodeFormat
 import com.google.zxing.BinaryBitmap
-import com.google.zxing.DecodeHintType
 import com.google.zxing.NotFoundException
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource
 import com.google.zxing.common.HybridBinarizer
-import com.google.zxing.datamatrix.DataMatrixReader
 import com.google.zxing.qrcode.QRCodeReader
 import org.ghost4j.document.PDFDocument
 import org.ghost4j.renderer.SimpleRenderer
@@ -46,21 +43,14 @@ fun processPdfUpload(file: ByteArray): Map<String, ByteArray> {
             logger.info("found: $uuid")
             found[i] = uuid
 
+            val byteImage = getImageAsByteArray(qrImage)
+            result[uuid] = byteImage
+
         } catch(e: NotFoundException) {
             logger.info("not found")
             continue
         }
     }
-
-    //    renderer.resolution = 300
-    //    val images = renderer.render(document)
-    //
-    //    for (i in 0..qrImages.lastIndex) {
-    //        if (i !in found.keys) continue
-    //        val image = images[i] as BufferedImage
-    //        val byteImage = getImageAsByteArray(image)
-    //        result[found[i]!!] = byteImage
-    //    }
 
     return result
 
