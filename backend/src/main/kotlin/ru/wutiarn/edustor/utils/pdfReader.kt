@@ -1,6 +1,7 @@
 package ru.wutiarn.edustor.utils
 
 import com.google.zxing.BinaryBitmap
+import com.google.zxing.DecodeHintType
 import com.google.zxing.NotFoundException
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource
 import com.google.zxing.common.HybridBinarizer
@@ -28,47 +29,52 @@ fun processPdfUpload(file: ByteArray): Map<String, ByteArray> {
     renderer.resolution = 300
     val qrImages = renderer.render(document)
 
+    logger.info("Rendering completed")
+
     val codeReader = QRCodeReader()
 
     val found = mutableMapOf<Int, String>()
     for (i in 0..qrImages.lastIndex) {
+        logger.info("$i processing started")
 
-        val qrImage = qrImages[i] as BufferedImage
-        FileOutputStream("$i.png").use { it.write(getImageAsByteArray(qrImage)) }
+
+        val image = qrImages[i] as BufferedImage
+        FileOutputStream("$i.png").use { it.write(getImageAsByteArray(image)) }
+
+        val cropped = image.getSubimage(2000, 2900, 400, 400)
+
+        val qrImage = BufferedImage(cropped.width, cropped.height, BufferedImage.TYPE_BYTE_BINARY)
+        val bwGraphics = qrImage.createGraphics()
+
+        bwGraphics.drawImage(cropped, 0, 0, null)
+
+        FileOutputStream("${i}_bw.png").use { it.write(getImageAsByteArray(qrImage)) }
+
+        logger.info("$i prepared")
 
 
         try {
 
-            val bufferedImageLuminanceSource = BufferedImageLuminanceSource(qrImage, 2000, 2900, 400, 400)
-
-            val clazz = bufferedImageLuminanceSource.javaClass
-            val field = clazz.getDeclaredField("image")
-            field.isAccessible = true
-            val cropped = field.get(bufferedImageLuminanceSource) as BufferedImage
-
-            FileOutputStream("${i}_p.png").use { it.write(getImageAsByteArray(cropped)) }
-
-            logger.info("Cropped saved")
-
+            val bufferedImageLuminanceSource = BufferedImageLuminanceSource(qrImage)
 
             val hybridBinarizer = HybridBinarizer(bufferedImageLuminanceSource)
 
             val binaryBitmap = BinaryBitmap(hybridBinarizer)
 
-            Detector(binaryBitmap.blackMatrix).detect()
-
             val qrResult = codeReader.decode(binaryBitmap)
             val uuid = qrResult.text
 
-            logger.info("found: $uuid")
+            logger.info("$i found: $uuid")
             found[i] = uuid
 
-            val byteImage = getImageAsByteArray(qrImage)
+            val byteImage = getImageAsByteArray(image)
             result[uuid] = byteImage
 
         } catch(e: NotFoundException) {
-            logger.info("not found")
+            logger.info("$i not found")
             continue
+        } finally {
+            logger.info("$i finished")
         }
     }
 
