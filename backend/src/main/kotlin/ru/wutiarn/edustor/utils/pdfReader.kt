@@ -10,7 +10,6 @@ import org.ghost4j.renderer.SimpleRenderer
 import org.slf4j.LoggerFactory
 import java.awt.Image
 import java.awt.image.BufferedImage
-import java.io.FileOutputStream
 
 val logger = LoggerFactory.getLogger("ru.wutiarn.edustor.utils.pdfReader")
 
@@ -24,30 +23,32 @@ fun processPdfUpload(file: ByteArray): Map<String, ByteArray> {
 
     val document = PDFDocument()
     document.load(file.inputStream())
-    val renderer = SimpleRenderer()
-    renderer.resolution = 300
-    val qrImages = renderer.render(document)
 
     logger.info("Rendering completed")
 
-    for (i in 0..qrImages.lastIndex) {
-        logger.info("$i processing started")
-        val image = qrImages[i] as BufferedImage
-//        FileOutputStream("$i.png").use { it.write(getImageAsByteArray(image)) }
-        val uuid = readQR(image)
+    for (i in 0..document.pageCount-1) {
+        logger.info("${i+1} processing started")
+        val (uuid, image) = processPdfPage(document, i)
         logger.info("Converting to bytes")
-        val byteImage = getImageAsByteArray(image)
+        val byteImage = image.getAsByteArray()
         logger.info("Converting done")
         result[uuid] = byteImage
     }
     return result
 }
 
+val renderer = SimpleRenderer().let { it.resolution = 300; it }
+private fun processPdfPage(document: PDFDocument, page: Int): Pair<String, BufferedImage> {
+    val image = renderer.render(document, page, page).first() as BufferedImage
+//            FileOutputStream("$i.png").use { it.write(image.getAsByteArray()) }
+    val uuid = readQR(image)
+    return Pair(uuid, image)
+}
+
 private val codeReader = QRCodeReader()
 private val QR_DOWNSCALE_SIZE = 200
-
 /**
- * @throws NotFoundException code not found
+ * @throws com.google.zxing.NotFoundException
  */
 private fun readQR(image: BufferedImage): String {
     logger.info("Cropping and scaling")
@@ -62,7 +63,7 @@ private fun readQR(image: BufferedImage): String {
     val bwGraphics = qrImage.createGraphics()
     bwGraphics.drawImage(cropped, 0, 0, null)
     bwGraphics.dispose()
-//    FileOutputStream("bw.png").use { it.write(getImageAsByteArray(qrImage)) }
+//    FileOutputStream("bw.png").use { it.write(qrImage.getAsByteArray()) }
     logger.info("Preparing scan")
     val binaryBitmap = BinaryBitmap(HybridBinarizer(BufferedImageLuminanceSource(qrImage)))
     logger.info("Scanning")

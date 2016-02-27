@@ -51,7 +51,7 @@ fun getPdf(count: Int = 1): ByteArray {
     val pdfStamper = PdfStamper(pdfReader, out2)
 
     for (i in 1..pdfReader.numberOfPages) {
-        val image = Image.getInstance(getImageAsByteArray(getQR()))
+        val image = Image.getInstance(getQR().getAsByteArray())
 
         val content = pdfStamper.getOverContent(i)
         image.scaleAbsolute(Rectangle(60f, 60f))

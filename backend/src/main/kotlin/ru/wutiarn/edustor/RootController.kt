@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import ru.wutiarn.edustor.models.User
-import ru.wutiarn.edustor.utils.getImageAsByteArray
+import ru.wutiarn.edustor.utils.getAsByteArray
 import ru.wutiarn.edustor.utils.getPdf
 import ru.wutiarn.edustor.utils.getQR
 
@@ -25,7 +25,7 @@ class RootController {
     @RequestMapping("/qr", produces = arrayOf(MediaType.IMAGE_PNG_VALUE))
     @ResponseBody
     fun qr(): ByteArray {
-        return getImageAsByteArray(getQR())
+        return getQR().getAsByteArray()
 
     }
 
