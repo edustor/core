@@ -38,9 +38,10 @@ class DocumentsController @Autowired constructor(val repo: DocumentRepository) {
     }
 
     @RequestMapping("activate_uuid")
-    fun activate_uuid(@RequestParam uuid: String): String {
-        repo.findByUuid(uuid)?.let { return "already exists" }
-        repo.save(Document(uuid = uuid))
-        return "Activated"
+    fun activate_uuid(@RequestParam uuid: String): Map<String, Any> {
+        repo.findByUuid(uuid)?.let { return mapOf("created" to false, "document" to it) }
+        val document = Document(uuid = uuid)
+        repo.save(document)
+        return mapOf("created" to true, "document" to document)
     }
 }
