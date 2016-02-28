@@ -11,5 +11,6 @@ data class Group(
         var name: String? = null,
         @JsonIgnore var timetable: MutableList<TimetableEntry> = mutableListOf(),
         @DBRef(lazy = true) @JsonIgnore var owners: MutableList<User> = mutableListOf(),
+        @DBRef(lazy = true) var subjects: MutableList<Subject> = mutableListOf(),
         @Id var id: String? = null
 )
