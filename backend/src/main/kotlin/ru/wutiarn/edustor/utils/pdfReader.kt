@@ -18,7 +18,7 @@ val logger = LoggerFactory.getLogger("ru.wutiarn.edustor.utils.pdfReader")
  * Created by wutiarn on 26.02.16.
  */
 
-fun processPdfUpload(file: ByteArray): Map<String, ByteArray> {
+fun processPdfUpload(file: ByteArray) {
     val result = mutableMapOf<String, ByteArray>()
 
     val document = PDFDocument()
@@ -34,7 +34,6 @@ fun processPdfUpload(file: ByteArray): Map<String, ByteArray> {
         logger.info("Converting done")
         result[uuid] = byteImage
     }
-    return result
 }
 
 val renderer = SimpleRenderer().let { it.resolution = 300; it }
