@@ -1,6 +1,7 @@
 package ru.wutiarn.edustor.models
 
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -9,10 +10,13 @@ import java.util.*
 /**
  * Created by wutiarn on 22.02.16.
  */
-data class User (
-        var login: String = "",
-        private var password: String = "",
+data class User(
+        var login: String? = null,
+        private var password: String? = null,
         var sessions: MutableList<Session> = mutableListOf(),
+        @DBRef
+        var groups: MutableList<Group> = mutableListOf(),
+        var timetable: MutableList<TimetableEntry> = mutableListOf(),
         @Id var id: String? = null
 ) : UserDetails {
     override fun getUsername(): String? {
@@ -46,6 +50,3 @@ data class User (
     }
 }
 
-data class Session(
-        val token: String = UUID.randomUUID().toString()
-)
