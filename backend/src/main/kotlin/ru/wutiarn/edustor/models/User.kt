@@ -14,7 +14,7 @@ data class User(
         var login: String? = null,
         private var password: String? = null,
         var sessions: MutableList<Session> = mutableListOf(),
-        @DBRef var groups: MutableList<Group> = mutableListOf(),
+        @DBRef(lazy = true) var groups: MutableList<Group> = mutableListOf(),
         var timetable: MutableList<TimetableEntry> = mutableListOf(),
         @Id var id: String? = null
 ) : UserDetails {
