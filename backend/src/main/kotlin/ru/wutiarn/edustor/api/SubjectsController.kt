@@ -26,7 +26,7 @@ class SubjectsController @Autowired constructor(val repo: SubjectsRepository,
     }
 
     @RequestMapping("/create")
-    fun createSubject(@AuthenticationPrincipal user: User, @RequestParam name: String, @RequestParam year: Int, @RequestParam groupId: String): Subject {
+    fun createSubject(@AuthenticationPrincipal user: User, @RequestParam name: String, @RequestParam year: Int, @RequestParam("group") groupId: String): Subject {
         val group = groupsRepo.findOne(groupId)
         if (user !in group.owners) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN)
         val subject = Subject(name, year, mutableListOf(group))
@@ -34,10 +34,5 @@ class SubjectsController @Autowired constructor(val repo: SubjectsRepository,
         repo.save(subject)
         groupsRepo.save(group)
         return subject
-    }
-
-    private fun assertHasAccess(user: User, subject: Subject) {
-        val intersect = subject.groups.intersect(user.groups)
-        if (intersect.isEmpty()) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN)
     }
 }
