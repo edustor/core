@@ -9,10 +9,9 @@ import java.time.Instant
  * Created by wutiarn on 28.02.16.
  */
 data class Document(
-        @DBRef
-        var fileId: GridFSDBFile? = null,
-        var user: User? = null,
-        var subject: Subject? = null,
+        @DBRef var fileId: GridFSDBFile? = null,
+        @DBRef var user: User? = null,
+        @DBRef var lesson: Lesson? = null,
         var uuid: String? = null,
         var timestamp: Instant = Instant.now(),
         @Id var id: String? = null

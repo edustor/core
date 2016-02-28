@@ -8,6 +8,5 @@ import org.springframework.data.mongodb.core.mapping.DBRef
 data class Group(
         var name: String? = null,
         var timetable: MutableList<TimetableEntry> = mutableListOf(),
-        @DBRef
-        val subjects: MutableList<Subject> = mutableListOf()
+        @DBRef val subjects: MutableList<Subject> = mutableListOf()
 )
