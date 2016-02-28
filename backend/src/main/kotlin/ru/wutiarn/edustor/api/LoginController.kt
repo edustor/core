@@ -30,9 +30,7 @@ class LoginController @Autowired constructor(val repo: UserRepository) {
 
     @RequestMapping("/register")
     fun register(@RequestParam login: String, @RequestParam password: String): String {
-        if (repo.countByLogin(login) > 0) {
-            return "Already exists"
-        }
+        repo.findByLogin(login)?.let { return "Already exists" }
 
         val user = User(login, password)
         repo.save(user)
