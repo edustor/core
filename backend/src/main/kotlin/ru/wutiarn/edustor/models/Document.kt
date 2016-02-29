@@ -12,7 +12,7 @@ import java.time.Instant
 data class Document(
         @DBRef(lazy = true) @JsonIgnore var fileId: GridFSDBFile? = null,
         @DBRef(lazy = true) var owner: User? = null,
-        @DBRef(lazy = true) var lesson: Lesson? = null,
+        @DBRef var lesson: Lesson? = null,
         var uuid: String? = null,
         var timestamp: Instant = Instant.now(),
         @Id var id: String? = null

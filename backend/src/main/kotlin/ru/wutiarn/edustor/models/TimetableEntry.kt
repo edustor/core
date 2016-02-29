@@ -1,15 +1,17 @@
 package ru.wutiarn.edustor.models
 
 import org.springframework.data.mongodb.core.mapping.DBRef
+import java.time.DayOfWeek
+import java.time.LocalTime
 
 /**
  * Created by wutiarn on 28.02.16.
  */
 data class TimetableEntry(
         @DBRef var subject: Subject? = null,
-        var dayOfWeek: Int? = null,
-        var start: TimetableTime? = null,
-        var end: TimetableTime? = null
+        var dayOfWeek: DayOfWeek? = null,
+        var start: LocalTime? = null,
+        var end: LocalTime? = null
 ) : Comparable<TimetableEntry> {
     override fun compareTo(other: TimetableEntry): Int {
         return start!!.compareTo(other.start!!)
