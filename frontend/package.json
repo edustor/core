@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
     "dev": "webpack-dev-server --inline --host 0.0.0.0 --port 8081 --history-api-fallback"
   },
   "author": "Wutiarn (me@wutiarn.ru)",
