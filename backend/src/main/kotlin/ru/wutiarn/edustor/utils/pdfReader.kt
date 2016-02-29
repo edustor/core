@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.gridfs.GridFsOperations
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import java.awt.Image
 import java.awt.image.BufferedImage
+import java.io.InputStream
 
 val logger = LoggerFactory.getLogger("ru.wutiarn.edustor.utils.pdfReader")
 
@@ -21,9 +22,9 @@ val logger = LoggerFactory.getLogger("ru.wutiarn.edustor.utils.pdfReader")
  * Created by wutiarn on 26.02.16.
  */
 
-fun processPdfUpload(file: ByteArray) {
+fun processPdfUpload(fileStream: InputStream) {
     val document = PDFDocument()
-    document.load(file.inputStream())
+    document.load(fileStream)
 
     logger.info("Rendering completed")
 
@@ -31,19 +32,19 @@ fun processPdfUpload(file: ByteArray) {
         logger.info("${i+1} processing started")
         val (uuid, image) = processPdfPage(document, i)
         logger.info("Converting to bytes")
-        val byteImage = image.getAsByteArray()
+        val imageStream = image.getAsInputStream()
         logger.info("Converting done")
-        savePage(uuid, byteImage)
+        savePage(uuid, imageStream)
     }
 }
 
 @Autowired var gfs: GridFsOperations? = null
 @Autowired var documentRepo: DocumentsRepository? = null
-fun savePage(uuid: String, image: ByteArray) {
+fun savePage(uuid: String, imageStream: InputStream) {
     val findByUuid = documentRepo!!.findByUuid(uuid)
 
     findByUuid?.let {
-        val gridFSFile = gfs!!.store(image.inputStream(), uuid)
+        val gridFSFile = gfs!!.store(imageStream, uuid)
         it.fileId = gridFSFile
         documentRepo!!.save(it)
     }

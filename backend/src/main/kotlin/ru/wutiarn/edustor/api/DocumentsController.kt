@@ -29,7 +29,7 @@ class DocumentsController @Autowired constructor(val repo: DocumentsRepository, 
         file.contentType
         when (file.contentType) {
             "application/pdf" -> {
-                processPdfUpload(file.bytes)
+                processPdfUpload(file.inputStream)
             }
             else -> {
                 throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "Unsupported content type: ${file.contentType}")
@@ -40,7 +40,8 @@ class DocumentsController @Autowired constructor(val repo: DocumentsRepository, 
 
     @RequestMapping("uuid_info")
     fun uuid_info(@RequestParam uuid: String): Document? {
-        return repo.findByUuid(uuid) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
+        val document = repo.findByUuid(uuid) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
+        return document
     }
 
     @RequestMapping("activate_uuid")
