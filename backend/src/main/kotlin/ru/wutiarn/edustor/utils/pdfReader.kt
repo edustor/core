@@ -8,6 +8,9 @@ import com.google.zxing.qrcode.QRCodeReader
 import org.ghost4j.document.PDFDocument
 import org.ghost4j.renderer.SimpleRenderer
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.mongodb.gridfs.GridFsOperations
+import ru.wutiarn.edustor.repository.DocumentsRepository
 import java.awt.Image
 import java.awt.image.BufferedImage
 
@@ -19,8 +22,6 @@ val logger = LoggerFactory.getLogger("ru.wutiarn.edustor.utils.pdfReader")
  */
 
 fun processPdfUpload(file: ByteArray) {
-    val result = mutableMapOf<String, ByteArray>()
-
     val document = PDFDocument()
     document.load(file.inputStream())
 
@@ -32,7 +33,19 @@ fun processPdfUpload(file: ByteArray) {
         logger.info("Converting to bytes")
         val byteImage = image.getAsByteArray()
         logger.info("Converting done")
-        result[uuid] = byteImage
+        savePage(uuid, byteImage)
+    }
+}
+
+@Autowired var gfs: GridFsOperations? = null
+@Autowired var documentRepo: DocumentsRepository? = null
+fun savePage(uuid: String, image: ByteArray) {
+    val findByUuid = documentRepo!!.findByUuid(uuid)
+
+    findByUuid?.let {
+        val gridFSFile = gfs!!.store(image.inputStream(), uuid)
+        it.fileId = gridFSFile
+        documentRepo!!.save(it)
     }
 }
 
