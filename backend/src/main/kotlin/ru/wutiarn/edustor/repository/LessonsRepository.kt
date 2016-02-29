@@ -14,6 +14,7 @@ import java.time.LocalTime
  * Created by wutiarn on 28.02.16.
  */
 interface LessonsRepository : MongoRepository<Lesson, String>, LessonsRepositoryCustom {
+    fun findBySubject(subject: Subject): List<Lesson>
 }
 
 interface LessonsRepositoryCustom {
