@@ -19,7 +19,7 @@ class LoginController @Autowired constructor(val repo: UserRepository) {
     @RequestMapping(method = arrayOf(RequestMethod.POST))
     fun login(@RequestParam login: String, @RequestParam password: String): String {
         val user = repo.findByLogin(login)
-        if (user != null && user.password == password) {
+        if (user != null && user.mPassword == password) {
             val session = Session()
             user.sessions.add(session)
             repo.save(user)

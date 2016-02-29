@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import ru.wutiarn.edustor.repository.UserRepository
+import ru.wutiarn.edustor.security.UserPrincipal
 import javax.servlet.*
 import javax.servlet.http.HttpServletRequest
 
@@ -18,7 +19,10 @@ class SecurityFilter @Autowired constructor(val repo: UserRepository) : Filter {
             if (token != null) {
                 val user = repo.findBySession(token)
                 if (user != null) {
-                    val auth = UsernamePasswordAuthenticationToken(user, null, user.authorities)
+
+                    val userDetails = UserPrincipal(user)
+
+                    val auth = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
                     SecurityContextHolder.getContext().authentication = auth
                 }
             }

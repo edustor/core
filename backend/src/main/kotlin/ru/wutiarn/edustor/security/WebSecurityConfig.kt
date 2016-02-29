@@ -1,4 +1,4 @@
-package ru.wutiarn.edustor
+package ru.wutiarn.edustor.security
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
