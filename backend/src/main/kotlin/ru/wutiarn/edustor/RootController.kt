@@ -1,12 +1,10 @@
 package ru.wutiarn.edustor
 
 import org.springframework.http.MediaType
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
-import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.utils.getAsByteArray
 import ru.wutiarn.edustor.utils.getPdf
 import ru.wutiarn.edustor.utils.getQR
@@ -16,11 +14,6 @@ import ru.wutiarn.edustor.utils.getQR
  */
 @Controller
 class RootController {
-    @RequestMapping("/")
-    @ResponseBody
-    fun root(@AuthenticationPrincipal user: User?): String {
-        return if(user != null) "Hello ${user.login}" else "Hello world"
-    }
 
     @RequestMapping("/qr", produces = arrayOf(MediaType.IMAGE_PNG_VALUE))
     @ResponseBody
