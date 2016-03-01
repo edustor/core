@@ -53,18 +53,18 @@ class DocumentsController @Autowired constructor(val repo: DocumentsRepository, 
             )
         }
 
-        val now = OffsetDateTime.now(ZoneOffset.ofHours(offset))
-        val dayOfWeek = now.dayOfWeek
+        val userNow = OffsetDateTime.now(ZoneOffset.ofHours(offset))
+        val dayOfWeek = userNow.dayOfWeek
 
-        val nowTime = now.toLocalTime()
+        val nowTime = userNow.toLocalTime()
 
         val timetableEntry = user.timetable
                 .filter { it.dayOfWeek == dayOfWeek }
                 .filter { (it.start!! < nowTime) and (it.end!! > nowTime) }
                 .firstOrNull() ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Lesson not found")
 
-        val lesson = lessonsRepo.findLesson(timetableEntry.subject!!, now.toLocalDate(), timetableEntry.start!!, timetableEntry.end!!)
-                ?: Lesson(timetableEntry.subject, timetableEntry.start, timetableEntry.end, now.toLocalDate())
+        val lesson = lessonsRepo.findLesson(timetableEntry.subject!!, userNow.toLocalDate(), timetableEntry.start!!, timetableEntry.end!!)
+                ?: Lesson(timetableEntry.subject, timetableEntry.start, timetableEntry.end, userNow.toLocalDate())
         lessonsRepo.save(lesson)
         val document = Document(uuid = uuid, lesson = lesson, owner = user)
         repo.save(document)
