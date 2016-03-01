@@ -2,7 +2,6 @@ package ru.wutiarn.edustor.security
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -11,7 +10,6 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import ru.wutiarn.edustor.api.SecurityFilter
 import ru.wutiarn.edustor.repository.UserRepository
-import ru.wutiarn.edustor.service.UserDetailsService
 
 /**
  * Created by wutiarn on 23.02.16.
@@ -23,11 +21,6 @@ open class WebSecurityConfig : WebSecurityConfigurerAdapter() {
 
     @Autowired
     val usersRepo: UserRepository? = null
-
-    @Autowired
-    fun configureGlobal(auth: AuthenticationManagerBuilder, uds: UserDetailsService) {
-        auth.userDetailsService(uds)
-    }
 
     override fun configure(http: HttpSecurity) {
         http.authorizeRequests()

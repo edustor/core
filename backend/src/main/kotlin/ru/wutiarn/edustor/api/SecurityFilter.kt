@@ -2,9 +2,11 @@ package ru.wutiarn.edustor.api
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import ru.wutiarn.edustor.repository.UserRepository
-import ru.wutiarn.edustor.security.UserPrincipal
+import java.util.*
 import javax.servlet.*
 import javax.servlet.http.HttpServletRequest
 
@@ -20,9 +22,7 @@ class SecurityFilter @Autowired constructor(val repo: UserRepository) : Filter {
                 val user = repo.findBySession(token)
                 if (user != null) {
 
-                    val userDetails = UserPrincipal(user)
-
-                    val auth = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
+                    val auth = UsernamePasswordAuthenticationToken(user, null, userAuthorities)
                     SecurityContextHolder.getContext().authentication = auth
                 }
             }
@@ -30,6 +30,16 @@ class SecurityFilter @Autowired constructor(val repo: UserRepository) : Filter {
         chain.doFilter(req, res)
     }
 
-    override fun destroy() {}
-    override fun init(p0: FilterConfig?) {}
+    override fun destroy() {
+    }
+
+    override fun init(p0: FilterConfig?) {
+    }
+
+    val userAuthorities: MutableCollection<out GrantedAuthority>
+        get() {
+            val grantedAuthorities = ArrayList<GrantedAuthority>()
+            grantedAuthorities.add(SimpleGrantedAuthority("ROLE_USER"))
+            return Collections.unmodifiableList(grantedAuthorities)
+        }
 }
