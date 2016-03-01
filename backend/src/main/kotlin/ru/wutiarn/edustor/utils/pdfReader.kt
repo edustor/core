@@ -32,19 +32,19 @@ fun processPdfUpload(fileStream: InputStream) {
         logger.info("${i+1} processing started")
         val (uuid, image) = processPdfPage(document, i)
         logger.info("Converting to bytes")
-        val imageStream = image.getAsInputStream()
+        val byteImage = image.getAsByteArray()
         logger.info("Converting done")
-        savePage(uuid, imageStream)
+        savePage(uuid, byteImage)
     }
 }
 
 @Autowired var gfs: GridFsOperations? = null
 @Autowired var documentRepo: DocumentsRepository? = null
-fun savePage(uuid: String, imageStream: InputStream) {
+fun savePage(uuid: String, image: ByteArray) {
     val findByUuid = documentRepo!!.findByUuid(uuid)
 
     findByUuid?.let {
-        val gridFSFile = gfs!!.store(imageStream, uuid)
+        val gridFSFile = gfs!!.store(image.inputStream(), uuid)
         it.fileId = gridFSFile
         documentRepo!!.save(it)
     }

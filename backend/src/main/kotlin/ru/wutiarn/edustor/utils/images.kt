@@ -1,24 +1,16 @@
 package ru.wutiarn.edustor.utils
 
-import org.apache.commons.io.IOUtils
 import java.awt.Image
 import java.awt.image.BufferedImage
-import java.io.InputStream
-import java.io.PipedInputStream
-import java.io.PipedOutputStream
+import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 
 /**
  * Created by wutiarn on 26.02.16.
  */
 fun Image.getAsByteArray(): ByteArray {
-    return IOUtils.toByteArray(this.getAsInputStream())
-}
-
-fun Image.getAsInputStream(): InputStream {
-    val pipedInputStream = PipedInputStream()
-    val pipedOutputStream = PipedOutputStream(pipedInputStream)
+    val outputStream = ByteArrayOutputStream()
     ImageIO.setUseCache(false)
-    ImageIO.write(this as BufferedImage, "png", pipedOutputStream)
-    return pipedInputStream
+    ImageIO.write(this as BufferedImage, "png", outputStream)
+    return outputStream.toByteArray()
 }
