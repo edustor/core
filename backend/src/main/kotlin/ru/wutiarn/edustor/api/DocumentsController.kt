@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
-import ru.wutiarn.edustor.exception.HttpRequestProcessingException
+import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
 import ru.wutiarn.edustor.models.Document
 import ru.wutiarn.edustor.models.Lesson
 import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
-import ru.wutiarn.edustor.utils.processPdfUpload
+import ru.wutiarn.edustor.services.PdfReaderService
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -23,13 +23,17 @@ import java.time.ZoneOffset
  */
 @RestController
 @RequestMapping("/api/documents")
-class DocumentsController @Autowired constructor(val repo: DocumentsRepository, val lessonsRepo: LessonsRepository) {
+class DocumentsController @Autowired constructor(
+        val repo: DocumentsRepository,
+        val lessonsRepo: LessonsRepository,
+        val PdfReaderService: PdfReaderService
+) {
     @RequestMapping("upload", method = arrayOf(RequestMethod.POST))
     fun upload(@RequestParam("file") file: MultipartFile): String? {
         file.contentType
         when (file.contentType) {
             "application/pdf" -> {
-                processPdfUpload(file.inputStream)
+                PdfReaderService.processPdfUpload(file.inputStream)
             }
             else -> {
                 throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "Unsupported content type: ${file.contentType}")

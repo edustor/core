@@ -1,4 +1,4 @@
-package ru.wutiarn.edustor.exception
+package ru.wutiarn.edustor.exceptions
 
 import org.springframework.http.HttpStatus
 

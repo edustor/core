@@ -6,7 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import ru.wutiarn.edustor.exception.HttpRequestProcessingException
+import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
 import ru.wutiarn.edustor.models.Group
 import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.GroupsRepository

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.context.request.ServletRequestAttributes
 import org.springframework.web.servlet.ViewResolver
-import ru.wutiarn.edustor.exception.HttpRequestProcessingException
+import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
 import java.util.*
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -41,7 +41,7 @@ class HttpRequestProcessingExceptionController {
         val exceptionStatus = ex.status
         attributes.put("status", exceptionStatus.value())
         attributes.put("error", exceptionStatus.reasonPhrase)
-        attributes.remove("exception")
+        attributes.remove("exceptions")
 
         val acceptHeader = req.getHeader("Accept")
         if (acceptHeader != null && acceptHeader.contains("text/html")) {

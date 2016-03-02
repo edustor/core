@@ -1,7 +1,7 @@
 package ru.wutiarn.edustor.utils
 
 import org.springframework.http.HttpStatus
-import ru.wutiarn.edustor.exception.HttpRequestProcessingException
+import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
 import ru.wutiarn.edustor.models.Subject
 import ru.wutiarn.edustor.models.User
 
