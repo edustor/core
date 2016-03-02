@@ -11,10 +11,14 @@ import org.ghost4j.renderer.SimpleRenderer
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.mongodb.gridfs.GridFsOperations
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory
 import ru.wutiarn.edustor.repository.DocumentsRepository
+import rx.Observable
+import rx.schedulers.Schedulers
 import java.awt.Image
 import java.awt.image.BufferedImage
 import java.io.InputStream
+import java.util.concurrent.Executors
 
 val logger = LoggerFactory.getLogger("ru.wutiarn.edustor.utils.pdfReader")
 
@@ -22,21 +26,18 @@ val logger = LoggerFactory.getLogger("ru.wutiarn.edustor.utils.pdfReader")
 /**
  * Created by wutiarn on 26.02.16.
  */
-
+val renderThreadExecutor = Executors.newSingleThreadExecutor(CustomizableThreadFactory("pdf-render"));
 fun processPdfUpload(fileStream: InputStream) {
     val document = PDFDocument()
     document.load(fileStream)
 
-    logger.info("Rendering completed")
-
-    for (i in 0..document.pageCount-1) {
-        logger.info("${i+1} processing started")
-        val (uuid, image) = processPdfPage(document, i)
-        logger.info("Converting to bytes")
-        val byteImage = image.getAsByteArray()
-        logger.info("Converting done")
-        savePage(uuid, byteImage)
-    }
+    Observable.range(0, document.pageCount)
+            .observeOn(Schedulers.from(renderThreadExecutor))
+            .map { processPdfPage(document, it) }
+            .observeOn(Schedulers.computation())
+            .map { Pair(it.first, it.second.getAsByteArray()) }
+            //            .map { savePage(it.first, it.second) }
+            .subscribe() { logger.info("completed: ${it.first}") }
 }
 
 @Autowired var gfs: GridFsOperations? = null
@@ -56,7 +57,7 @@ fun savePage(uuid: String?, image: ByteArray) {
 val renderer = SimpleRenderer().let { it.resolution = 300; it }
 private fun processPdfPage(document: PDFDocument, page: Int): Pair<String?, BufferedImage> {
     val image = renderer.render(document, page, page).first() as BufferedImage
-//            FileOutputStream("$i.png").use { it.write(image.getAsByteArray()) }
+    //            FileOutputStream("$i.png").use { it.write(image.getAsByteArray()) }
     try {
         val uuid = readQR(image)
         return Pair(uuid, image)
@@ -85,7 +86,7 @@ private fun readQR(image: BufferedImage): String {
     val bwGraphics = qrImage.createGraphics()
     bwGraphics.drawImage(cropped, 0, 0, null)
     bwGraphics.dispose()
-//    FileOutputStream("bw.png").use { it.write(qrImage.getAsByteArray()) }
+    //    FileOutputStream("bw.png").use { it.write(qrImage.getAsByteArray()) }
     logger.info("Preparing scan")
     val binaryBitmap = BinaryBitmap(HybridBinarizer(BufferedImageLuminanceSource(qrImage)))
     logger.info("Scanning")
