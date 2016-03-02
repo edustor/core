@@ -10,9 +10,12 @@ import org.ghost4j.document.PDFDocument
 import org.ghost4j.renderer.SimpleRenderer
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.gridfs.GridFsCriteria
 import org.springframework.data.mongodb.gridfs.GridFsOperations
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory
 import org.springframework.stereotype.Service
+import org.springframework.util.DigestUtils
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.utils.getAsByteArray
 import rx.Observable
@@ -59,6 +62,17 @@ class PdfReaderService @Autowired constructor(
             val findByUuid = documentRepo.findByUuid(uuid)
 
             findByUuid?.let({
+                val existedQuery = Query.query(GridFsCriteria.whereFilename().`is`(uuid))
+                val existed = gfs.findOne(existedQuery)
+                existed?.let {
+                    val newMD5 = DigestUtils.md5DigestAsHex(image)
+                    if (newMD5 == existed.mD5) {
+                        logger.info("Old and new files are the same: $uuid")
+                        return
+                    } else {
+                        gfs.delete(existedQuery)
+                    }
+                }
                 gfs.store(image.inputStream(), uuid)
                 it.isUploaded = true
                 documentRepo.save(it)
