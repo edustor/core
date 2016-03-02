@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.gridfs.GridFsOperations
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import rx.Observable
+import rx.lang.kotlin.toObservable
 import rx.schedulers.Schedulers
 import java.awt.Image
 import java.awt.image.BufferedImage
@@ -27,17 +28,23 @@ val logger = LoggerFactory.getLogger("ru.wutiarn.edustor.utils.pdfReader")
  * Created by wutiarn on 26.02.16.
  */
 val renderThreadExecutor = Executors.newSingleThreadExecutor(CustomizableThreadFactory("pdf-render"));
+val renderer = SimpleRenderer().let { it.resolution = 300; it }
+
 fun processPdfUpload(fileStream: InputStream) {
     val document = PDFDocument()
     document.load(fileStream)
 
-    Observable.range(0, document.pageCount)
+    Observable.defer { getPageRanges(document.pageCount).toObservable() }
             .observeOn(Schedulers.from(renderThreadExecutor))
-            .map { processPdfPage(document, it) }
+            .flatMap { renderer.render(document, it.first, it.second).toObservable() }
             .observeOn(Schedulers.computation())
+            .map { it as BufferedImage }
+            .map { Pair(readQR(it), it) }
             .map { Pair(it.first, it.second.getAsByteArray()) }
-            //            .map { savePage(it.first, it.second) }
-            .subscribe() { logger.info("completed: ${it.first}") }
+            .subscribe() {
+                //                savePage(it.first, it.second)
+                logger.info("completed: ${it.first}")
+            }
 }
 
 @Autowired var gfs: GridFsOperations? = null
@@ -50,22 +57,26 @@ fun savePage(uuid: String?, image: ByteArray) {
             val gridFSFile = gfs!!.store(image.inputStream(), uuid)
             it.fileId = gridFSFile
             documentRepo!!.save(it)
+            return
         }
+        logger.warn("$uuid: Not found in database")
     }
 }
 
-val renderer = SimpleRenderer().let { it.resolution = 300; it }
-private fun processPdfPage(document: PDFDocument, page: Int): Pair<String?, BufferedImage> {
-    val image = renderer.render(document, page, page).first() as BufferedImage
-    //            FileOutputStream("$i.png").use { it.write(image.getAsByteArray()) }
-    try {
-        val uuid = readQR(image)
-        return Pair(uuid, image)
-    } catch (e: NotFoundException) {
-        logger.warn("not found")
-        return Pair(null, image)
+private fun getPageRanges(pageCount: Int, itemsPerRange: Int = 3): MutableList<Pair<Int, Int>> {
+    val result = mutableListOf<Pair<Int, Int>>()
+
+    for (n in 0..((pageCount - 1) / itemsPerRange)) {
+
+        val first = n * itemsPerRange
+        var last = first + itemsPerRange - 1
+
+        if (last > pageCount) last = pageCount - 1
+
+        result.add(Pair(first, last))
     }
 
+    return result
 }
 
 private val codeReader = QRCodeReader()
@@ -73,27 +84,33 @@ private val QR_DOWNSCALE_SIZE = 200
 /**
  * @throws com.google.zxing.NotFoundException
  */
-private fun readQR(image: BufferedImage): String {
-    logger.info("Cropping and scaling")
+private fun readQR(image: BufferedImage): String? {
+    logger.trace("Cropping and scaling")
     val cropped = image.getSubimage(
             (image.width * 0.8f).toInt(),
             (image.height * 0.85f).toInt(),
             (image.width * 0.15f).toInt(),
             (image.height * 0.1f).toInt()
     ).getScaledInstance(QR_DOWNSCALE_SIZE, QR_DOWNSCALE_SIZE, Image.SCALE_DEFAULT)
-    logger.info("Drawing")
+    logger.trace("Drawing")
     val qrImage = BufferedImage(QR_DOWNSCALE_SIZE, QR_DOWNSCALE_SIZE, BufferedImage.TYPE_BYTE_BINARY)
     val bwGraphics = qrImage.createGraphics()
     bwGraphics.drawImage(cropped, 0, 0, null)
     bwGraphics.dispose()
     //    FileOutputStream("bw.png").use { it.write(qrImage.getAsByteArray()) }
-    logger.info("Preparing scan")
+    logger.trace("Preparing scan")
     val binaryBitmap = BinaryBitmap(HybridBinarizer(BufferedImageLuminanceSource(qrImage)))
-    logger.info("Scanning")
-    val qrResult = codeReader.decode(binaryBitmap, mapOf(
-            DecodeHintType.TRY_HARDER to true
-    ))
-    val result = qrResult.text
-    logger.info("found $result")
-    return result
+    logger.trace("Scanning")
+    try {
+        val qrResult = codeReader.decode(binaryBitmap, mapOf(
+                DecodeHintType.TRY_HARDER to true
+        ))
+        val result = qrResult.text
+        logger.trace("found $result")
+        return result
+    } catch (e: NotFoundException) {
+        logger.trace("not found")
+        return null
+    }
+
 }
