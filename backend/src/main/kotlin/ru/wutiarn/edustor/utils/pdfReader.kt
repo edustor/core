@@ -2,6 +2,7 @@ package ru.wutiarn.edustor.utils
 
 import com.google.zxing.BinaryBitmap
 import com.google.zxing.DecodeHintType
+import com.google.zxing.NotFoundException
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource
 import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.qrcode.QRCodeReader
@@ -40,22 +41,30 @@ fun processPdfUpload(fileStream: InputStream) {
 
 @Autowired var gfs: GridFsOperations? = null
 @Autowired var documentRepo: DocumentsRepository? = null
-fun savePage(uuid: String, image: ByteArray) {
-    val findByUuid = documentRepo!!.findByUuid(uuid)
+fun savePage(uuid: String?, image: ByteArray) {
+    uuid?.let {
+        val findByUuid = documentRepo!!.findByUuid(uuid)
 
-    findByUuid?.let {
-        val gridFSFile = gfs!!.store(image.inputStream(), uuid)
-        it.fileId = gridFSFile
-        documentRepo!!.save(it)
+        findByUuid?.let {
+            val gridFSFile = gfs!!.store(image.inputStream(), uuid)
+            it.fileId = gridFSFile
+            documentRepo!!.save(it)
+        }
     }
 }
 
 val renderer = SimpleRenderer().let { it.resolution = 300; it }
-private fun processPdfPage(document: PDFDocument, page: Int): Pair<String, BufferedImage> {
+private fun processPdfPage(document: PDFDocument, page: Int): Pair<String?, BufferedImage> {
     val image = renderer.render(document, page, page).first() as BufferedImage
 //            FileOutputStream("$i.png").use { it.write(image.getAsByteArray()) }
-    val uuid = readQR(image)
-    return Pair(uuid, image)
+    try {
+        val uuid = readQR(image)
+        return Pair(uuid, image)
+    } catch (e: NotFoundException) {
+        logger.warn("not found")
+        return Pair(null, image)
+    }
+
 }
 
 private val codeReader = QRCodeReader()
