@@ -14,9 +14,7 @@ import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.services.PdfReaderService
-import ru.wutiarn.edustor.utils.extensions.getActiveTimetableEntry
-import ru.wutiarn.edustor.utils.extensions.getLesson
-import rx.lang.kotlin.toObservable
+import ru.wutiarn.edustor.utils.extensions.getActiveLesson
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -57,11 +55,7 @@ class DocumentsController @Autowired constructor(
         }
 
         val userNow = OffsetDateTime.now(ZoneOffset.ofHours(offset))
-        val lesson = user.timetable.toObservable()
-                .getActiveTimetableEntry(userNow.toLocalTime())
-                .getLesson(lessonsRepo, userNow.toLocalDate())
-                .map { lessonsRepo.save(it); it }
-                .toBlocking().first()
+        val lesson = user.timetable.getActiveLesson(lessonsRepo, userNow.toLocalDateTime()) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "No entry found in timetable")
         val document = Document(uuid = uuid, lesson = lesson, owner = user)
         lessonsRepo.save(lesson)
         repo.save(document)
