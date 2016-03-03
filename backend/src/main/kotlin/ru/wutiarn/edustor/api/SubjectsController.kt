@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
+import ru.wutiarn.edustor.models.Lesson
 import ru.wutiarn.edustor.models.Subject
 import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.GroupsRepository
+import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.repository.SubjectsRepository
 
 /**
@@ -18,11 +20,18 @@ import ru.wutiarn.edustor.repository.SubjectsRepository
 @RestController
 @RequestMapping("/api/subjects")
 class SubjectsController @Autowired constructor(val repo: SubjectsRepository,
-                                                val groupsRepo: GroupsRepository) {
+                                                val groupsRepo: GroupsRepository,
+                                                val lessonsRepository: LessonsRepository) {
 
     @RequestMapping("/list")
     fun listSubjects(@AuthenticationPrincipal user: User): List<Subject> {
         return user.groups.flatMap { it.subjects }
+    }
+
+    @RequestMapping("/{subject}/lessons")
+    fun listTimetable(subject: Subject?): List<Lesson> {
+        subject ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
+        return lessonsRepository.findBySubject(subject)
     }
 
     @RequestMapping("/create")
