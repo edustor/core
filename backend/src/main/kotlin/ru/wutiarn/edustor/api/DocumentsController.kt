@@ -63,6 +63,4 @@ class DocumentsController @Autowired constructor(
         repo.save(document)
         return document
     }
-
-
 }
