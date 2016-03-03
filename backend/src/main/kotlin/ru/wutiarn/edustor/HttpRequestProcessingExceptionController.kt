@@ -41,7 +41,7 @@ class HttpRequestProcessingExceptionController {
         val exceptionStatus = ex.status
         attributes.put("status", exceptionStatus.value())
         attributes.put("error", exceptionStatus.reasonPhrase)
-        attributes.remove("exceptions")
+        attributes.remove("exception")
 
         val acceptHeader = req.getHeader("Accept")
         if (acceptHeader != null && acceptHeader.contains("text/html")) {
