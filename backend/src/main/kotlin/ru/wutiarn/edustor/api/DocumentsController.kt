@@ -15,6 +15,9 @@ import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.services.PdfReaderService
+import ru.wutiarn.edustor.utils.getActive
+import rx.lang.kotlin.firstOrNull
+import rx.lang.kotlin.toObservable
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -62,10 +65,8 @@ class DocumentsController @Autowired constructor(
 
         val nowTime = userNow.toLocalTime()
 
-        val timetableEntry = user.timetable
-                .filter { it.dayOfWeek == dayOfWeek }
-                .filter { (it.start!! < nowTime) and (it.end!! > nowTime) }
-                .firstOrNull() ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Lesson not found")
+        val timetableEntry = user.timetable.toObservable()
+                .getActive(nowTime).toBlocking().firstOrNull()
 
         val lesson = lessonsRepo.findLesson(timetableEntry.subject!!, userNow.toLocalDate(), timetableEntry.start!!, timetableEntry.end!!)
                 ?: Lesson(timetableEntry.subject, timetableEntry.start, timetableEntry.end, userNow.toLocalDate())

@@ -14,6 +14,8 @@ data class TimetableEntry(
         var end: LocalTime? = null
 ) : Comparable<TimetableEntry> {
     override fun compareTo(other: TimetableEntry): Int {
+        val dayOfWeekComparison = dayOfWeek?.compareTo(other.dayOfWeek)
+        if (dayOfWeekComparison != 0) return dayOfWeekComparison!!
         return start!!.compareTo(other.start!!)
     }
 
