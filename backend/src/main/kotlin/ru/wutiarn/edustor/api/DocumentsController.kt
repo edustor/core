@@ -15,6 +15,7 @@ import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.services.PdfReaderService
 import ru.wutiarn.edustor.utils.extensions.getActiveLesson
+import ru.wutiarn.edustor.utils.hasAccess
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -43,8 +44,9 @@ class DocumentsController @Autowired constructor(
     }
 
     @RequestMapping("uuid_info")
-    fun uuid_info(@RequestParam uuid: String): Document? {
+    fun uuid_info(@RequestParam uuid: String, @AuthenticationPrincipal user: User): Document? {
         val document = repo.findByUuid(uuid) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
+        if (!user.hasAccess(document)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN)
         return document
     }
 
@@ -61,4 +63,6 @@ class DocumentsController @Autowired constructor(
         repo.save(document)
         return document
     }
+
+
 }
