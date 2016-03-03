@@ -10,13 +10,12 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
 import ru.wutiarn.edustor.models.Document
-import ru.wutiarn.edustor.models.Lesson
 import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.services.PdfReaderService
-import ru.wutiarn.edustor.utils.getActive
-import rx.lang.kotlin.firstOrNull
+import ru.wutiarn.edustor.utils.extensions.getActiveTimetableEntry
+import ru.wutiarn.edustor.utils.extensions.getLesson
 import rx.lang.kotlin.toObservable
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -61,17 +60,13 @@ class DocumentsController @Autowired constructor(
         }
 
         val userNow = OffsetDateTime.now(ZoneOffset.ofHours(offset))
-        val dayOfWeek = userNow.dayOfWeek
-
-        val nowTime = userNow.toLocalTime()
-
-        val timetableEntry = user.timetable.toObservable()
-                .getActive(nowTime).toBlocking().firstOrNull()
-
-        val lesson = lessonsRepo.findLesson(timetableEntry.subject!!, userNow.toLocalDate(), timetableEntry.start!!, timetableEntry.end!!)
-                ?: Lesson(timetableEntry.subject, timetableEntry.start, timetableEntry.end, userNow.toLocalDate())
-        lessonsRepo.save(lesson)
+        val lesson = user.timetable.toObservable()
+                .getActiveTimetableEntry(userNow.toLocalTime())
+                .getLesson(lessonsRepo, userNow.toLocalDate())
+                .map { lessonsRepo.save(it); it }
+                .toBlocking().first()
         val document = Document(uuid = uuid, lesson = lesson, owner = user)
+        lessonsRepo.save(lesson)
         repo.save(document)
         return mapOf(
                 "created" to true,
