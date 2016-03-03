@@ -11,7 +11,7 @@ import ru.wutiarn.edustor.models.TimetableEntry
 import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.SubjectsRepository
 import ru.wutiarn.edustor.repository.UserRepository
-import ru.wutiarn.edustor.utils.assertHasAccess
+import ru.wutiarn.edustor.utils.hasAccess
 import java.time.DayOfWeek
 import java.time.LocalTime
 
@@ -38,7 +38,7 @@ class TimetableController @Autowired constructor(val userRepository: UserReposit
                         @RequestParam end_minute: Int
     ): TimetableEntry {
         val subject = subjectsRepository.findOne(subjectId) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        assertHasAccess(user, subject)
+        if (!user.hasAccess(subject)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN)
 
         val start = LocalTime.of(start_hour, start_minute)
         val end = LocalTime.of(end_hour, end_minute)

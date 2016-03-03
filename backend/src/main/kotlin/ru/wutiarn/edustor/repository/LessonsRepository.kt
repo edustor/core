@@ -31,5 +31,4 @@ class LessonsRepositoryImpl @Autowired constructor(val mongo: MongoOperations) :
                         .and("end").`is`(end)
         ), Lesson::class.java)
     }
-
 }

@@ -1,14 +1,16 @@
 package ru.wutiarn.edustor.utils
 
-import org.springframework.http.HttpStatus
-import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
+import ru.wutiarn.edustor.models.Lesson
 import ru.wutiarn.edustor.models.Subject
 import ru.wutiarn.edustor.models.User
 
 /**
  * Created by wutiarn on 28.02.16.
  */
-fun assertHasAccess(user: User, subject: Subject) {
-    val intersect = subject.groups.intersect(user.groups)
-    if (intersect.isEmpty()) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN)
+fun User.hasAccess(subject: Subject): Boolean {
+    return subject.groups.intersect(this.groups).isEmpty()
+}
+
+fun User.hasAccess(lesson: Lesson): Boolean {
+    return this.hasAccess(lesson.subject!!)
 }
