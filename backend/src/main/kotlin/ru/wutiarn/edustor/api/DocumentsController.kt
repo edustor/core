@@ -51,12 +51,9 @@ class DocumentsController @Autowired constructor(
     }
 
     @RequestMapping("activate_uuid")
-    fun activate_uuid(@RequestParam uuid: String, @RequestParam offset: Int, @AuthenticationPrincipal user: User): Map<String, Any> {
+    fun activate_uuid(@RequestParam uuid: String, @RequestParam offset: Int, @AuthenticationPrincipal user: User): Document {
         repo.findByUuid(uuid)?.let {
-            return mapOf(
-                    "created" to false,
-                    "document" to it
-            )
+            throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This UUID is already activated")
         }
 
         val userNow = OffsetDateTime.now(ZoneOffset.ofHours(offset))
@@ -68,9 +65,6 @@ class DocumentsController @Autowired constructor(
         val document = Document(uuid = uuid, lesson = lesson, owner = user)
         lessonsRepo.save(lesson)
         repo.save(document)
-        return mapOf(
-                "created" to true,
-                "document" to document
-        )
+        return document
     }
 }
