@@ -3,10 +3,7 @@ package ru.wutiarn.edustor.api
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
 import ru.wutiarn.edustor.models.Document
@@ -43,14 +40,14 @@ class DocumentsController @Autowired constructor(
         return "Successfully uploaded"
     }
 
-    @RequestMapping("uuid_info")
-    fun uuid_info(@RequestParam uuid: String, @AuthenticationPrincipal user: User): Document? {
+    @RequestMapping("/uuid/{uuid}")
+    fun uuid_info(@PathVariable uuid: String, @AuthenticationPrincipal user: User): Document? {
         val document = repo.findByUuid(uuid) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
         if (!user.hasAccess(document)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN)
         return document
     }
 
-    @RequestMapping("activate_uuid")
+    @RequestMapping("/uuid/activate")
     fun activate_uuid(@RequestParam uuid: String, @RequestParam offset: Int, @AuthenticationPrincipal user: User): Document {
         repo.findByUuid(uuid)?.let {
             throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This UUID is already activated")
