@@ -5,6 +5,7 @@ import ru.wutiarn.edustor.models.TimetableEntry
 import ru.wutiarn.edustor.repository.LessonsRepository
 import rx.Observable
 import rx.lang.kotlin.firstOrNull
+import rx.lang.kotlin.onErrorReturnNull
 import rx.lang.kotlin.toObservable
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -27,5 +28,6 @@ fun List<TimetableEntry>.getActiveLesson(lessonsRepo: LessonsRepository, userNow
     return this.toObservable()
             .getActiveTimetableEntry(userNow)
             .getLesson(lessonsRepo, userNow.toLocalDate())
+            .onErrorReturnNull()
             .toBlocking().firstOrNull()
 }
