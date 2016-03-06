@@ -6,6 +6,9 @@ import com.google.zxing.NotFoundException
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource
 import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.qrcode.QRCodeReader
+import com.itextpdf.text.Document
+import com.itextpdf.text.pdf.PdfCopy
+import com.itextpdf.text.pdf.PdfReader
 import org.ghost4j.document.PDFDocument
 import org.ghost4j.renderer.SimpleRenderer
 import org.slf4j.LoggerFactory
@@ -15,14 +18,13 @@ import org.springframework.data.mongodb.gridfs.GridFsCriteria
 import org.springframework.data.mongodb.gridfs.GridFsOperations
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory
 import org.springframework.stereotype.Service
-import org.springframework.util.DigestUtils
 import ru.wutiarn.edustor.repository.DocumentsRepository
-import ru.wutiarn.edustor.utils.getAsByteArray
 import rx.Observable
 import rx.lang.kotlin.toObservable
 import rx.schedulers.Schedulers
 import java.awt.Image
 import java.awt.image.BufferedImage
+import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.util.concurrent.Executors
 
@@ -33,58 +35,75 @@ class PdfReaderService @Autowired constructor(
 ) {
     private val logger = LoggerFactory.getLogger(PdfReaderService::class.java)
     private val renderThreadExecutor = Executors.newSingleThreadExecutor(CustomizableThreadFactory("pdf-render"));
-    private val renderer = SimpleRenderer().let { it.resolution = 300; it }
+    private val renderer = SimpleRenderer().let { it.resolution = 100; it }
     private val codeReader = QRCodeReader()
     private val QR_DOWNSCALE_SIZE = 200
 
     data class Page(
             val index: Int,
-            var qrResult: String = "",
-            var renderedImage: BufferedImage? = null
+            val renderedImage: BufferedImage,
+            var uuid: String? = null
     )
 
     /**
      * Created by wutiarn on 26.02.16.
      */
     fun processPdfUpload(fileStream: InputStream) {
-        val document = PDFDocument()
-        document.load(fileStream)
 
-        Observable.defer { getPageRanges(document.pageCount).toObservable() }
+        val byteOut = ByteArrayOutputStream()
+        val bytes: ByteArray
+        fileStream.use {
+            fileStream.copyTo(byteOut)
+        }
+        bytes = byteOut.toByteArray()
+
+        val rendererDocument = PDFDocument()
+        rendererDocument.load(bytes.inputStream())
+
+        val document = PdfReader(bytes)
+
+        Observable.defer { getPageRanges(rendererDocument.pageCount).toObservable() }
                 .observeOn(Schedulers.from(renderThreadExecutor))
-                .flatMap { renderer.render(document, it.first, it.second).toObservable() }
+                .flatMap {
+                    renderer.render(rendererDocument, it.first, it.second).zip(it.first..it.second).toObservable()
+                }
                 .observeOn(Schedulers.computation())
-                .map { it as BufferedImage }
-                .map { Pair(readQR(it), it) }
-                .map { Pair(it.first, it.second.getAsByteArray()) }
+                .map { Page(index = it.second, renderedImage = it.first as BufferedImage) }
+                .map { it.uuid = readQR(it.renderedImage); it }
                 .subscribe() {
-                    savePage(it.first, it.second)
-                    logger.info("completed: ${it.first}")
+                    logger.info("Saving ${it.index}")
+                    savePage(it, document)
+                    logger.info("completed: ${it.index} ${it.uuid}")
                 }
     }
 
-    private fun savePage(uuid: String?, image: ByteArray) {
-        uuid?.let {
-            val findByUuid = documentRepo.findByUuid(uuid)
+    private fun savePage(page: Page, reader: PdfReader) {
 
-            findByUuid?.let({
-                val existedQuery = Query.query(GridFsCriteria.whereFilename().`is`(uuid))
-                val existed = gfs.findOne(existedQuery)
-                existed?.let {
-                    val newMD5 = DigestUtils.md5DigestAsHex(image)
-                    if (newMD5 == existed.mD5) {
-                        logger.info("Old and new files are the same: $uuid")
-                        return
-                    } else {
-                        gfs.delete(existedQuery)
-                    }
-                }
-                gfs.store(image.inputStream(), uuid)
+        page.uuid?.let {
+            val findByUuid = documentRepo.findByUuid(page.uuid!!)
+
+            findByUuid?.let {
+
+                val document = Document()
+                val byteArrayOutputStream = ByteArrayOutputStream()
+                val pdfCopy = PdfCopy(document, byteArrayOutputStream)
+                val importedPage = pdfCopy.getImportedPage(reader, page.index + 1)
+
+                document.open()
+                pdfCopy.addPage(importedPage)
+                document.close()
+
+                val bytes = byteArrayOutputStream.toByteArray()
+
+                val existedQuery = Query.query(GridFsCriteria.whereFilename().`is`(page.uuid))
+                gfs.delete(existedQuery)
+
+                gfs.store(bytes.inputStream(), page.uuid, "application/pdf")
                 it.isUploaded = true
                 documentRepo.save(it)
                 return
-            })
-            logger.warn("Not found in database: $uuid")
+            }
+            logger.warn("Not found in database: ${page.uuid}")
         }
     }
 
