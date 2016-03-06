@@ -100,6 +100,7 @@ class PdfReaderService @Autowired constructor(
 
                 gfs.store(bytes.inputStream(), page.uuid, "application/pdf")
                 it.isUploaded = true
+                it.contentType = "application/pdf"
                 documentRepo.save(it)
                 return
             }

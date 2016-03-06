@@ -1,6 +1,10 @@
 package ru.wutiarn.edustor.api
 
+import com.itextpdf.text.pdf.PdfCopy
+import com.itextpdf.text.pdf.PdfReader
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.gridfs.GridFsCriteria
 import org.springframework.data.mongodb.gridfs.GridFsOperations
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -16,6 +20,7 @@ import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.utils.extensions.getActiveLesson
 import ru.wutiarn.edustor.utils.extensions.hasAccess
+import java.io.ByteArrayOutputStream
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -33,30 +38,31 @@ class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepositor
     }
 
     @RequestMapping("/{lesson}/pdf", produces = arrayOf("application/pdf"))
-    fun getPdf(@PathVariable lesson: Lesson?, @AuthenticationPrincipal user: User) {
-        //        lesson ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        //        if (!user.hasAccess(lesson)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "You have not access to this lesson")
-        //
-        //        val document = com.itextpdf.text.Document()
-        //
-        //        val outputStream = ByteArrayOutputStream()
-        //        val copy = PdfCopy(document, outputStream)
-        //
-        //        lesson.documents.toObservable()
-        //                .filter { it.isUploaded == true }
-        //                .toSortedList()
-        //                .flatMap { it.toObservable() }
-        //                .map {
-        //                    gfs.findOne(Query.query(GridFsCriteria.whereFilename().`is`(it.uuid)
-        //                            .andOperator(GridFsCriteria.whereContentType().`is`("application/pdf2"))))
-        //                }
-        //                .filterNotNull()
-        //                .subscribe {
-        //                    val pdfReader = PdfReader(it.inputStream)
-        //                    copy.addDocument(pdfReader)
-        //                }
+    fun getPdf(@PathVariable lesson: Lesson?, @AuthenticationPrincipal user: User): ByteArray {
+        lesson ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
+        if (!user.hasAccess(lesson)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "You have not access to this lesson")
 
+        if (!lesson.documents.any { it.contentType == "application/pdf" }) throw HttpRequestProcessingException(HttpStatus.NO_CONTENT, "No pages found")
+        val document = com.itextpdf.text.Document()
 
+        val outputStream = ByteArrayOutputStream()
+        val copy = PdfCopy(document, outputStream)
+        document.open()
+
+        lesson.documents
+                .filter { it.isUploaded == true }
+                .filter { it.contentType == "application/pdf" }
+                .sorted()
+                .map {
+                    gfs.findOne(Query.query(GridFsCriteria.whereFilename().`is`(it.uuid)))
+                }
+                .filterNotNull()
+                .map {
+                    val pdfReader = PdfReader(it.inputStream)
+                    copy.addDocument(pdfReader)
+                }
+        document.close()
+        return outputStream.toByteArray()
     }
 
     @RequestMapping("/current")

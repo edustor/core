@@ -11,6 +11,7 @@ data class Document(
         @DBRef var owner: User? = null,
         var uuid: String? = null,
         var isUploaded: Boolean = false,
+        var contentType: String? = null,
         var timestamp: Instant = Instant.now(),
         @Id var id: String? = null
 ) : Comparable<Document> {
