@@ -16,7 +16,7 @@ import java.time.LocalTime
  */
 interface LessonsRepository : MongoRepository<Lesson, String>, LessonsRepositoryCustom {
     fun findBySubject(subject: Subject): List<Lesson>
-    fun findByDocumentsContaining(document: Document): List<Lesson>
+    fun findByDocumentsContaining(document: Document): Lesson?
 }
 
 interface LessonsRepositoryCustom {

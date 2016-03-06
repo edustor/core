@@ -12,7 +12,7 @@ import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.services.PdfReaderService
 import ru.wutiarn.edustor.utils.extensions.getActiveLesson
-import ru.wutiarn.edustor.utils.hasAccess
+import ru.wutiarn.edustor.utils.extensions.hasAccess
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 

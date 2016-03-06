@@ -14,7 +14,7 @@ import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.utils.extensions.getActiveLesson
-import ru.wutiarn.edustor.utils.filterHasAccess
+import ru.wutiarn.edustor.utils.extensions.hasAccess
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -37,14 +37,12 @@ class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepositor
     }
 
     @RequestMapping("/uuid/{uuid}")
-    fun byDocumentUUID(@AuthenticationPrincipal user: User, @PathVariable uuid: String): List<Lesson> {
+    fun byDocumentUUID(@AuthenticationPrincipal user: User, @PathVariable uuid: String): Lesson {
         val document = documentsRepository.findByUuid(uuid) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Document is not found")
-        val lessons = lessonsRepo.findByDocumentsContaining(document)
-        if (lessons.isEmpty()) throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Lessons are not found")
+        val lesson = lessonsRepo.findByDocumentsContaining(document) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Lesson is not found")
 
-        val accessibleLessons = lessons.filterHasAccess(user)
-        if (accessibleLessons.isEmpty()) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "You have not access to any lesson linked with this document")
+        if (!user.hasAccess(lesson)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "You have not access to this lesson")
 
-        return accessibleLessons
+        return lesson
     }
 }

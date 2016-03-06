@@ -11,7 +11,7 @@ import ru.wutiarn.edustor.models.TimetableEntry
 import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.SubjectsRepository
 import ru.wutiarn.edustor.repository.UserRepository
-import ru.wutiarn.edustor.utils.hasAccess
+import ru.wutiarn.edustor.utils.extensions.hasAccess
 import java.time.DayOfWeek
 import java.time.LocalTime
 
