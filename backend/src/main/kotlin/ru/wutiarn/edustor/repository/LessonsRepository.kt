@@ -27,6 +27,7 @@ interface LessonsRepositoryCustom {
 class LessonsRepositoryImpl @Autowired constructor(val mongo: MongoOperations) : LessonsRepositoryCustom {
     override fun findLesson(subject: Subject, date: LocalDate, start: LocalTime, end: LocalTime): Lesson? {
         return mongo.findOne(query(
+                //                TODO: That's doesn't work
                 where("subject").`is`(subject)
                         .and("date").`is`(date)
                         .and("start").`is`(start)

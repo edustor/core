@@ -1,6 +1,7 @@
 package ru.wutiarn.edustor.api
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.mongodb.gridfs.GridFsOperations
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.PathVariable
@@ -23,11 +24,39 @@ import java.time.ZoneOffset
  */
 @RestController
 @RequestMapping("/api/lessons")
-class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepository, val documentsRepository: DocumentsRepository) {
+class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepository, val documentsRepository: DocumentsRepository, val gfs: GridFsOperations) {
     @RequestMapping("/{lesson}/documents")
-    fun getDocuments(@PathVariable lesson: Lesson?): List<Document> {
+    fun getDocuments(@PathVariable lesson: Lesson?, @AuthenticationPrincipal user: User): List<Document> {
         lesson ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
+        if (!user.hasAccess(lesson)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "You have not access to this lesson")
         return lesson.documents
+    }
+
+    @RequestMapping("/{lesson}/pdf", produces = arrayOf("application/pdf"))
+    fun getPdf(@PathVariable lesson: Lesson?, @AuthenticationPrincipal user: User) {
+        //        lesson ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
+        //        if (!user.hasAccess(lesson)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "You have not access to this lesson")
+        //
+        //        val document = com.itextpdf.text.Document()
+        //
+        //        val outputStream = ByteArrayOutputStream()
+        //        val copy = PdfCopy(document, outputStream)
+        //
+        //        lesson.documents.toObservable()
+        //                .filter { it.isUploaded == true }
+        //                .toSortedList()
+        //                .flatMap { it.toObservable() }
+        //                .map {
+        //                    gfs.findOne(Query.query(GridFsCriteria.whereFilename().`is`(it.uuid)
+        //                            .andOperator(GridFsCriteria.whereContentType().`is`("application/pdf2"))))
+        //                }
+        //                .filterNotNull()
+        //                .subscribe {
+        //                    val pdfReader = PdfReader(it.inputStream)
+        //                    copy.addDocument(pdfReader)
+        //                }
+
+
     }
 
     @RequestMapping("/current")

@@ -13,4 +13,8 @@ data class Document(
         var isUploaded: Boolean = false,
         var timestamp: Instant = Instant.now(),
         @Id var id: String? = null
-)
+) : Comparable<Document> {
+    override fun compareTo(other: Document): Int {
+        return timestamp.compareTo(other.timestamp)
+    }
+}
