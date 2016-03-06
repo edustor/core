@@ -9,7 +9,6 @@ import java.time.Instant
  */
 data class Document(
         @DBRef var owner: User? = null,
-        @DBRef var lesson: Lesson? = null,
         var uuid: String? = null,
         var isUploaded: Boolean = false,
         var timestamp: Instant = Instant.now(),

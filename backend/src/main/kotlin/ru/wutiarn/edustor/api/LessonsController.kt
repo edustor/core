@@ -26,7 +26,7 @@ class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepositor
     @RequestMapping("/{lesson}/documents")
     fun getDocuments(@PathVariable lesson: Lesson?): List<Document> {
         lesson ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        return documentsRepository.findByLesson(lesson)
+        return lesson.documents
     }
 
     @RequestMapping("/current")

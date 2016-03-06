@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.MongoOperations
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query.query
 import org.springframework.data.mongodb.repository.MongoRepository
+import ru.wutiarn.edustor.models.Document
 import ru.wutiarn.edustor.models.Lesson
 import ru.wutiarn.edustor.models.Subject
 import java.time.LocalDate
@@ -15,6 +16,7 @@ import java.time.LocalTime
  */
 interface LessonsRepository : MongoRepository<Lesson, String>, LessonsRepositoryCustom {
     fun findBySubject(subject: Subject): List<Lesson>
+    fun findByDocumentsContaining(document: Document): List<Lesson>
 }
 
 interface LessonsRepositoryCustom {

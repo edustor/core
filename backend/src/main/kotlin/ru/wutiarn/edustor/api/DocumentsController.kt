@@ -43,7 +43,7 @@ class DocumentsController @Autowired constructor(
     @RequestMapping("/uuid/{uuid}")
     fun uuid_info(@PathVariable uuid: String, @AuthenticationPrincipal user: User): Document? {
         val document = repo.findByUuid(uuid) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        if (!user.hasAccess(document)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN)
+        if (!user.hasAccess(document, lessonsRepo)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN)
         return document
     }
 
@@ -55,9 +55,10 @@ class DocumentsController @Autowired constructor(
 
         val userNow = OffsetDateTime.now(ZoneOffset.ofHours(offset))
         val lesson = user.timetable.getActiveLesson(lessonsRepo, userNow.toLocalDateTime()) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "No entry found in timetable")
-        val document = Document(uuid = uuid, lesson = lesson, owner = user)
-        lessonsRepo.save(lesson)
+        val document = Document(uuid = uuid, owner = user)
+        lesson.documents.add(document)
         repo.save(document)
+        lessonsRepo.save(lesson)
         return document
     }
 }

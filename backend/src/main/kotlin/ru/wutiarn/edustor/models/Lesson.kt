@@ -13,5 +13,6 @@ data class Lesson(
         var start: LocalTime? = null,
         var end: LocalTime? = null,
         var date: LocalDate? = null,
+        @DBRef(lazy = true) var documents: MutableList<Document> = mutableListOf(),
         @Id var id: String? = null
 )
