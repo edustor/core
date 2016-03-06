@@ -37,6 +37,12 @@ class PdfReaderService @Autowired constructor(
     private val codeReader = QRCodeReader()
     private val QR_DOWNSCALE_SIZE = 200
 
+    data class Page(
+            val index: Int,
+            var qrResult: String = "",
+            var renderedImage: BufferedImage? = null
+    )
+
     /**
      * Created by wutiarn on 26.02.16.
      */

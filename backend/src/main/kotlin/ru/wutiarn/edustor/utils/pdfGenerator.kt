@@ -5,9 +5,8 @@ import com.google.zxing.EncodeHintType
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.client.j2se.MatrixToImageWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
-import com.itextpdf.text.Document
-import com.itextpdf.text.Image
-import com.itextpdf.text.Rectangle
+import com.itextpdf.text.*
+import com.itextpdf.text.pdf.ColumnText
 import com.itextpdf.text.pdf.PdfReader
 import com.itextpdf.text.pdf.PdfSmartCopy
 import com.itextpdf.text.pdf.PdfStamper
@@ -51,9 +50,17 @@ fun getPdf(count: Int = 1): ByteArray {
     val pdfStamper = PdfStamper(pdfReader, out2)
 
     for (i in 1..pdfReader.numberOfPages) {
-        val image = Image.getInstance(getQR().getAsByteArray())
+
+        val uuid = randomUUID().toString()
+        val image = Image.getInstance(getQR(uuid).getAsByteArray())
+
+        val font = FontFactory.getFont(FontFactory.HELVETICA, 9f, BaseColor(98, 94, 94))
+        val phrase = Phrase(uuid.split("-").last(), font)
 
         val content = pdfStamper.getOverContent(i)
+
+        ColumnText.showTextAligned(content, Element.ALIGN_BOTTOM, phrase, 503f, 40f, 0f)
+
         image.scaleAbsolute(Rectangle(60f, 60f))
         image.setAbsolutePosition(500f, 55f)
         content.addImage(image)
