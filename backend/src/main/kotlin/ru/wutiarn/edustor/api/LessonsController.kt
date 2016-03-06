@@ -14,6 +14,7 @@ import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.utils.extensions.getActiveLesson
+import ru.wutiarn.edustor.utils.filterHasAccess
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -33,5 +34,17 @@ class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepositor
     fun current(@AuthenticationPrincipal user: User, @RequestParam offset: Int): Lesson {
         val userNow = OffsetDateTime.now(ZoneOffset.ofHours(offset)).toLocalDateTime()
         return user.timetable.getActiveLesson(lessonsRepo, userNow) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
+    }
+
+    @RequestMapping("/uuid/{uuid}")
+    fun byDocumentUUID(@AuthenticationPrincipal user: User, @PathVariable uuid: String): List<Lesson> {
+        val document = documentsRepository.findByUuid(uuid) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Document is not found")
+        val lessons = lessonsRepo.findByDocumentsContaining(document)
+        if (lessons.isEmpty()) throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Lessons are not found")
+
+        val accessibleLessons = lessons.filterHasAccess(user)
+        if (accessibleLessons.isEmpty()) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "You have not access to any lesson linked with this document")
+
+        return accessibleLessons
     }
 }

@@ -20,7 +20,12 @@ fun User.hasAccess(lesson: Lesson): Boolean {
 
 fun User.hasAccess(document: Document, lessonsRepository: LessonsRepository): Boolean {
     val lessons = lessonsRepository.findByDocumentsContaining(document)
-    return lessons.toObservable()
-            .exists { this.hasAccess(it) }
+    return lessons.filterHasAccess(this).isNotEmpty()
+}
+
+fun List<Lesson>.filterHasAccess(user: User): List<Lesson> {
+    return this.toObservable()
+            .filter { user.hasAccess(it) }
+            .toList()
             .toBlocking().first()
 }
