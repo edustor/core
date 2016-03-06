@@ -35,7 +35,7 @@ class PdfReaderService @Autowired constructor(
 ) {
     private val logger = LoggerFactory.getLogger(PdfReaderService::class.java)
     private val renderThreadExecutor = Executors.newSingleThreadExecutor(CustomizableThreadFactory("pdf-render"));
-    private val renderer = SimpleRenderer().let { it.resolution = 100; it }
+    private val renderer = SimpleRenderer().let { it.resolution = 150; it }
     private val codeReader = QRCodeReader()
     private val QR_DOWNSCALE_SIZE = 200
 
@@ -131,9 +131,9 @@ class PdfReaderService @Autowired constructor(
         logger.trace("Cropping and scaling")
         val cropped = image.getSubimage(
                 (image.width * 0.8f).toInt(),
-                (image.height * 0.85f).toInt(),
+                (image.height * 0.83f).toInt(),
                 (image.width * 0.15f).toInt(),
-                (image.height * 0.1f).toInt()
+                (image.height * 0.12f).toInt()
         ).getScaledInstance(QR_DOWNSCALE_SIZE, QR_DOWNSCALE_SIZE, Image.SCALE_DEFAULT)
         logger.trace("Drawing")
         val qrImage = BufferedImage(QR_DOWNSCALE_SIZE, QR_DOWNSCALE_SIZE, BufferedImage.TYPE_BYTE_BINARY)
