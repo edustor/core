@@ -19,8 +19,11 @@ fun Observable<TimetableEntry>.getActiveTimetableEntry(time: LocalDateTime): Obs
 
 fun Observable<TimetableEntry>.getLesson(lessonsRepo: LessonsRepository, today: LocalDate): Observable<Lesson> {
     return this.map {
-        lessonsRepo.findLesson(it.subject!!, today, it.start!!, it.end!!)
-                ?: Lesson(it.subject, it.start, it.end, today)
+        lessonsRepo.findLesson(it.subject!!, today, it.start!!, it.end!!)?.let { return@map it }
+
+        val lesson = Lesson(it.subject!!, it.start!!, it.end!!, today)
+        lessonsRepo.save(lesson)
+        return@map lesson
     }
 }
 
