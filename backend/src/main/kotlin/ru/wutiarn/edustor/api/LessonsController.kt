@@ -46,4 +46,16 @@ class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepositor
 
         return lesson
     }
+
+    @RequestMapping("/{lesson}/reorder")
+    fun reorderDocuments(@AuthenticationPrincipal user: User, @PathVariable lesson: Lesson, @RequestParam document: Document, @RequestParam after: Document) {
+        if (!user.hasAccess(lesson)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "You have not access to this lesson")
+        if (!lesson.documents.containsAll(listOf(document, after))) throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Lesson must contain both documents")
+
+        lesson.documents.remove(document)
+        val targetIndex = lesson.documents.indexOf(after) + 1
+        lesson.documents.add(targetIndex, document)
+
+        lessonsRepo.save(lesson)
+    }
 }

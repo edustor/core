@@ -49,7 +49,6 @@ class PdfController @Autowired constructor(val gfs: GridFsOperations) {
         lesson.documents
                 .filter { it.isUploaded == true }
                 .filter { it.contentType == "application/pdf" }
-                .sorted()
                 .map {
                     gfs.findOne(Query.query(GridFsCriteria.whereFilename().`is`(it.id)))
                 }
