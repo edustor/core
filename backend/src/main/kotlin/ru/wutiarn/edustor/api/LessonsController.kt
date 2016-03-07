@@ -56,6 +56,7 @@ class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepositor
         val targetIndex = lesson.documents.indexOf(after) + 1
         lesson.documents.add(targetIndex, document)
 
+        //        TODO: Optimistic lock exception handling
         lessonsRepo.save(lesson)
     }
 }

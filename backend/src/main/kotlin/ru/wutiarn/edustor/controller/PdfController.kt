@@ -39,7 +39,7 @@ class PdfController @Autowired constructor(val gfs: GridFsOperations) {
     fun getPdf(@PathVariable lesson: Lesson?): ByteArray {
         lesson ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
 
-        if (!lesson.documents.any { it.contentType == "application/pdf" }) throw HttpRequestProcessingException(HttpStatus.NO_CONTENT, "No pages found")
+        if (!lesson.documents.any { it.contentType == "application/pdf" }) throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "No pages found")
         val document = com.itextpdf.text.Document()
 
         val outputStream = ByteArrayOutputStream()

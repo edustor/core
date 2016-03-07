@@ -1,6 +1,7 @@
 package ru.wutiarn.edustor.models
 
 import org.springframework.data.annotation.Id
+import org.springframework.data.annotation.Version
 import org.springframework.data.mongodb.core.mapping.DBRef
 import java.time.LocalDate
 import java.time.LocalTime
@@ -14,5 +15,6 @@ data class Lesson(
         var end: LocalTime? = null,
         var date: LocalDate? = null,
         @DBRef(lazy = true) var documents: MutableList<Document> = mutableListOf(),
-        @Id var id: String? = null
+        @Id var id: String? = null,
+        @Version var version: Long = 0
 )
