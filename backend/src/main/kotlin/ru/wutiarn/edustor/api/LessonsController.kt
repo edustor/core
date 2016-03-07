@@ -1,6 +1,7 @@
 package ru.wutiarn.edustor.api
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.PathVariable
@@ -15,6 +16,7 @@ import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.utils.extensions.assertHasAccess
 import ru.wutiarn.edustor.utils.extensions.getActiveLesson
+import rx.Observable
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -49,15 +51,24 @@ open class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepo
     }
 
     @RequestMapping("/{lesson}/reorder")
-    fun reorderDocuments(@AuthenticationPrincipal user: User, @PathVariable lesson: Lesson, @RequestParam document: Document, @RequestParam after: Document) {
-        user.assertHasAccess(lesson)
-        if (!lesson.documents.containsAll(listOf(document, after))) throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Specified lesson must contain both documents")
+    fun reorderDocuments(@AuthenticationPrincipal user: User, @PathVariable("lesson") lessonId: String, @RequestParam document: Document, @RequestParam after: Document) {
+        Observable.just(lessonId)
+                .map { }
+                .map {
+                    val lesson = lessonsRepo.findOne(lessonId) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Lesson is not found")
+                    user.assertHasAccess(lesson)
+                    if (!lesson.documents.containsAll(listOf(document, after))) throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Specified lesson must contain both documents")
+                    lesson.documents.remove(document)
 
-        lesson.documents.remove(document)
-        val targetIndex = lesson.documents.indexOf(after) + 1
-        lesson.documents.add(targetIndex, document)
-
-        //        TODO: Optimistic lock exception handling
-        lessonsRepo.save(lesson)
+                    val targetIndex = lesson.documents.indexOf(after) + 1
+                    lesson.documents.add(targetIndex, document)
+                    lessonsRepo.save(lesson)
+                }
+                .retry { i, throwable ->
+                    if (throwable !is OptimisticLockingFailureException) return@retry false
+                    return@retry i <= 3
+                }
+                // Optimistic locking
+                .toBlocking().subscribe()
     }
 }
