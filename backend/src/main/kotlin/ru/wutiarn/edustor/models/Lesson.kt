@@ -1,5 +1,6 @@
 package ru.wutiarn.edustor.models
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Version
 import org.springframework.data.mongodb.core.mapping.DBRef
@@ -16,5 +17,5 @@ data class Lesson(
         var date: LocalDate? = null,
         @DBRef(lazy = true) var documents: MutableList<Document> = mutableListOf(),
         @Id var id: String? = null,
-        @Version var version: Long = 0
+        @Version @JsonIgnore var version: Long = 0
 )

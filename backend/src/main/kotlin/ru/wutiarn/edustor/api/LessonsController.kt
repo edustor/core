@@ -64,11 +64,11 @@ open class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepo
                     lesson.documents.add(targetIndex, document)
                     lessonsRepo.save(lesson)
                 }
+                // Optimistic locking
                 .retry { i, throwable ->
                     if (throwable !is OptimisticLockingFailureException) return@retry false
                     return@retry i <= 3
                 }
-                // Optimistic locking
                 .toBlocking().subscribe()
     }
 }
