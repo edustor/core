@@ -11,8 +11,8 @@ import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.services.PdfReaderService
+import ru.wutiarn.edustor.utils.extensions.assertHasAccess
 import ru.wutiarn.edustor.utils.extensions.getActiveLesson
-import ru.wutiarn.edustor.utils.extensions.hasAccess
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -43,7 +43,7 @@ class DocumentsController @Autowired constructor(
     @RequestMapping("/uuid/{uuid}")
     fun uuid_info(@PathVariable uuid: String, @AuthenticationPrincipal user: User): Document? {
         val document = repo.findByUuid(uuid) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        if (!user.hasAccess(document, lessonsRepo)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN)
+        user.assertHasAccess(document, lessonsRepo)
         return document
     }
 

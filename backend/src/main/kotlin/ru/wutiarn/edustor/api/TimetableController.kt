@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
+import ru.wutiarn.edustor.models.Subject
 import ru.wutiarn.edustor.models.TimetableEntry
 import ru.wutiarn.edustor.models.User
-import ru.wutiarn.edustor.repository.SubjectsRepository
 import ru.wutiarn.edustor.repository.UserRepository
-import ru.wutiarn.edustor.utils.extensions.hasAccess
+import ru.wutiarn.edustor.utils.extensions.assertHasAccess
 import java.time.DayOfWeek
 import java.time.LocalTime
 
@@ -20,8 +20,7 @@ import java.time.LocalTime
  */
 @RestController
 @RequestMapping("/api/timetable")
-class TimetableController @Autowired constructor(val userRepository: UserRepository,
-                                                 val subjectsRepository: SubjectsRepository) {
+class TimetableController @Autowired constructor(val userRepository: UserRepository) {
 
     @RequestMapping("/list")
     fun listTimetable(@AuthenticationPrincipal user: User): List<TimetableEntry> {
@@ -30,15 +29,14 @@ class TimetableController @Autowired constructor(val userRepository: UserReposit
 
     @RequestMapping("/create")
     fun createTimetable(@AuthenticationPrincipal user: User,
-                        @RequestParam("subject") subjectId: String,
+                        @RequestParam subject: Subject,
                         @RequestParam day_of_week: Int,
                         @RequestParam start_hour: Int,
                         @RequestParam end_hour: Int,
                         @RequestParam start_minute: Int,
                         @RequestParam end_minute: Int
     ): TimetableEntry {
-        val subject = subjectsRepository.findOne(subjectId) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        if (!user.hasAccess(subject)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN)
+        user.assertHasAccess(subject)
 
         val start = LocalTime.of(start_hour, start_minute)
         val end = LocalTime.of(end_hour, end_minute)
