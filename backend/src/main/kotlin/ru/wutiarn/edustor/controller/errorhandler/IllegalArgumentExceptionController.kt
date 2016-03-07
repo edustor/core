@@ -1,6 +1,5 @@
 package ru.wutiarn.edustor.controller.errorhandler
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -10,10 +9,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @ControllerAdvice
-class IllegalArgumentExceptionController {
-
-    @Autowired
-    lateinit var hrpeController: HttpRequestProcessingExceptionController
+class IllegalArgumentExceptionController : HttpRequestProcessingExceptionController() {
 
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIAE(req: HttpServletRequest,
@@ -22,7 +18,7 @@ class IllegalArgumentExceptionController {
                   locale: Locale) {
         val exception = HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "One of required argument is not specified or couldn't be resolved in database")
 
-        hrpeController.handleHRPEPage(req, resp, exception, locale)
+        handleHRPEPage(req, resp, exception, locale)
 
     }
 }

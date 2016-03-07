@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse
  * Created by wutiarn on 11/02/16.
  */
 @ControllerAdvice
-class HttpRequestProcessingExceptionController {
+open class HttpRequestProcessingExceptionController {
     @Autowired
     private lateinit var errorAttributes: ErrorAttributes
 
