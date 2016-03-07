@@ -1,4 +1,4 @@
-package ru.wutiarn.edustor
+package ru.wutiarn.edustor.controller.errorhandler
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired

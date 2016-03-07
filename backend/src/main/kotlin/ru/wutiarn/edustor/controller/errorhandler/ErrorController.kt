@@ -1,7 +1,8 @@
-package ru.wutiarn.edustor
+package ru.wutiarn.edustor.controller.errorhandler
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.web.ErrorAttributes
+import org.springframework.boot.autoconfigure.web.ErrorController
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.RequestMapping
@@ -14,7 +15,7 @@ import javax.servlet.http.HttpServletRequest
  */
 @Controller
 @RequestMapping("/error")
-class ErrorController : org.springframework.boot.autoconfigure.web.ErrorController {
+class ErrorController : ErrorController {
     @Autowired
     private val errorAttributes: ErrorAttributes? = null
 
