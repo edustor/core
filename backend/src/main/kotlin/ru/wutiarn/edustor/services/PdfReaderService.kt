@@ -83,7 +83,6 @@ class PdfReaderService @Autowired constructor(
             val findByUuid = documentRepo.findByUuid(page.uuid!!)
 
             findByUuid?.let {
-
                 val document = Document()
                 val byteArrayOutputStream = ByteArrayOutputStream()
                 val pdfCopy = PdfCopy(document, byteArrayOutputStream)
@@ -98,7 +97,7 @@ class PdfReaderService @Autowired constructor(
                 val existedQuery = Query.query(GridFsCriteria.whereFilename().`is`(page.uuid))
                 gfs.delete(existedQuery)
 
-                gfs.store(bytes.inputStream(), page.uuid, "application/pdf")
+                gfs.store(bytes.inputStream(), it.id, "application/pdf")
                 it.isUploaded = true
                 it.contentType = "application/pdf"
                 documentRepo.save(it)
