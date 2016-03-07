@@ -14,9 +14,8 @@ class IllegalArgumentExceptionController : HttpRequestProcessingExceptionControl
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIAE(req: HttpServletRequest,
                   resp: HttpServletResponse,
-                  ex: IllegalArgumentException,
                   locale: Locale) {
-        val exception = HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "One of required argument is not specified or couldn't be resolved in database")
+        val exception = HttpRequestProcessingException(HttpStatus.NOT_FOUND)
 
         handleHRPEPage(req, resp, exception, locale)
 
