@@ -35,3 +35,7 @@ fun User.assertHasAccess(lesson: Lesson) {
 fun User.assertHasAccess(document: Document, lessonsRepository: LessonsRepository) {
     if (!this.hasAccess(document, lessonsRepository)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "Document access forbidden")
 }
+
+fun Document.assertIsOwner(user: User) {
+    if (this.owner?.id != user.id) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "You're not owner of this document")
+}

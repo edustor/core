@@ -1,6 +1,9 @@
 package ru.wutiarn.edustor.api
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.gridfs.GridFsCriteria
+import org.springframework.data.mongodb.gridfs.GridFsOperations
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -12,6 +15,7 @@ import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.services.PdfReaderService
 import ru.wutiarn.edustor.utils.extensions.assertHasAccess
+import ru.wutiarn.edustor.utils.extensions.assertIsOwner
 import ru.wutiarn.edustor.utils.extensions.getActiveLesson
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -24,7 +28,9 @@ import java.time.ZoneOffset
 class DocumentsController @Autowired constructor(
         val repo: DocumentsRepository,
         val lessonsRepo: LessonsRepository,
-        val PdfReaderService: PdfReaderService
+        val documentsRepository: DocumentsRepository,
+        val PdfReaderService: PdfReaderService,
+        val gfs: GridFsOperations
 ) {
     @RequestMapping("upload", method = arrayOf(RequestMethod.POST))
     fun upload(@RequestParam("file") file: MultipartFile): String? {
@@ -60,5 +66,17 @@ class DocumentsController @Autowired constructor(
         repo.save(document)
         lessonsRepo.save(lesson)
         return document
+    }
+
+    @RequestMapping("/{document}", method = arrayOf(RequestMethod.DELETE))
+    fun delete(@AuthenticationPrincipal user: User, @PathVariable document: Document) {
+        document.assertIsOwner(user)
+        val lesson = lessonsRepo.findByDocumentsContaining(document)
+        lesson?.documents?.remove(document)
+        lessonsRepo.save(lesson)
+        document.isUploaded.let {
+            gfs.delete(Query.query(GridFsCriteria.whereFilename().`is`(document.id)))
+        }
+        documentsRepository.delete(document)
     }
 }
