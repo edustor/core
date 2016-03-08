@@ -27,11 +27,11 @@ import java.time.ZoneOffset
 @RequestMapping("/api/lessons")
 open class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepository, val documentsRepository: DocumentsRepository) {
 
-    @RequestMapping("/{lesson}/documents")
-    fun getDocuments(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: User): List<Document> {
+    @RequestMapping("/{lesson}")
+    fun getLesson(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: User): Lesson {
         user.assertHasAccess(lesson)
 
-        return lesson.documents
+        return lesson
     }
 
     @RequestMapping("/current")
