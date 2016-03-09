@@ -9,7 +9,6 @@ import ru.wutiarn.edustor.models.Document
 import ru.wutiarn.edustor.models.Lesson
 import ru.wutiarn.edustor.models.Subject
 import java.time.LocalDate
-import java.time.LocalTime
 
 /**
  * Created by wutiarn on 28.02.16.
@@ -20,17 +19,15 @@ interface LessonsRepository : MongoRepository<Lesson, String>, LessonsRepository
 }
 
 interface LessonsRepositoryCustom {
-    fun findLesson(subject: Subject, date: LocalDate, start: LocalTime, end: LocalTime): Lesson?
+    fun findLesson(subject: Subject, date: LocalDate): Lesson?
 }
 
 @Suppress("unused")
 class LessonsRepositoryImpl @Autowired constructor(val mongo: MongoOperations) : LessonsRepositoryCustom {
-    override fun findLesson(subject: Subject, date: LocalDate, start: LocalTime, end: LocalTime): Lesson? {
+    override fun findLesson(subject: Subject, date: LocalDate): Lesson? {
         return mongo.findOne(query(
                 where("subject").`is`(subject)
                         .and("date").`is`(date)
-                        .and("start").`is`(start)
-                        .and("end").`is`(end)
         ), Lesson::class.java)
     }
 }
