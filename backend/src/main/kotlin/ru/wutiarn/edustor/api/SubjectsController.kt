@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
+import ru.wutiarn.edustor.models.Group
 import ru.wutiarn.edustor.models.Lesson
 import ru.wutiarn.edustor.models.Subject
 import ru.wutiarn.edustor.models.User
@@ -35,9 +36,8 @@ class SubjectsController @Autowired constructor(val repo: SubjectsRepository,
     }
 
     @RequestMapping("/create")
-    fun createSubject(@AuthenticationPrincipal user: User, @RequestParam name: String, @RequestParam year: Int, @RequestParam("group") groupId: String): Subject {
-        val group = groupsRepo.findOne(groupId)
-        if (user !in group.owners) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN)
+    fun createSubject(@AuthenticationPrincipal user: User, @RequestParam name: String, @RequestParam year: Int, @RequestParam group: Group): Subject {
+        if (user !in group.owners) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "You're not owner of this group")
         val subject = Subject(name, year, mutableListOf(group))
         group.subjects.add(subject)
         repo.save(subject)

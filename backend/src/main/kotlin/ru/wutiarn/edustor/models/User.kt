@@ -14,4 +14,13 @@ open class User(
         @JsonIgnore @DBRef(lazy = true) var groups: MutableList<Group> = mutableListOf(),
         @JsonIgnore var timetable: MutableList<TimetableEntry> = mutableListOf(),
         @Id var id: String? = null
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (other !is User) return false
+        return id == other.id
+    }
+
+    override fun hashCode(): Int {
+        return id?.hashCode() ?: super.hashCode()
+    }
+}
