@@ -50,17 +50,20 @@ open class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepo
         return lesson
     }
 
-    @RequestMapping("/{lesson}/reorder")
-    fun reorderDocuments(@AuthenticationPrincipal user: User, @PathVariable("lesson") lessonId: String, @RequestParam document: Document, @RequestParam after: Document) {
+    @RequestMapping("/{lesson}/documents/reorder")
+    fun reorderDocuments(@AuthenticationPrincipal user: User, @PathVariable("lesson") lessonId: String, @RequestParam document: Document, @RequestParam(required = false) after: Document?) {
         Observable.just(lessonId)
-                .map { }
                 .map {
                     val lesson = lessonsRepo.findOne(lessonId) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Lesson is not found")
                     user.assertHasAccess(lesson)
-                    if (!lesson.documents.containsAll(listOf(document, after))) throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Specified lesson must contain both documents")
+
+                    val documentsCheckList = mutableListOf(document)
+                    after?.let { documentsCheckList.add(after) }
+
+                    if (!lesson.documents.containsAll(documentsCheckList)) throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Specified lesson must contain both documents")
                     lesson.documents.remove(document)
 
-                    val targetIndex = lesson.documents.indexOf(after) + 1
+                    val targetIndex = if (after != null) lesson.documents.indexOf(after) + 1 else 0
                     lesson.documents.add(targetIndex, document)
                     lessonsRepo.save(lesson)
                 }
