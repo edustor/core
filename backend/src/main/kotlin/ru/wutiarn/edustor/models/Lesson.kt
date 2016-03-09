@@ -12,6 +12,7 @@ import java.time.LocalDate
 data class Lesson(
         @DBRef var subject: Subject? = null,
         var date: LocalDate? = null,
+        var topic: String? = null,
         @DBRef(lazy = true) var documents: MutableList<Document> = mutableListOf(),
         @Id var id: String? = null,
         @Version @JsonIgnore var version: Long = 0

@@ -4,10 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
 import ru.wutiarn.edustor.models.Document
 import ru.wutiarn.edustor.models.Lesson
@@ -32,6 +29,13 @@ open class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepo
         user.assertHasAccess(lesson)
 
         return lesson
+    }
+
+    @RequestMapping("/{lesson}/topic", method = arrayOf(RequestMethod.POST))
+    fun setTopic(@PathVariable lesson: Lesson, @RequestParam(required = false) topic: String?, @AuthenticationPrincipal user: User) {
+        user.assertHasAccess(lesson)
+        lesson.topic = topic
+        lessonsRepo.save(lesson)
     }
 
     @RequestMapping("/current")
