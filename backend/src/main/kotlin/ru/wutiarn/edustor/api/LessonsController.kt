@@ -50,10 +50,12 @@ open class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepo
     fun today(@AuthenticationPrincipal user: User, @RequestParam offset: Int): List<Lesson> {
         val userToday = OffsetDateTime.now(ZoneOffset.ofHours(offset)).toLocalDate()
 
-        return user.timetable.sorted().toObservable()
+        val list = user.timetable.sorted().toObservable()
+                .filter { it.dayOfWeek == userToday.dayOfWeek }
                 .getLessons(lessonsRepo, userToday)
                 .toList()
                 .toBlocking().first()
+        return list
     }
 
     @RequestMapping("/uuid/{uuid}")
