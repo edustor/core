@@ -6,9 +6,11 @@ services:
      - "80:8080"
     links:
       - mongo
+    restart: unless-stopped
   mongo:
     image: mongo:3.2
     volumes:
       - /mnt/mongo:/data/db
     ports:
       - "27017:27017"
+    restart: unless-stopped

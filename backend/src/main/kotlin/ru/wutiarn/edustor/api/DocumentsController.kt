@@ -18,6 +18,7 @@ import ru.wutiarn.edustor.services.PdfReaderService
 import ru.wutiarn.edustor.utils.extensions.assertHasAccess
 import ru.wutiarn.edustor.utils.extensions.assertIsOwner
 import ru.wutiarn.edustor.utils.extensions.getActiveLesson
+import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -55,7 +56,13 @@ class DocumentsController @Autowired constructor(
     }
 
     @RequestMapping("/uuid/activate")
-    fun activate_uuid(@RequestParam uuid: String, @RequestParam("lesson") lessonId: String, @RequestParam offset: Int, @AuthenticationPrincipal user: User): Document {
+    fun activate_uuid(@RequestParam uuid: String,
+                      @RequestParam("lesson") lessonId: String,
+                      @RequestParam offset: Int,
+                      @RequestParam(required = false) instant: Instant?,
+                      @AuthenticationPrincipal user: User
+    ): Document {
+
 
         repo.findByUuid(uuid)?.let {
             throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This UUID is already activated")
@@ -63,7 +70,7 @@ class DocumentsController @Autowired constructor(
 
         val lesson: Lesson
         if (lessonId == "current") {
-            val userNow = OffsetDateTime.now(ZoneOffset.ofHours(offset))
+            val userNow = OffsetDateTime.ofInstant(instant ?: Instant.now(), ZoneOffset.ofHours(offset))
             lesson = user.timetable.getActiveLesson(lessonsRepo, userNow.toLocalDateTime()) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "No entry found in timetable")
         } else {
             lesson = lessonsRepo.findOne(lessonId) ?: throw throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Specified lesson is not found")

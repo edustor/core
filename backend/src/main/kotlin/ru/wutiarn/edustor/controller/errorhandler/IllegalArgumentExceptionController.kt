@@ -15,7 +15,7 @@ class IllegalArgumentExceptionController : HttpRequestProcessingExceptionControl
     fun handleIAE(req: HttpServletRequest,
                   resp: HttpServletResponse,
                   locale: Locale) {
-        val exception = HttpRequestProcessingException(HttpStatus.NOT_FOUND)
+        val exception = HttpRequestProcessingException(HttpStatus.BAD_REQUEST)
 
         handleHRPEPage(req, resp, exception, locale)
 
