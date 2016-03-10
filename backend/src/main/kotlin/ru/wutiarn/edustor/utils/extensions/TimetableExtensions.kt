@@ -17,7 +17,7 @@ fun Observable<TimetableEntry>.getActiveTimetableEntry(time: LocalDateTime): Obs
             .last { it.start!! < time.toLocalTime() }
 }
 
-fun Observable<TimetableEntry>.getLesson(lessonsRepo: LessonsRepository, today: LocalDate): Observable<Lesson> {
+fun Observable<TimetableEntry>.getLessons(lessonsRepo: LessonsRepository, today: LocalDate): Observable<Lesson> {
     return this.map {
         lessonsRepo.findLesson(it.subject!!, today)?.let { return@map it }
 
@@ -30,7 +30,7 @@ fun Observable<TimetableEntry>.getLesson(lessonsRepo: LessonsRepository, today: 
 fun List<TimetableEntry>.getActiveLesson(lessonsRepo: LessonsRepository, userNow: LocalDateTime): Lesson? {
     return this.toObservable()
             .getActiveTimetableEntry(userNow)
-            .getLesson(lessonsRepo, userNow.toLocalDate())
+            .getLessons(lessonsRepo, userNow.toLocalDate())
             .onErrorReturnNull()
             .toBlocking().firstOrNull()
 }
