@@ -36,7 +36,6 @@ class DocumentsController @Autowired constructor(
 ) {
     @RequestMapping("upload", method = arrayOf(RequestMethod.POST))
     fun upload(@RequestParam("file") file: MultipartFile): String? {
-        file.contentType
         when (file.contentType) {
             "application/pdf" -> {
                 PdfReaderService.processPdfUpload(file.inputStream)
