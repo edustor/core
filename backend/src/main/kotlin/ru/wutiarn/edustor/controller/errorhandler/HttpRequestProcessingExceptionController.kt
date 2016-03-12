@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 /**
- * Converts occured [HttpRequestProcessingException] to HTML/JSON and sends it to client
+ * Converts occurred [HttpRequestProcessingException] to HTML/JSON and sends it to client
  * Created by wutiarn on 11/02/16.
  */
 @ControllerAdvice
