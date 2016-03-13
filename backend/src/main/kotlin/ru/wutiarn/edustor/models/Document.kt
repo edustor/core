@@ -15,6 +15,7 @@ data class Document(
         var isUploaded: Boolean = false,
         var contentType: String? = null,
         var timestamp: Instant = Instant.now(),
+        var uploadedTimestamp: Instant? = null,
         @Id var id: String = ObjectId.get().toHexString()
 ) {
     override fun equals(other: Any?): Boolean {

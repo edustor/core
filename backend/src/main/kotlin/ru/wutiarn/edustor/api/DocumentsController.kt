@@ -11,14 +11,17 @@ import org.springframework.web.multipart.MultipartFile
 import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
 import ru.wutiarn.edustor.models.Document
 import ru.wutiarn.edustor.models.Lesson
+import ru.wutiarn.edustor.models.Subject
 import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.services.PdfReaderService
+import ru.wutiarn.edustor.utils.UploadPreferences
 import ru.wutiarn.edustor.utils.extensions.assertHasAccess
 import ru.wutiarn.edustor.utils.extensions.assertIsOwner
 import ru.wutiarn.edustor.utils.extensions.getActiveLesson
 import java.time.Instant
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -35,10 +38,25 @@ class DocumentsController @Autowired constructor(
         val gfs: GridFsOperations
 ) {
     @RequestMapping("upload", method = arrayOf(RequestMethod.POST))
-    fun upload(@RequestParam("file") file: MultipartFile): String? {
+    fun upload(@RequestParam("file") file: MultipartFile, @AuthenticationPrincipal user: User,
+               @RequestParam(required = false) subject: Subject?,
+               @RequestParam("date", required = false) date_str: String?,
+               @RequestParam(required = false) topic: String?
+    ): String? {
+        var date: LocalDate? = null
+        date_str?.let {
+            date = LocalDate.parse(date_str)
+        }
+
+        val uploadPreferences = UploadPreferences(uploader = user)
+
+        if (subject != null && date != null) {
+            uploadPreferences.lesson = lessonsRepo.findLesson(subject, date!!) ?: Lesson(subject, date, topic)
+        }
+
         when (file.contentType) {
             "application/pdf" -> {
-                PdfReaderService.processPdfUpload(file.inputStream)
+                PdfReaderService.processPdfUpload(file.inputStream, uploadPreferences)
             }
             else -> {
                 throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "Unsupported content type: ${file.contentType}")

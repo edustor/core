@@ -22,11 +22,14 @@ import ru.wutiarn.edustor.repository.SubjectsRepository
 @RequestMapping("/api/subjects")
 class SubjectsController @Autowired constructor(val repo: SubjectsRepository,
                                                 val groupsRepo: GroupsRepository,
-                                                val lessonsRepository: LessonsRepository) {
+                                                val lessonsRepository: LessonsRepository,
+                                                val subjectsRepository: SubjectsRepository) {
 
     @RequestMapping("/list")
     fun listSubjects(@AuthenticationPrincipal user: User): List<Subject> {
-        return user.groups.flatMap { it.subjects }
+        val result = user.groups.flatMap { it.subjects }.toMutableList()
+        result.addAll(subjectsRepository.findByOwner(user))
+        return result
     }
 
     @RequestMapping("/{subject}/lessons")
@@ -36,12 +39,19 @@ class SubjectsController @Autowired constructor(val repo: SubjectsRepository,
     }
 
     @RequestMapping("/create")
-    fun createSubject(@AuthenticationPrincipal user: User, @RequestParam name: String, @RequestParam year: Int, @RequestParam group: Group): Subject {
-        if (user !in group.owners) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "You're not owner of this group")
-        val subject = Subject(name, year, mutableListOf(group))
-        group.subjects.add(subject)
+    fun createSubject(@AuthenticationPrincipal user: User, @RequestParam name: String, @RequestParam year: Int, @RequestParam(required = false) group: Group?): Subject {
+
+        val subject = Subject(name, year, user)
+
+        group?.let {
+            if (user !in group.owners) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "You're not owner of this group")
+            subject.groups.add(group)
+            group.subjects.add(subject)
+            groupsRepo.save(group)
+        }
+
         repo.save(subject)
-        groupsRepo.save(group)
         return subject
+
     }
 }

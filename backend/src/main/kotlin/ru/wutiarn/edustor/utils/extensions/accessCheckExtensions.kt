@@ -12,7 +12,7 @@ import ru.wutiarn.edustor.repository.LessonsRepository
  * Created by wutiarn on 28.02.16.
  */
 fun User.hasAccess(subject: Subject): Boolean {
-    return subject.groups.intersect(this.groups).isNotEmpty()
+    return subject.groups.intersect(this.groups).isNotEmpty() || subject.owner == this
 }
 
 fun User.hasAccess(lesson: Lesson): Boolean {

@@ -6,7 +6,6 @@ import com.google.zxing.NotFoundException
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource
 import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.qrcode.QRCodeReader
-import com.itextpdf.text.Document
 import com.itextpdf.text.pdf.PdfCopy
 import com.itextpdf.text.pdf.PdfReader
 import org.ghost4j.document.PDFDocument
@@ -18,7 +17,10 @@ import org.springframework.data.mongodb.gridfs.GridFsCriteria
 import org.springframework.data.mongodb.gridfs.GridFsOperations
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory
 import org.springframework.stereotype.Service
+import ru.wutiarn.edustor.models.Document
 import ru.wutiarn.edustor.repository.DocumentsRepository
+import ru.wutiarn.edustor.repository.LessonsRepository
+import ru.wutiarn.edustor.utils.UploadPreferences
 import rx.Observable
 import rx.lang.kotlin.toObservable
 import rx.schedulers.Schedulers
@@ -26,12 +28,15 @@ import java.awt.Image
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import java.time.Instant
 import java.util.concurrent.Executors
+import com.itextpdf.text.Document as PdfDocument
 
 @Service
 class PdfReaderService @Autowired constructor(
         private val gfs: GridFsOperations,
-        private val documentRepo: DocumentsRepository
+        private val documentRepo: DocumentsRepository,
+        private val lessonsRepository: LessonsRepository
 ) {
     private val logger = LoggerFactory.getLogger(PdfReaderService::class.java)
     private val renderThreadExecutor = Executors.newSingleThreadExecutor(CustomizableThreadFactory("pdf-render"));
@@ -48,7 +53,7 @@ class PdfReaderService @Autowired constructor(
     /**
      * Created by wutiarn on 26.02.16.
      */
-    fun processPdfUpload(fileStream: InputStream) {
+    fun processPdfUpload(fileStream: InputStream, uploadPreferences: UploadPreferences? = null) {
 
         val byteOut = ByteArrayOutputStream()
         val bytes: ByteArray
@@ -72,39 +77,56 @@ class PdfReaderService @Autowired constructor(
                 .map { it.uuid = readQR(it.renderedImage); it }
                 .subscribe() {
                     logger.info("Saving ${it.index}")
-                    savePage(it, document)
+                    savePage(it, document, uploadPreferences)
                     logger.info("completed: ${it.index} ${it.uuid}")
                 }
     }
 
-    private fun savePage(page: Page, reader: PdfReader) {
+    private fun savePage(page: Page, reader: PdfReader, uploadPreferences: UploadPreferences? = null) {
 
-        page.uuid?.let {
-            val findByUuid = documentRepo.findByUuid(page.uuid!!)
+        var document: Document? = null
 
-            findByUuid?.let {
-                val document = Document()
-                val byteArrayOutputStream = ByteArrayOutputStream()
-                val pdfCopy = PdfCopy(document, byteArrayOutputStream)
-                val importedPage = pdfCopy.getImportedPage(reader, page.index + 1)
-
-                document.open()
-                pdfCopy.addPage(importedPage)
-                document.close()
-
-                val bytes = byteArrayOutputStream.toByteArray()
-
-                val existedQuery = Query.query(GridFsCriteria.whereFilename().`is`(page.uuid))
-                gfs.delete(existedQuery)
-
-                gfs.store(bytes.inputStream(), it.id, "application/pdf")
-                it.isUploaded = true
-                it.contentType = "application/pdf"
-                documentRepo.save(it)
-                return
-            }
-            logger.warn("Not found in database: ${page.uuid}")
+        if (uploadPreferences?.lesson != null) {
+            document = Document(uuid = page.uuid)
+            uploadPreferences?.lesson?.documents?.add(document)
+        } else if (page.uuid != null) {
+            document = documentRepo.findByUuid(page.uuid!!)
+        } else {
+            logger.warn("Page ${page.index}: No uuid found")
         }
+
+        document?.let {
+            val existedQuery = Query.query(GridFsCriteria.whereFilename().`is`(page.uuid))
+            gfs.delete(existedQuery)
+
+            val bytes = getPageAsBytes(page, reader)
+
+            gfs.store(bytes.inputStream(), it.id, "application/pdf")
+            it.isUploaded = true
+            it.uploadedTimestamp = Instant.now()
+            it.contentType = "application/pdf"
+            it.owner = uploadPreferences?.uploader
+            documentRepo.save(it)
+            uploadPreferences?.lesson?.let {
+                lessonsRepository.save(it)
+            }
+            return
+        }
+
+        logger.warn("Not found page ${page.index} in database: ${page.uuid}")
+    }
+
+    private fun getPageAsBytes(page: Page, reader: PdfReader): ByteArray {
+        val document = PdfDocument()
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        val pdfCopy = PdfCopy(document, byteArrayOutputStream)
+        val importedPage = pdfCopy.getImportedPage(reader, page.index + 1)
+
+        document.open()
+        pdfCopy.addPage(importedPage)
+        document.close()
+
+        return byteArrayOutputStream.toByteArray()
     }
 
     private fun getPageRanges(pageCount: Int, itemsPerRange: Int = 3): MutableList<Pair<Int, Int>> {
