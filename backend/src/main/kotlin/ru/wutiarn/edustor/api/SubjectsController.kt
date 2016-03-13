@@ -47,10 +47,14 @@ class SubjectsController @Autowired constructor(val repo: SubjectsRepository,
             if (user !in group.owners) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "You're not owner of this group")
             subject.groups.add(group)
             group.subjects.add(subject)
-            groupsRepo.save(group)
         }
 
         repo.save(subject)
+
+        group?.let {
+            groupsRepo.save(group)
+        }
+
         return subject
 
     }
