@@ -32,7 +32,7 @@ class SubjectsController @Autowired constructor(val repo: SubjectsRepository,
     @RequestMapping("/{subject}/lessons")
     fun listTimetable(subject: Subject?): List<Lesson> {
         subject ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        return lessonsRepository.findBySubject(subject)
+        return lessonsRepository.findBySubject(subject).filter { it.documents.isNotEmpty() }
     }
 
     @RequestMapping("/create")
