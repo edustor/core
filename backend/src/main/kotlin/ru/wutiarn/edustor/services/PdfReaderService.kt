@@ -96,7 +96,7 @@ class PdfReaderService @Autowired constructor(
         }
 
         document?.let {
-            val existedQuery = Query.query(GridFsCriteria.whereFilename().`is`(page.uuid))
+            val existedQuery = Query.query(GridFsCriteria.whereFilename().`is`(document!!.id))
             gfs.delete(existedQuery)
 
             val bytes = getPageAsBytes(page, reader)
