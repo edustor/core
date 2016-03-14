@@ -16,4 +16,9 @@ data class Lesson(
         @DBRef(lazy = true) var documents: MutableList<Document> = mutableListOf(),
         @Id var id: String? = null,
         @Version @JsonIgnore var version: Long = 0
-)
+) : Comparable<Lesson> {
+    override fun compareTo(other: Lesson): Int {
+        return date?.compareTo(other.date) ?: 0
+    }
+
+}

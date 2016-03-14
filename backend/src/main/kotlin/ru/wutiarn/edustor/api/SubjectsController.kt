@@ -11,7 +11,6 @@ import ru.wutiarn.edustor.models.Group
 import ru.wutiarn.edustor.models.Lesson
 import ru.wutiarn.edustor.models.Subject
 import ru.wutiarn.edustor.models.User
-import ru.wutiarn.edustor.repository.GroupsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.repository.SubjectsRepository
 
@@ -21,7 +20,6 @@ import ru.wutiarn.edustor.repository.SubjectsRepository
 @RestController
 @RequestMapping("/api/subjects")
 class SubjectsController @Autowired constructor(val repo: SubjectsRepository,
-                                                val groupsRepo: GroupsRepository,
                                                 val lessonsRepository: LessonsRepository,
                                                 val subjectsRepository: SubjectsRepository) {
 
@@ -35,7 +33,7 @@ class SubjectsController @Autowired constructor(val repo: SubjectsRepository,
     @RequestMapping("/{subject}/lessons")
     fun listTimetable(subject: Subject?): List<Lesson> {
         subject ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        return lessonsRepository.findBySubject(subject).filter { it.documents.isNotEmpty() }
+        return lessonsRepository.findBySubject(subject).filter { it.documents.isNotEmpty() }.sortedDescending()
     }
 
     @RequestMapping("/create")
