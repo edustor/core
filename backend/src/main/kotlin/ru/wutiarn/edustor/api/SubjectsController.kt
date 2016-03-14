@@ -27,7 +27,7 @@ class SubjectsController @Autowired constructor(val repo: SubjectsRepository,
 
     @RequestMapping("/list")
     fun listSubjects(@AuthenticationPrincipal user: User): List<Subject> {
-        val result = user.groups.flatMap { it.subjects }.toMutableList()
+        val result = user.groups.flatMap { subjectsRepository.findByGroupsContaining(it) }.toMutableList()
         result.addAll(subjectsRepository.findByOwner(user))
         return result
     }
@@ -46,14 +46,9 @@ class SubjectsController @Autowired constructor(val repo: SubjectsRepository,
         group?.let {
             if (user !in group.owners) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "You're not owner of this group")
             subject.groups.add(group)
-            group.subjects.add(subject)
         }
 
         repo.save(subject)
-
-        group?.let {
-            groupsRepo.save(group)
-        }
 
         return subject
 

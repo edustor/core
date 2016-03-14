@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef
 data class Subject(
         var name: String? = null,
         var year: Int? = 1,
-        @DBRef var owner: User? = null,
+        @DBRef @JsonIgnore var owner: User? = null,
         @DBRef(lazy = true) @JsonIgnore var groups: MutableList<Group> = mutableListOf(),
         @Id var id: String? = null
 )
