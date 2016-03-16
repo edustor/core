@@ -26,7 +26,7 @@ class PdfController @Autowired constructor(val gfs: GridFsOperations) {
     @RequestMapping("/pdf", produces = arrayOf("application/pdf"))
     @ResponseBody
     fun pdf(@RequestParam(required = false) c: Integer?): ByteArray {
-        val count = c?.toInt() ?: 1
+        val count = c?.toInt() ?: 10
         if (!(count >= 1 && count <= 100)) {
             throw RuntimeException("Too much pages")
         }
