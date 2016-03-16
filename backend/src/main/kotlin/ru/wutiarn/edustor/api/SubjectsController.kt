@@ -25,9 +25,10 @@ class SubjectsController @Autowired constructor(val repo: SubjectsRepository,
 
     @RequestMapping("/list")
     fun listSubjects(@AuthenticationPrincipal user: User): List<Subject> {
-        val result = user.groups.flatMap { subjectsRepository.findByGroupsContaining(it) }.toMutableList()
+        val result = user.groups.flatMap { subjectsRepository.findByGroupsContaining(it) }.toMutableSet()
         result.addAll(subjectsRepository.findByOwner(user))
-        return result
+
+        return result.sorted()
     }
 
     @RequestMapping("/{subject}/lessons")
