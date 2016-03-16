@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*
 import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
 import ru.wutiarn.edustor.models.Document
 import ru.wutiarn.edustor.models.Lesson
+import ru.wutiarn.edustor.models.Subject
 import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
@@ -16,6 +17,7 @@ import ru.wutiarn.edustor.utils.extensions.getActiveLesson
 import ru.wutiarn.edustor.utils.extensions.getLessons
 import rx.Observable
 import rx.lang.kotlin.toObservable
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -29,6 +31,20 @@ open class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepo
     @RequestMapping("/{lesson}")
     fun getLesson(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: User): Lesson {
         user.assertHasAccess(lesson)
+
+        return lesson
+    }
+
+    @RequestMapping("/date")
+    fun byDate(@RequestParam subject: Subject, @RequestParam("date") date_str: String?): Lesson? {
+        var date: LocalDate = LocalDate.parse(date_str)
+
+        var lesson = lessonsRepo.findLesson(subject, date)
+
+        if (lesson == null) {
+            lesson = Lesson(subject, date)
+            lessonsRepo.save(lesson)
+        }
 
         return lesson
     }
