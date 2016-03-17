@@ -12,5 +12,5 @@ services:
     volumes:
       - /mnt/mongo:/data/db
     ports:
-      - "127.0.0.1:27017:27017"
+      - "27017:27017"
     restart: unless-stopped
