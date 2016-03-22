@@ -2,16 +2,19 @@ package ru.wutiarn.edustor.models
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
+import org.springframework.data.mongodb.core.mapping.Document
 
 /**
  * Created by wutiarn on 28.02.16.
  */
+@Document
 data class Subject(
         var name: String? = null,
         var year: Int? = 1,
-        @DBRef @JsonIgnore var owner: User? = null,
-        @DBRef(lazy = true) @JsonIgnore var groups: MutableList<Group> = mutableListOf(),
+        @Indexed @DBRef @JsonIgnore var owner: User? = null,
+        @Indexed @DBRef(lazy = true) @JsonIgnore var groups: MutableList<Group> = mutableListOf(),
         @Id var id: String? = null
 ) : Comparable<Subject> {
     override fun compareTo(other: Subject): Int {

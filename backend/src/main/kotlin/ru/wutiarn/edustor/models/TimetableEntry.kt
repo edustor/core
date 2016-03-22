@@ -1,12 +1,14 @@
 package ru.wutiarn.edustor.models
 
 import org.springframework.data.mongodb.core.mapping.DBRef
+import org.springframework.data.mongodb.core.mapping.Document
 import java.time.DayOfWeek
 import java.time.LocalTime
 
 /**
  * Created by wutiarn on 28.02.16.
  */
+@Document
 data class TimetableEntry(
         @DBRef var subject: Subject? = null,
         var dayOfWeek: DayOfWeek? = null,
