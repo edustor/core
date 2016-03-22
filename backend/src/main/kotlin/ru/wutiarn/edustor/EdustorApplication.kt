@@ -6,9 +6,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.data.mongodb.core.MongoTemplate
 import java.util.*
 
-/**
- * Created by wutiarn on 22.02.16.
- */
 @SpringBootApplication
 open class EdustorApplication {
     init {

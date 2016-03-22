@@ -6,9 +6,6 @@ import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 
-/**
- * Created by wutiarn on 28.02.16.
- */
 @Document
 data class Subject(
         var name: String? = null,

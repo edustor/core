@@ -50,9 +50,6 @@ class PdfReaderService @Autowired constructor(
             var uuid: String? = null
     )
 
-    /**
-     * Created by wutiarn on 26.02.16.
-     */
     fun processPdfUpload(fileStream: InputStream, uploadPreferences: UploadPreferences? = null) {
 
         val byteOut = ByteArrayOutputStream()

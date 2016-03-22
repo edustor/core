@@ -11,9 +11,6 @@ import org.springframework.stereotype.Repository
 import ru.wutiarn.edustor.models.Group
 import ru.wutiarn.edustor.models.User
 
-/**
- * Created by wutiarn on 22.02.16.
- */
 @Repository
 interface UserRepository : MongoRepository<User, String>, UserRepositoryCustom {
     fun findByLogin(login: String): User?

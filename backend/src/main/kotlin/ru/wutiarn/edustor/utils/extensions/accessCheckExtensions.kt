@@ -8,9 +8,6 @@ import ru.wutiarn.edustor.models.Subject
 import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.LessonsRepository
 
-/**
- * Created by wutiarn on 28.02.16.
- */
 fun User.hasAccess(subject: Subject): Boolean {
     return subject.groups.intersect(this.groups).isNotEmpty() || subject.owner == this
 }

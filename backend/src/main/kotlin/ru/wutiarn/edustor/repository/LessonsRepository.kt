@@ -10,9 +10,6 @@ import ru.wutiarn.edustor.models.Lesson
 import ru.wutiarn.edustor.models.Subject
 import java.time.LocalDate
 
-/**
- * Created by wutiarn on 28.02.16.
- */
 interface LessonsRepository : MongoRepository<Lesson, String>, LessonsRepositoryCustom {
     fun findBySubject(subject: Subject): List<Lesson>
     fun findByDocumentsContaining(document: Document): Lesson?

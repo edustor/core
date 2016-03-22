@@ -25,9 +25,6 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-/**
- * Created by wutiarn on 26.02.16.
- */
 @RestController
 @RequestMapping("/api/documents")
 class DocumentsController @Autowired constructor(

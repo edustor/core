@@ -10,9 +10,6 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import ru.wutiarn.edustor.repository.UserRepository
 
-/**
- * Created by wutiarn on 23.02.16.
- */
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)

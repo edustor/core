@@ -10,9 +10,6 @@ import ru.wutiarn.edustor.models.Session
 import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.UserRepository
 
-/**
- * Created by wutiarn on 23.02.16.
- */
 @RestController
 @RequestMapping("/api/login")
 class LoginController @Autowired constructor(val repo: UserRepository) {

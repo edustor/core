@@ -5,9 +5,6 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 
-/**
- * Created by wutiarn on 28.02.16.
- */
 @Document
 data class Group(
         var name: String? = null,

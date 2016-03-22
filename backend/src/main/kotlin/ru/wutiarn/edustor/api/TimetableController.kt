@@ -15,9 +15,6 @@ import ru.wutiarn.edustor.utils.extensions.assertHasAccess
 import java.time.DayOfWeek
 import java.time.LocalTime
 
-/**
- * Created by wutiarn on 28.02.16.
- */
 @RestController
 @RequestMapping("/api/timetable")
 class TimetableController @Autowired constructor(val userRepository: UserRepository) {

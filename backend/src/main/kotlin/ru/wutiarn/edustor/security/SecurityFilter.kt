@@ -10,9 +10,6 @@ import java.util.*
 import javax.servlet.*
 import javax.servlet.http.HttpServletRequest
 
-/**
- * Created by wutiarn on 23.02.16.
- */
 class SecurityFilter @Autowired constructor(val repo: UserRepository) : Filter {
 
     override fun doFilter(req: ServletRequest, res: ServletResponse, chain: FilterChain) {

@@ -12,9 +12,6 @@ import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.GroupsRepository
 import ru.wutiarn.edustor.repository.UserRepository
 
-/**
- * Created by wutiarn on 28.02.16.
- */
 @RestController
 @RequestMapping("/api/groups")
 class GroupsController @Autowired constructor(val repo: GroupsRepository,

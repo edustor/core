@@ -10,9 +10,6 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.context.request.ServletRequestAttributes
 import javax.servlet.http.HttpServletRequest
 
-/**
- * Created by wutiarn on 09.02.16.
- */
 @Controller
 @RequestMapping("/error")
 class ErrorController : ErrorController {

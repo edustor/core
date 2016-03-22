@@ -21,9 +21,6 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-/**
- * Created by wutiarn on 28.02.16.
- */
 @RestController
 @RequestMapping("/api/lessons")
 open class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepository, val documentsRepository: DocumentsRepository) {

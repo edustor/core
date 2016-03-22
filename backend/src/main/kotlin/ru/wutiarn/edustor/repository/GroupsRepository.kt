@@ -5,9 +5,6 @@ import org.springframework.data.mongodb.core.MongoOperations
 import org.springframework.data.mongodb.repository.MongoRepository
 import ru.wutiarn.edustor.models.Group
 
-/**
- * Created by wutiarn on 28.02.16.
- */
 interface GroupsRepository : MongoRepository<Group, String>, GroupsRepositoryCustom
 
 interface GroupsRepositoryCustom {

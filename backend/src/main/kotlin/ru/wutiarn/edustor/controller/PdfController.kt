@@ -17,9 +17,6 @@ import ru.wutiarn.edustor.models.Lesson
 import ru.wutiarn.edustor.utils.getPdf
 import java.io.ByteArrayOutputStream
 
-/**
- * Created by wutiarn on 22.02.16.
- */
 @Controller
 class PdfController @Autowired constructor(val gfs: GridFsOperations) {
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // Kotlin's Int can't be == null

@@ -14,9 +14,6 @@ import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.repository.SubjectsRepository
 
-/**
- * Created by wutiarn on 28.02.16.
- */
 @RestController
 @RequestMapping("/api/subjects")
 class SubjectsController @Autowired constructor(val repo: SubjectsRepository,
