@@ -1,8 +1,10 @@
 package ru.wutiarn.edustor.api
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -29,9 +31,9 @@ class SubjectsController @Autowired constructor(val repo: SubjectsRepository,
     }
 
     @RequestMapping("/{subject}/lessons")
-    fun listTimetable(subject: Subject?): List<Lesson> {
+    fun getLessons(@PathVariable subject: Subject?, @RequestParam(required = false, defaultValue = "0") page: Int): List<Lesson> {
         subject ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        return lessonsRepository.findBySubject(subject).filter { it.documents.isNotEmpty() }.sortedDescending()
+        return lessonsRepository.findBySubject(subject, PageRequest(page, 30)).filter { it.documents.isNotEmpty() }.sortedDescending()
     }
 
     @RequestMapping("/create")

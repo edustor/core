@@ -1,6 +1,7 @@
 package ru.wutiarn.edustor.repository
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.core.MongoOperations
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query.query
@@ -11,7 +12,7 @@ import ru.wutiarn.edustor.models.Subject
 import java.time.LocalDate
 
 interface LessonsRepository : MongoRepository<Lesson, String>, LessonsRepositoryCustom {
-    fun findBySubject(subject: Subject): List<Lesson>
+    fun findBySubject(subject: Subject, pageable: Pageable): List<Lesson>
     fun findByDocumentsContaining(document: Document): Lesson?
 }
 
