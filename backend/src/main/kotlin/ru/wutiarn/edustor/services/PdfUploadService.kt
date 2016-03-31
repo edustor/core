@@ -48,7 +48,7 @@ class PdfUploadService @Autowired constructor(
 
     data class Page(
             val index: Int,
-            val renderedImage: BufferedImage,
+            var renderedImage: BufferedImage? = null,
             var uuid: String? = null,
             var lesson: Lesson? = null
     )
@@ -74,7 +74,8 @@ class PdfUploadService @Autowired constructor(
                 }
                 .observeOn(Schedulers.computation())
                 .map { Page(index = it.second, renderedImage = it.first as BufferedImage) }
-                .map { it.uuid = readQR(it.renderedImage); it }
+                .map { it.uuid = readQR(it.renderedImage!!); it }
+                .map { page -> page.uuid?.let { page.renderedImage = null }; page}
                 .map {
                     logger.info("Saving ${it.index}")
                     savePage(it, document, uploadPreferences)
