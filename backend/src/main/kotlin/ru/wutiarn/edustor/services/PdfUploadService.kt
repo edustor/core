@@ -43,7 +43,6 @@ class PdfUploadService @Autowired constructor(
     private val renderThreadExecutor = Executors.newSingleThreadExecutor(CustomizableThreadFactory("pdf-render"));
     private val renderer = SimpleRenderer().let { it.resolution = 150; it }
     private val codeReader = QRCodeReader()
-    private val QR_REGION_SIZE = 200
 
     data class Page(
             val index: Int,
@@ -153,15 +152,17 @@ class PdfUploadService @Autowired constructor(
         return result
     }
 
-
     /**
      * @throws com.google.zxing.NotFoundException
      */
     private fun readQR(image: BufferedImage): String? {
         logger.trace("Cropping and scaling")
+
+        val QR_REGION_SIZE = 125
+
         val cropped = image.getSubimage(
-                image.width - QR_REGION_SIZE,
-                image.height - QR_REGION_SIZE,
+                image.width - QR_REGION_SIZE - 40,
+                image.height - QR_REGION_SIZE - 40,
                 QR_REGION_SIZE,
                 QR_REGION_SIZE
         )
@@ -170,7 +171,7 @@ class PdfUploadService @Autowired constructor(
         val bwGraphics = qrImage.createGraphics()
         bwGraphics.drawImage(cropped, 0, 0, null)
         bwGraphics.dispose()
-        //        FileOutputStream("bw.png").use { it.write(qrImage.getAsByteArray()) }
+        //                FileOutputStream("bw.png").use { it.write(qrImage.getAsByteArray()) }
         logger.trace("Preparing scan")
         val binaryBitmap = BinaryBitmap(HybridBinarizer(BufferedImageLuminanceSource(qrImage)))
         logger.trace("Scanning")

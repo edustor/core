@@ -52,14 +52,14 @@ fun getPdf(count: Int = 1): ByteArray {
         val image = Image.getInstance(getQR(uuid).getAsByteArray())
 
         val font = FontFactory.getFont(FontFactory.HELVETICA, 9f, BaseColor(98, 94, 94))
-        val phrase = Phrase(uuid.split("-").last(), font)
+        val phrase = Phrase(uuid.split("-").last().substring(0, 10), font)
 
         val content = pdfStamper.getOverContent(i)
 
-        ColumnText.showTextAligned(content, Element.ALIGN_BOTTOM, phrase, 515f, 15f, 0f)
+        ColumnText.showTextAligned(content, Element.ALIGN_BOTTOM, phrase, 526f, 15f, 0f)
 
-        image.scaleAbsolute(Rectangle(60f, 60f))
-        image.setAbsolutePosition(512f, 26f)
+        image.scaleAbsolute(Rectangle(45f, 45f))
+        image.setAbsolutePosition(526f, 26f)
         content.addImage(image)
     }
 
