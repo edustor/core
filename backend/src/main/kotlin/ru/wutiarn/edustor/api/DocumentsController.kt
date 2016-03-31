@@ -15,7 +15,7 @@ import ru.wutiarn.edustor.models.Subject
 import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
-import ru.wutiarn.edustor.services.PdfReaderService
+import ru.wutiarn.edustor.services.PdfUploadService
 import ru.wutiarn.edustor.utils.UploadPreferences
 import ru.wutiarn.edustor.utils.extensions.assertHasAccess
 import ru.wutiarn.edustor.utils.extensions.assertIsOwner
@@ -31,7 +31,7 @@ class DocumentsController @Autowired constructor(
         val repo: DocumentsRepository,
         val lessonsRepo: LessonsRepository,
         val documentsRepository: DocumentsRepository,
-        val PdfReaderService: PdfReaderService,
+        val PdfUploadService: PdfUploadService,
         val gfs: GridFsOperations
 ) {
     @RequestMapping("upload", method = arrayOf(RequestMethod.POST))
@@ -53,7 +53,7 @@ class DocumentsController @Autowired constructor(
 
         when (file.contentType) {
             "application/pdf" -> {
-                PdfReaderService.processPdfUpload(file.inputStream, uploadPreferences)
+                PdfUploadService.processPdfUpload(file.inputStream, uploadPreferences)
             }
             else -> {
                 throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "Unsupported content type: ${file.contentType}")

@@ -33,12 +33,13 @@ import java.util.concurrent.Executors
 import com.itextpdf.text.Document as PdfDocument
 
 @Service
-class PdfReaderService @Autowired constructor(
+class PdfUploadService @Autowired constructor(
         private val gfs: GridFsOperations,
         private val documentRepo: DocumentsRepository,
-        private val lessonsRepository: LessonsRepository
+        private val lessonsRepository: LessonsRepository,
+        private val telegramService: TelegramService
 ) {
-    private val logger = LoggerFactory.getLogger(PdfReaderService::class.java)
+    private val logger = LoggerFactory.getLogger(PdfUploadService::class.java)
     private val renderThreadExecutor = Executors.newSingleThreadExecutor(CustomizableThreadFactory("pdf-render"));
     private val renderer = SimpleRenderer().let { it.resolution = 150; it }
     private val codeReader = QRCodeReader()
@@ -72,11 +73,14 @@ class PdfReaderService @Autowired constructor(
                 .observeOn(Schedulers.computation())
                 .map { Page(index = it.second, renderedImage = it.first as BufferedImage) }
                 .map { it.uuid = readQR(it.renderedImage); it }
-                .subscribe() {
+                .map {
                     logger.info("Saving ${it.index}")
                     savePage(it, document, uploadPreferences)
                     logger.info("completed: ${it.index} ${it.uuid}")
+                    it
                 }
+                .toList()
+                .subscribe { telegramService.onUploaded(it) }
     }
 
     private fun savePage(page: Page, reader: PdfReader, uploadPreferences: UploadPreferences? = null) {
