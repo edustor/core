@@ -55,6 +55,8 @@ class PdfUploadService @Autowired constructor(
 
     fun processPdfUpload(fileStream: InputStream, uploadPreferences: UploadPreferences? = null) {
 
+        telegramService.onUploadingStarted()
+
         val byteOut = ByteArrayOutputStream()
         val bytes: ByteArray
         fileStream.use {
@@ -83,7 +85,7 @@ class PdfUploadService @Autowired constructor(
                     it
                 }
                 .toList()
-                .subscribe { telegramService.onUploaded(it) }
+                .subscribe { telegramService.onUploadingComplete(it) }
     }
 
     private fun savePage(page: Page, reader: PdfReader, uploadPreferences: UploadPreferences? = null) {

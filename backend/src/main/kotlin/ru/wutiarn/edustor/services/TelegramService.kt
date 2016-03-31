@@ -17,7 +17,18 @@ class TelegramService {
     val url: String
         get() = "https://api.telegram.org/bot$TOKEN/"
 
-    fun onUploaded(uploaded: List<PdfUploadService.Page>) {
+    private fun sendText(text: String) {
+        Unirest.post(url + "sendMessage")
+                .field("chat_id", "43457173")
+                .field("text", text)
+                .asStringAsync()
+    }
+
+    fun onUploadingStarted() {
+        sendText("Processing file...")
+    }
+
+    fun onUploadingComplete(uploaded: List<PdfUploadService.Page>) {
         val total = uploaded.count()
         val noUuid = uploaded.count { it.uuid == null }
         val uuids = uploaded.filter { it.uuid != null }.fold("", {
@@ -29,10 +40,7 @@ class TelegramService {
 
         val text = "Uploaded: $total. QR read errors: $noUuid \n$uuids"
 
-        Unirest.post(url + "sendMessage")
-                .field("chat_id", "43457173")
-                .field("text", text)
-                .asStringAsync()
+        sendText(text)
 
         uploaded.filter { it.renderedImage != null }
                 .forEach {
