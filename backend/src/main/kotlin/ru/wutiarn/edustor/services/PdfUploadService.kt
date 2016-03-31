@@ -18,6 +18,7 @@ import org.springframework.data.mongodb.gridfs.GridFsOperations
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory
 import org.springframework.stereotype.Service
 import ru.wutiarn.edustor.models.Document
+import ru.wutiarn.edustor.models.Lesson
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.utils.UploadPreferences
@@ -48,7 +49,8 @@ class PdfUploadService @Autowired constructor(
     data class Page(
             val index: Int,
             val renderedImage: BufferedImage,
-            var uuid: String? = null
+            var uuid: String? = null,
+            var lesson: Lesson? = null
     )
 
     fun processPdfUpload(fileStream: InputStream, uploadPreferences: UploadPreferences? = null) {
@@ -111,6 +113,9 @@ class PdfUploadService @Autowired constructor(
             uploadPreferences?.lesson?.let {
                 lessonsRepository.save(it)
             }
+
+            page.lesson = lessonsRepository.findByDocumentsContaining(it)
+
             return
         }
 
