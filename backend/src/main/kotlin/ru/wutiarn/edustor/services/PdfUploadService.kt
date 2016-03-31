@@ -25,7 +25,6 @@ import ru.wutiarn.edustor.utils.UploadPreferences
 import rx.Observable
 import rx.lang.kotlin.toObservable
 import rx.schedulers.Schedulers
-import java.awt.Image
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -44,7 +43,7 @@ class PdfUploadService @Autowired constructor(
     private val renderThreadExecutor = Executors.newSingleThreadExecutor(CustomizableThreadFactory("pdf-render"));
     private val renderer = SimpleRenderer().let { it.resolution = 150; it }
     private val codeReader = QRCodeReader()
-    private val QR_DOWNSCALE_SIZE = 200
+    private val QR_REGION_SIZE = 200
 
     data class Page(
             val index: Int,
@@ -77,7 +76,7 @@ class PdfUploadService @Autowired constructor(
                 .observeOn(Schedulers.computation())
                 .map { Page(index = it.second, renderedImage = it.first as BufferedImage) }
                 .map { it.uuid = readQR(it.renderedImage!!); it }
-                .map { page -> page.uuid?.let { page.renderedImage = null }; page}
+                .map { page -> page.uuid?.let { page.renderedImage = null }; page }
                 .map {
                     logger.info("Saving ${it.index}")
                     savePage(it, document, uploadPreferences)
@@ -161,17 +160,17 @@ class PdfUploadService @Autowired constructor(
     private fun readQR(image: BufferedImage): String? {
         logger.trace("Cropping and scaling")
         val cropped = image.getSubimage(
-                (image.width * 0.8f).toInt(),
-                (image.height * 0.83f).toInt(),
-                (image.width * 0.15f).toInt(),
-                (image.height * 0.12f).toInt()
-        ).getScaledInstance(QR_DOWNSCALE_SIZE, QR_DOWNSCALE_SIZE, Image.SCALE_DEFAULT)
+                image.width - QR_REGION_SIZE,
+                image.height - QR_REGION_SIZE,
+                QR_REGION_SIZE,
+                QR_REGION_SIZE
+        )
         logger.trace("Drawing")
-        val qrImage = BufferedImage(QR_DOWNSCALE_SIZE, QR_DOWNSCALE_SIZE, BufferedImage.TYPE_BYTE_BINARY)
+        val qrImage = BufferedImage(QR_REGION_SIZE, QR_REGION_SIZE, BufferedImage.TYPE_BYTE_BINARY)
         val bwGraphics = qrImage.createGraphics()
         bwGraphics.drawImage(cropped, 0, 0, null)
         bwGraphics.dispose()
-        //    FileOutputStream("bw.png").use { it.write(qrImage.getAsByteArray()) }
+        //        FileOutputStream("bw.png").use { it.write(qrImage.getAsByteArray()) }
         logger.trace("Preparing scan")
         val binaryBitmap = BinaryBitmap(HybridBinarizer(BufferedImageLuminanceSource(qrImage)))
         logger.trace("Scanning")

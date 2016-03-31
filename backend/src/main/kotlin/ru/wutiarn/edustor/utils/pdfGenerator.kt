@@ -56,10 +56,10 @@ fun getPdf(count: Int = 1): ByteArray {
 
         val content = pdfStamper.getOverContent(i)
 
-        ColumnText.showTextAligned(content, Element.ALIGN_BOTTOM, phrase, 503f, 40f, 0f)
+        ColumnText.showTextAligned(content, Element.ALIGN_BOTTOM, phrase, 515f, 15f, 0f)
 
         image.scaleAbsolute(Rectangle(60f, 60f))
-        image.setAbsolutePosition(500f, 55f)
+        image.setAbsolutePosition(512f, 26f)
         content.addImage(image)
     }
 
