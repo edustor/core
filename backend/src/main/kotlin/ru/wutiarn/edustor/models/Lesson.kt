@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
 import java.time.LocalDate
 
-@org.springframework.data.mongodb.core.mapping.Document
+@org.springframework.data.mongodb.core.mapping.Document(collection = "lesson")
 data class Lesson(
         @Indexed @DBRef var subject: Subject? = null,
         var date: LocalDate? = null,
