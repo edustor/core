@@ -34,9 +34,9 @@ class SubjectsController @Autowired constructor(val repo: SubjectsRepository,
     }
 
     @RequestMapping("/create")
-    fun createSubject(@AuthenticationPrincipal user: User, @RequestParam name: String, @RequestParam year: Int): Subject {
+    fun createSubject(@AuthenticationPrincipal user: User, @RequestParam name: String): Subject {
 
-        val subject = Subject(name, year, user)
+        val subject = Subject(name, user)
         repo.save(subject)
 
         return subject

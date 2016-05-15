@@ -7,21 +7,19 @@ import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 
 @Document
-data class Subject(
-        var name: String? = null,
-        var year: Int? = 1,
-        @Indexed @DBRef @JsonIgnore var owner: User? = null,
-        @Id var id: String? = null
-) : Comparable<Subject> {
+class Subject() : Comparable<Subject> {
+
+    lateinit var name: String
+    @Indexed @DBRef @JsonIgnore lateinit var owner: User
+    @Id var id: String? = null
+
+    constructor(name: String, owner: User) : this() {
+        this.name = name
+        this.owner = owner
+    }
+
     override fun compareTo(other: Subject): Int {
-        if (year != null && other.year != null) {
-            val yearsComp = year?.compareTo(other.year!!)
-            if (yearsComp != 0 && yearsComp != null) return yearsComp
-        }
-        if (name != null && other.name != null) {
-            return name?.compareTo(other.name!!) ?: 0
-        }
-        return 0
+        return name.compareTo(other.name)
     }
 
     override fun equals(other: Any?): Boolean {
