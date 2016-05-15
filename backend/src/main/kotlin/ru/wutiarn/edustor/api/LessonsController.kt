@@ -13,13 +13,8 @@ import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.utils.extensions.assertHasAccess
-import ru.wutiarn.edustor.utils.extensions.getActiveLesson
-import ru.wutiarn.edustor.utils.extensions.getLessons
 import rx.Observable
-import rx.lang.kotlin.toObservable
 import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 
 @RestController
 @RequestMapping("/api/lessons")
@@ -51,24 +46,6 @@ open class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepo
         user.assertHasAccess(lesson)
         lesson.topic = topic
         lessonsRepo.save(lesson)
-    }
-
-    @RequestMapping("/current")
-    open fun current(@AuthenticationPrincipal user: User, @RequestParam offset: Int): Lesson {
-        val userNow = OffsetDateTime.now(ZoneOffset.ofHours(offset)).toLocalDateTime()
-        return user.timetable.getActiveLesson(lessonsRepo, userNow) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-    }
-
-    @RequestMapping("/today")
-    fun today(@AuthenticationPrincipal user: User, @RequestParam offset: Int): List<Lesson> {
-        val userToday = OffsetDateTime.now(ZoneOffset.ofHours(offset)).toLocalDate()
-
-        val list = user.timetable.sorted().toObservable()
-                .filter { it.dayOfWeek == userToday.dayOfWeek }
-                .getLessons(lessonsRepo, userToday)
-                .toList()
-                .toBlocking().first()
-        return list
     }
 
     @RequestMapping("/uuid/{uuid}")

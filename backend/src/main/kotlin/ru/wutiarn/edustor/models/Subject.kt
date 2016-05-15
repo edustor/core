@@ -11,7 +11,6 @@ data class Subject(
         var name: String? = null,
         var year: Int? = 1,
         @Indexed @DBRef @JsonIgnore var owner: User? = null,
-        @Indexed @DBRef(lazy = true) @JsonIgnore var groups: MutableList<Group> = mutableListOf(),
         @Id var id: String? = null
 ) : Comparable<Subject> {
     override fun compareTo(other: Subject): Int {

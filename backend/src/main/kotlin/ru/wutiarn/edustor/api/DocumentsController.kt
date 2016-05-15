@@ -19,11 +19,8 @@ import ru.wutiarn.edustor.services.PdfUploadService
 import ru.wutiarn.edustor.utils.UploadPreferences
 import ru.wutiarn.edustor.utils.extensions.assertHasAccess
 import ru.wutiarn.edustor.utils.extensions.assertIsOwner
-import ru.wutiarn.edustor.utils.extensions.getActiveLesson
 import java.time.Instant
 import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 
 @RestController
 @RequestMapping("/api/documents")
@@ -82,14 +79,8 @@ class DocumentsController @Autowired constructor(
             throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This UUID is already activated")
         }
 
-        val lesson: Lesson
-        if (lessonId == "current") {
-            val userNow = OffsetDateTime.ofInstant(instant ?: Instant.now(), ZoneOffset.ofHours(offset))
-            lesson = user.timetable.getActiveLesson(lessonsRepo, userNow.toLocalDateTime()) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "No entry found in timetable")
-        } else {
-            lesson = lessonsRepo.findOne(lessonId) ?: throw throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Specified lesson is not found")
-            user.assertHasAccess(lesson)
-        }
+        val lesson = lessonsRepo.findOne(lessonId) ?: throw throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Specified lesson is not found")
+        user.assertHasAccess(lesson)
 
         val document = Document(uuid = uuid, owner = user)
         lesson.documents.add(document)

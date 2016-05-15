@@ -9,7 +9,7 @@ import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.LessonsRepository
 
 fun User.hasAccess(subject: Subject): Boolean {
-    return subject.groups.intersect(this.groups).isNotEmpty() || subject.owner == this
+    return subject.owner == this
 }
 
 fun User.hasAccess(lesson: Lesson): Boolean {
