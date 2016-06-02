@@ -69,7 +69,6 @@ class DocumentsController @Autowired constructor(
     @RequestMapping("/uuid/activate")
     fun activate_uuid(@RequestParam uuid: String,
                       @RequestParam("lesson") lessonId: String,
-                      @RequestParam offset: Int,
                       @RequestParam(required = false) instant: Instant?,
                       @AuthenticationPrincipal user: User
     ): Document {
@@ -82,7 +81,7 @@ class DocumentsController @Autowired constructor(
         val lesson = lessonsRepo.findOne(lessonId) ?: throw throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Specified lesson is not found")
         user.assertHasAccess(lesson)
 
-        val document = Document(uuid = uuid, owner = user)
+        val document = Document(uuid = uuid, owner = user, timestamp = instant ?: Instant.now())
         lesson.documents.add(document)
         repo.save(document)
 
