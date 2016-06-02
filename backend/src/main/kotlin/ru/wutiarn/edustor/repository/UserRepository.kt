@@ -7,7 +7,7 @@ import ru.wutiarn.edustor.models.User
 
 @Repository
 interface UserRepository : MongoRepository<User, String> {
-    fun findByLogin(login: String): User?
+    fun findByEmail(email: String): User?
     @Query("{'sessions': {'\$elemMatch': {'token': ?0}}}")
     fun findBySession(session: String): User?
 }
