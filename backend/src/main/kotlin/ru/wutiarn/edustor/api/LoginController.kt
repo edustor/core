@@ -1,9 +1,5 @@
 package ru.wutiarn.edustor.api
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
-import com.google.api.client.http.javanet.NetHttpTransport
-import com.google.api.client.json.jackson2.JacksonFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -15,28 +11,22 @@ import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
 import ru.wutiarn.edustor.models.Session
 import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.UserRepository
+import ru.wutiarn.edustor.utils.GoogleTokenVerifier
 
 @RestController
 @RequestMapping("/api/login")
-class LoginController @Autowired constructor(val repo: UserRepository) {
-
-    val verifier = GoogleIdTokenVerifier.Builder(NetHttpTransport(), JacksonFactory())
-            .setAudience(listOf("99685742253-41uieqd0vl3e03l62c7t3impd38gdt4q.apps.googleusercontent.com"))
-            .setIssuer("https://accounts.google.com")
-            .build()
+class LoginController @Autowired constructor(val repo: UserRepository, val googleVerifier: GoogleTokenVerifier) {
 
     @RequestMapping(method = arrayOf(RequestMethod.POST))
     fun login(@RequestParam token: String): Session {
-        val googleId: GoogleIdToken
+        val googleAccount: GoogleTokenVerifier.GoogleAccount
         try {
-            googleId = verifier.verify(token) ?: throw IllegalArgumentException()
-        } catch (e: Throwable) {
+            googleAccount = googleVerifier.verify(token)
+        } catch (e: IllegalArgumentException) {
             throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "Bad token")
         }
 
-        val email = googleId.payload.email
-
-        val user = repo.findByEmail(email)
+        val user = repo.findByEmail(googleAccount.email)
 
         user ?: throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "User is not found")
 
