@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 @Component
-class CleanupUtils {
+open class CleanupUtils {
 
     val logger = LoggerFactory.getLogger(CleanupUtils::class.java)
     @Autowired lateinit var mongoOperations: MongoOperations

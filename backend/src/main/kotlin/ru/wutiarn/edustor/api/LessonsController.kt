@@ -29,7 +29,7 @@ open class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepo
 
     @RequestMapping("/date")
     fun byDate(@RequestParam subject: Subject, @RequestParam("date") date_str: String?): Lesson? {
-        var date: LocalDate = LocalDate.parse(date_str)
+        val date: LocalDate = LocalDate.parse(date_str)
 
         var lesson = lessonsRepo.findLessonBySubjectAndDate(subject, date)
 

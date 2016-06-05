@@ -7,7 +7,7 @@ import com.google.api.client.json.jackson2.JacksonFactory
 import org.springframework.stereotype.Component
 
 @Component
-class GoogleTokenVerifier() {
+open class GoogleTokenVerifier() {
     private val BACKEND_CLIENT_ID = "99685742253-41uieqd0vl3e03l62c7t3impd38gdt4q.apps.googleusercontent.com"
 
     private val mobileVerifier = GoogleIdTokenVerifier.Builder(NetHttpTransport(), JacksonFactory())
