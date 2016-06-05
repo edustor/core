@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import ru.wutiarn.edustor.repository.UserRepository
 
 @Configuration
 @EnableWebSecurity
@@ -16,7 +15,7 @@ import ru.wutiarn.edustor.repository.UserRepository
 open class WebSecurityConfig : WebSecurityConfigurerAdapter() {
 
     @Autowired
-    val usersRepo: UserRepository? = null
+    lateinit var filter: SecurityFilter
 
     override fun configure(http: HttpSecurity) {
         http.authorizeRequests()
@@ -25,6 +24,6 @@ open class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .anyRequest().permitAll()
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         http.csrf().disable()
-        http.addFilterBefore(SecurityFilter(usersRepo!!), UsernamePasswordAuthenticationFilter::class.java)
+        http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter::class.java)
     }
 }

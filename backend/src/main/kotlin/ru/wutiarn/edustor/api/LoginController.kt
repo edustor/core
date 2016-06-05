@@ -10,12 +10,15 @@ import org.springframework.web.bind.annotation.RestController
 import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
 import ru.wutiarn.edustor.models.Session
 import ru.wutiarn.edustor.models.User
+import ru.wutiarn.edustor.repository.SessionRepository
 import ru.wutiarn.edustor.repository.UserRepository
 import ru.wutiarn.edustor.utils.GoogleTokenVerifier
 
 @RestController
 @RequestMapping("/api/login")
-class LoginController @Autowired constructor(val repo: UserRepository, val googleVerifier: GoogleTokenVerifier) {
+class LoginController @Autowired constructor(val userRepo: UserRepository,
+                                             val sessionRepo: SessionRepository,
+                                             val googleVerifier: GoogleTokenVerifier) {
 
     @RequestMapping(method = arrayOf(RequestMethod.POST))
     fun login(@RequestParam token: String): Session {
@@ -26,13 +29,12 @@ class LoginController @Autowired constructor(val repo: UserRepository, val googl
             throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "Bad token")
         }
 
-        val user = repo.findByEmail(googleAccount.email)
+        val user = userRepo.findByEmail(googleAccount.email)
 
         user ?: throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "User is not found")
 
         val session = Session(user = user)
-        user.sessions.add(session)
-        repo.save(user)
+        sessionRepo.save(session)
 
         return session
     }

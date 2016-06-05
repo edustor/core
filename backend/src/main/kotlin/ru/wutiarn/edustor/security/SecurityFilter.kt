@@ -5,21 +5,22 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
-import ru.wutiarn.edustor.repository.UserRepository
+import org.springframework.stereotype.Component
+import ru.wutiarn.edustor.repository.SessionRepository
 import java.util.*
 import javax.servlet.*
 import javax.servlet.http.HttpServletRequest
 
-class SecurityFilter @Autowired constructor(val repo: UserRepository) : Filter {
+@Component
+open class SecurityFilter @Autowired constructor(val repo: SessionRepository) : Filter {
 
     override fun doFilter(req: ServletRequest, res: ServletResponse, chain: FilterChain) {
         if (req is HttpServletRequest /*&& req.requestURI.contains(Regex("^/api/"))*/) {
             val token = req.getHeader("token")
             if (token != null) {
-                val user = repo.findBySession(token)
-                if (user != null) {
-
-                    val auth = UsernamePasswordAuthenticationToken(user, null, userAuthorities)
+                val session = repo.findByToken(token)
+                session?.let {
+                    val auth = UsernamePasswordAuthenticationToken(session.user, null, userAuthorities)
                     SecurityContextHolder.getContext().authentication = auth
                 }
             }
