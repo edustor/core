@@ -45,7 +45,7 @@ class DocumentsController @Autowired constructor(
         val uploadPreferences = UploadPreferences(uploader = user)
 
         if (subject != null && date != null) {
-            uploadPreferences.lesson = lessonsRepo.findLesson(subject, date!!) ?: Lesson(subject, date, topic)
+            uploadPreferences.lesson = lessonsRepo.findLessonBySubjectAndDate(subject, date!!) ?: Lesson(subject, date, topic)
         }
 
         when (file.contentType) {

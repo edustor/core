@@ -31,7 +31,7 @@ open class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepo
     fun byDate(@RequestParam subject: Subject, @RequestParam("date") date_str: String?): Lesson? {
         var date: LocalDate = LocalDate.parse(date_str)
 
-        var lesson = lessonsRepo.findLesson(subject, date)
+        var lesson = lessonsRepo.findLessonBySubjectAndDate(subject, date)
 
         if (lesson == null) {
             lesson = Lesson(subject, date)

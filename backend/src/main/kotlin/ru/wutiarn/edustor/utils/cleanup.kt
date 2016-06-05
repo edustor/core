@@ -18,7 +18,7 @@ class CleanupUtils {
     @Scheduled(cron = "0 0 4 * * *", zone = "Europe/Moscow")
     fun CleanupUnusedLessons() {
         logger.info("Lesson's cleanup initiated")
-        mongoOperations.remove(Query.query(Criteria.where("documents").size(0)), "lesson")
+        mongoOperations.remove(Query.query(Criteria.where("documents").size(0).and("topic").exists(false)), "lesson")
         logger.info("Lesson's cleanup completed")
     }
 }
