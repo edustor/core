@@ -8,8 +8,8 @@ import org.springframework.data.mongodb.core.mapping.DBRef
 import java.time.Instant
 
 @org.springframework.data.mongodb.core.mapping.Document
-data class Document(
-        @DBRef @JsonIgnore var owner: User? = null,
+class Document(
+        owner: User? = null,
         @Indexed var uuid: String? = null,
         var isUploaded: Boolean = false,
         var contentType: String? = null,
@@ -17,6 +17,14 @@ data class Document(
         var uploadedTimestamp: Instant? = null,
         @Id var id: String = ObjectId.get().toHexString()
 ) {
+    @DBRef @JsonIgnore lateinit var owner: User
+
+    init {
+        owner?.let {
+            this.owner = it
+        }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (other !is Document) return false
         return id == other.id

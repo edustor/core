@@ -50,7 +50,7 @@ class PdfUploadService @Autowired constructor(
             var lesson: Lesson? = null
     )
 
-    fun processPdfUpload(fileStream: InputStream, uploadPreferences: UploadPreferences? = null) {
+    fun processPdfUpload(fileStream: InputStream, uploadPreferences: UploadPreferences) {
 
         telegramService.onUploadingStarted()
 
@@ -85,13 +85,12 @@ class PdfUploadService @Autowired constructor(
                 .subscribe { telegramService.onUploadingComplete(it) }
     }
 
-    private fun savePage(page: Page, reader: PdfReader, uploadPreferences: UploadPreferences? = null) {
+    private fun savePage(page: Page, reader: PdfReader, uploadPreferences: UploadPreferences) {
 
         var document: Document? = null
 
-        if (uploadPreferences?.lesson != null) {
+        if (uploadPreferences.lesson != null) {
             document = Document(uuid = page.uuid)
-            uploadPreferences?.lesson?.documents?.add(document)
         } else if (page.uuid != null) {
             document = documentRepo.findByUuid(page.uuid!!)
         } else {
@@ -108,9 +107,10 @@ class PdfUploadService @Autowired constructor(
             it.isUploaded = true
             it.uploadedTimestamp = Instant.now()
             it.contentType = "application/pdf"
-            it.owner = uploadPreferences?.uploader
+            it.owner = uploadPreferences.uploader
             documentRepo.save(it)
-            uploadPreferences?.lesson?.let {
+            uploadPreferences.lesson?.let {
+                uploadPreferences.lesson?.documents?.add(document!!)
                 lessonsRepository.save(it)
             }
 

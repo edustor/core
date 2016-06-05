@@ -29,15 +29,18 @@ class LoginController @Autowired constructor(val userRepo: UserRepository,
             throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "Bad token")
         }
 
-        val user = userRepo.findByEmail(googleAccount.email)
-
-        user ?: throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "User is not found")
+        val user = userRepo.findByEmail(googleAccount.email) ?: let {
+            val u = User(googleAccount.email)
+            userRepo.save(u)
+            u
+        }
 
         val session = Session(user = user)
         sessionRepo.save(session)
 
         return session
     }
+
     @RequestMapping("/check_token")
     fun checkToken(@AuthenticationPrincipal user: User?): String {
         user?.let { return "You're logged in as ${user.email}" }
