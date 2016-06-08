@@ -15,6 +15,7 @@ open class User() {
 
     override fun equals(other: Any?): Boolean {
         if (other !is User) return false
+        id ?: return super.equals(other)
         return id == other.id
     }
 

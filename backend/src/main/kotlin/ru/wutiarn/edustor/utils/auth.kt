@@ -26,7 +26,7 @@ open class GoogleTokenVerifier() {
                              val locale: String)
 
 
-    fun verify(token: String): GoogleAccount {
+    open fun verify(token: String): GoogleAccount {
         val googleId: GoogleIdToken
         try {
             googleId = mobileVerifier.verify(token) ?:
