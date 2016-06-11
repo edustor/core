@@ -2,6 +2,7 @@ package ru.wutiarn.edustor.api
 
 import org.junit.Assert.*
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.mockito.Mockito
 import org.springframework.http.HttpStatus
@@ -58,6 +59,7 @@ class LoginControllerTest {
     }
 
     @Test
+    @Ignore // TODO: Remove on public release
     fun checkLoginNew() {
         prepareLogin()
         Mockito.`when`(userRepo.findByEmail(GOOGLE_ACCOUNT.email)).thenReturn(null)
