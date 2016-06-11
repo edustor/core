@@ -19,7 +19,6 @@ import ru.wutiarn.edustor.utils.GoogleTokenVerifier
 class LoginController @Autowired constructor(val userRepo: UserRepository,
                                              val sessionRepo: SessionRepository,
                                              val googleVerifier: GoogleTokenVerifier) {
-
     @RequestMapping(method = arrayOf(RequestMethod.POST))
     fun login(@RequestParam token: String): Session {
         val googleAccount: GoogleTokenVerifier.GoogleAccount
@@ -29,11 +28,13 @@ class LoginController @Autowired constructor(val userRepo: UserRepository,
             throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "Bad token")
         }
 
-        val user = userRepo.findByEmail(googleAccount.email) ?: let {
-            val u = User(googleAccount.email)
-            userRepo.save(u)
-            u
-        }
+        val user = userRepo.findByEmail(googleAccount.email) //?: let {
+//            val u = User(googleAccount.email)
+//            userRepo.save(u)
+//            u
+//        }
+//      TODO: Enable new users registration on public release
+        user ?: throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "This project is in alpha state. Registration is forbidden")
 
         val session = Session(user = user)
         sessionRepo.save(session)
