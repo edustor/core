@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import javax.annotation.PostConstruct
 
 @Component
 open class CleanupUtils {
@@ -14,7 +15,7 @@ open class CleanupUtils {
     val logger = LoggerFactory.getLogger(CleanupUtils::class.java)
     @Autowired lateinit var mongoOperations: MongoOperations
 
-    @Autowired
+    @PostConstruct
     @Scheduled(cron = "0 0 4 * * *", zone = "Europe/Moscow")
     fun CleanupUnusedLessons() {
         logger.info("Lesson's cleanup initiated")

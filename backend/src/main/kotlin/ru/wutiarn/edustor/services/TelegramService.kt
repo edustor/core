@@ -5,19 +5,29 @@ import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.ContentType
 import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.impl.client.HttpClients
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import ru.wutiarn.edustor.utils.getAsByteArray
 import rx.Observable
 import rx.schedulers.Schedulers
 import java.time.format.DateTimeFormatter
+import javax.annotation.PostConstruct
 
 @Service
 class TelegramService {
-    val TOKEN: String = "198639402:AAGQZQcVkSivxYzJJIcBhQDZPBqCdWjRH0Q"
+    val telegramToken: String? = System.getenv("TELEGRAM_TOKEN")
     val url: String
-        get() = "https://api.telegram.org/bot$TOKEN/"
+        get() = "https://api.telegram.org/bot$telegramToken/"
+
+    private val logger = LoggerFactory.getLogger(TelegramService::class.java)
+
+    @PostConstruct
+    private fun checkTokenProvided() {
+        telegramToken ?: logger.warn("Telegram token was not provided. Please set TELEGRAM_TOKEN environment variable.")
+    }
 
     private fun sendText(text: String) {
+        telegramToken ?: return
         Unirest.post(url + "sendMessage")
                 .field("chat_id", "43457173")
                 .field("text", text)
