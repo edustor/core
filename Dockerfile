@@ -1,6 +1,6 @@
 FROM java:8-jdk
 
-RUN apt-get update && apt-get install ghostscript --no-install-recommends -y
+RUN apt-get update && apt-get install libgs-dev --no-install-recommends -y
 ADD . /code/src
 
 WORKDIR /code/src
