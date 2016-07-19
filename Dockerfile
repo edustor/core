@@ -8,6 +8,6 @@ WORKDIR /code/src
 RUN ./gradlew build && rm -r /root/.gradle
 
 WORKDIR /code
-RUN cp src/backend/build/dist/edustor.jar .
+RUN mv src/backend/build/dist/edustor.jar .
 
 CMD java -jar edustor.jar
