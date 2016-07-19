@@ -5,9 +5,7 @@ RUN apt-get install libgs-dev --no-install-recommends -y
 ADD . /code/src
 
 WORKDIR /code/src
-RUN ./gradlew build && rm -r /root/.gradle
+RUN ./gradlew build && rm -r /root/.gradle && mv backend/build/dist/edustor.jar /code/
 
 WORKDIR /code
-RUN mv src/backend/build/dist/edustor.jar .
-
 CMD java -jar edustor.jar
