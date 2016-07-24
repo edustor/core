@@ -60,17 +60,17 @@ class DocumentsController @Autowired constructor(
     }
 
     @RequestMapping("/uuid/{uuid}")
-    fun uuid_info(@PathVariable uuid: String, @AuthenticationPrincipal user: User): Document? {
+    fun uuidInfo(@PathVariable uuid: String, @AuthenticationPrincipal user: User): Document? {
         val document = repo.findByUuid(uuid) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
         user.assertHasAccess(document, lessonsRepo)
         return document
     }
 
     @RequestMapping("/uuid/activate")
-    fun activate_uuid(@RequestParam uuid: String,
-                      @RequestParam("lesson") lessonId: String,
-                      @RequestParam(required = false) instant: Instant?,
-                      @AuthenticationPrincipal user: User
+    fun activateUuid(@RequestParam uuid: String,
+                     @RequestParam("lesson") lessonId: String,
+                     @RequestParam(required = false) instant: Instant?,
+                     @AuthenticationPrincipal user: User
     ): Document {
 
 
