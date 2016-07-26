@@ -28,8 +28,8 @@ open class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepo
     }
 
     @RequestMapping("/date")
-    fun byDate(@RequestParam subject: Subject, @RequestParam("date") date_str: String?): Lesson? {
-        val date: LocalDate = LocalDate.parse(date_str)
+    fun byDate(@RequestParam subject: Subject, @RequestParam("date") epochDay: Long): Lesson? {
+        val date: LocalDate = LocalDate.ofEpochDay(epochDay)
 
         var lesson = lessonsRepo.findLessonBySubjectAndDate(subject, date)
 
