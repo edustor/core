@@ -5,13 +5,14 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
+import java.util.*
 
 @Document
 class Subject() : Comparable<Subject> {
 
     lateinit var name: String
     @Indexed @DBRef @JsonIgnore lateinit var owner: User
-    @Id var id: String? = null
+    @Id var id: String = UUID.randomUUID().toString()
 
     constructor(name: String, owner: User) : this() {
         this.name = name
@@ -24,11 +25,10 @@ class Subject() : Comparable<Subject> {
 
     override fun equals(other: Any?): Boolean {
         if (other !is Subject) return false
-        if (other.id == null) return false
-        return this.id?.equals(other.id!!) ?: false
+        return this.id.equals(other.id)
     }
 
     override fun hashCode(): Int {
-        return id?.hashCode() ?: super.hashCode()
+        return id.hashCode()
     }
 }

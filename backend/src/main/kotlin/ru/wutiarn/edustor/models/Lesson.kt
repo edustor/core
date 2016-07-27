@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Version
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
 import java.time.LocalDate
+import java.util.*
 
 @org.springframework.data.mongodb.core.mapping.Document(collection = "lesson")
 data class Lesson(
@@ -13,7 +14,7 @@ data class Lesson(
         var date: LocalDate? = null,
         var topic: String? = null,
         @DBRef var documents: MutableList<Document> = mutableListOf(),
-        @Id var id: String? = null,
+        @Id var id: String = UUID.randomUUID().toString(),
         @Version @JsonIgnore var version: Long = 0
 ) : Comparable<Lesson> {
     override fun compareTo(other: Lesson): Int {
