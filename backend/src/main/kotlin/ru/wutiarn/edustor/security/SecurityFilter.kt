@@ -22,30 +22,33 @@ open class SecurityFilter @Autowired constructor(val repo: SessionRepository) : 
     val regex = "^/+api/(?!login([/]|$)).*".toRegex()
 
     override fun doFilter(req: ServletRequest, res: ServletResponse, chain: FilterChain) {
-        if (req is HttpServletRequest && checkUrlSecured(req.requestURI)) {
-
+        if (req is HttpServletRequest) {
+            val urlSecured = checkUrlSecured(req.requestURI)
             val httpResp = res as HttpServletResponse
 
             val token = req.getHeader("token")
 
-            if (token == null) {
+            if (token == null && urlSecured) {
                 httpResp.sendError(HttpStatus.UNAUTHORIZED.value(), "Token was not provided")
                 return
             }
 
-            val session = repo.findByToken(token)
+            token?.let {
+                val session = repo.findByToken(token)
 
-            if (session == null) {
-                httpResp.sendError(HttpStatus.FORBIDDEN.value(), "Session was not found")
-                return
+                if (session == null && urlSecured) {
+                    httpResp.sendError(HttpStatus.FORBIDDEN.value(), "Session was not found")
+                    return
+                }
+
+                session?.let {
+                    val auth = UsernamePasswordAuthenticationToken(session.user, null, userAuthorities)
+                    SecurityContextHolder.getContext().authentication = auth
+                }
             }
-
-            val auth = UsernamePasswordAuthenticationToken(session.user, null, userAuthorities)
-            SecurityContextHolder.getContext().authentication = auth
         }
         chain.doFilter(req, res)
     }
-
 
     fun checkUrlSecured(url: String): Boolean {
         val matches = regex.matches(url)
