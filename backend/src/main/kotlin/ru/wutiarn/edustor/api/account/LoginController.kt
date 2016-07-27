@@ -1,21 +1,19 @@
-package ru.wutiarn.edustor.api
+package ru.wutiarn.edustor.api.account
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
 import ru.wutiarn.edustor.models.Session
-import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.SessionRepository
 import ru.wutiarn.edustor.repository.UserRepository
 import ru.wutiarn.edustor.utils.GoogleTokenVerifier
 
 @RestController
-@RequestMapping("/api/login")
+@RequestMapping("/api/account/login")
 class LoginController @Autowired constructor(val userRepo: UserRepository,
                                              val sessionRepo: SessionRepository,
                                              val googleVerifier: GoogleTokenVerifier) {
@@ -40,11 +38,5 @@ class LoginController @Autowired constructor(val userRepo: UserRepository,
         sessionRepo.save(session)
 
         return session
-    }
-
-    @RequestMapping("/getMe")
-    fun getMe(@AuthenticationPrincipal user: User?): User {
-        user ?: throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "You're not logged in")
-        return user
     }
 }

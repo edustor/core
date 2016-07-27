@@ -1,11 +1,12 @@
 package ru.wutiarn.edustor.api
 
-import org.junit.Assert.*
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertSame
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.mockito.Mockito
-import org.springframework.http.HttpStatus
+import ru.wutiarn.edustor.api.account.LoginController
 import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
 import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.SessionRepository
@@ -14,10 +15,10 @@ import ru.wutiarn.edustor.utils.GoogleTokenVerifier
 
 class LoginControllerTest {
 
-    lateinit var userRepo: UserRepository;
-    lateinit var sessionRepository: SessionRepository;
-    lateinit var googleTokenVerifier: GoogleTokenVerifier;
-    lateinit var loginController: LoginController;
+    lateinit var userRepo: UserRepository
+    lateinit var sessionRepository: SessionRepository
+    lateinit var googleTokenVerifier: GoogleTokenVerifier
+    lateinit var loginController: LoginController
 
     val GOOGLE_TOKEN = "Fake token"
     val GOOGLE_BAD_TOKEN = "Bad fake token"
@@ -70,21 +71,4 @@ class LoginControllerTest {
         Mockito.verify(userRepo).save(result.user)
 
     }
-
-    @Test
-    fun checkTokenNotLoggedIn() {
-        try {
-            loginController.checkToken(null)
-        } catch(e: HttpRequestProcessingException) {
-            assertEquals(e.status, HttpStatus.FORBIDDEN)
-        }
-    }
-
-    @Test
-    fun checkTokenLoggedIn() {
-        val user = User("test@example.com")
-        val resp = loginController.checkToken(user)
-        assertEquals(resp, "You're logged in as test@example.com")
-    }
-
 }

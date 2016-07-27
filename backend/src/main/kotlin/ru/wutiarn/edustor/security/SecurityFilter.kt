@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletResponse
 @Component
 open class SecurityFilter @Autowired constructor(val repo: SessionRepository) : GenericFilterBean() {
 
-    val regex = "^/+api/(?!login([/]|$)).*".toRegex()
+    val regex = "^/+api/(?!account/login([/]|$)).*".toRegex()
 
     override fun doFilter(req: ServletRequest, res: ServletResponse, chain: FilterChain) {
         if (req is HttpServletRequest) {
