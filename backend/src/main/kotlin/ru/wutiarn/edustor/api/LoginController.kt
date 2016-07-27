@@ -42,9 +42,9 @@ class LoginController @Autowired constructor(val userRepo: UserRepository,
         return session
     }
 
-    @RequestMapping("/check_token")
-    fun checkToken(@AuthenticationPrincipal user: User?): String {
+    @RequestMapping("/getMe")
+    fun getMe(@AuthenticationPrincipal user: User?): User {
         user ?: throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "You're not logged in")
-        return "You're logged in as ${user.email}"
+        return user
     }
 }
