@@ -27,3 +27,7 @@ And by the way, don't forget that Edustor source code is available under Non-Pro
 
 If you want to contribute, please contact me. Due to the fact that I'm currently working on this alone, there is no 
 documentation, as well as issues and development plans.
+
+## Are there any documentation?
+
+Kind of. **API documentation** can be found [**here**](api/index)
