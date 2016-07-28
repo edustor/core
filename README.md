@@ -4,9 +4,10 @@ Edustor is a cloud service for storing scanned notes.
 
 ## How am I supposed to use ths?
 
-* Download specially generated pdf with unique pages from here, print it and write whatever you want on these pages.
+* Download specially generated pdf with unique pages from [here](https://edustor.ru/pdf), print it and write whatever 
+  you want on these pages. 
 * Get [Edustor Android app](https://gitlab.com/wutiarn/edustor-android), select subject, select existed/create new class,
-type topic (optional) and link pages with qr-code scanning.
+  type topic (optional) and link pages with qr-code scanning.
 * Scan used pages, put them to pdf and upload it to Edustor
 * Now you can access these scans in mobile app on class details screen
 
