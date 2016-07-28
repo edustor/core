@@ -32,9 +32,10 @@ class SyncController @Autowired constructor(
     }
 
     @RequestMapping("/push")
-    fun push(@RequestBody tasks: List<SyncTask>): MutableList<Any?> {
+    fun push(@RequestBody tasks: List<SyncTask>, @AuthenticationPrincipal user: User): MutableList<Any?> {
         val results = mutableListOf<Any?>()
         tasks.forEach {
+            it.user = user
             val taskResult = processTask(it)
             results.add(taskResult)
         }
@@ -44,7 +45,7 @@ class SyncController @Autowired constructor(
     private fun processTask(task: SyncTask): Any? {
 
         val (group, method) = task.method.split(delimiterRegex, 2)
-        val localTask = SyncTask(method, task.params)
+        val localTask = SyncTask(method, task.params, task.user)
 
         when (group) {
             "lessons" -> return lessonsSyncController.processTask(localTask)

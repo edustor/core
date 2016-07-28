@@ -36,7 +36,7 @@ open class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepo
 
     @RequestMapping("/date/{date}/{subject}")
     fun getLessonByDate(@PathVariable subject: Subject, @PathVariable date: LocalDate): Lesson {
-
+//        TODO: Access check
         var lesson = lessonsRepo.findLessonBySubjectAndDate(subject, date)
 
         if (lesson == null) {
