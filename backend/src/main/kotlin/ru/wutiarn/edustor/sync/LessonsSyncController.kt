@@ -6,6 +6,7 @@ import ru.wutiarn.edustor.api.LessonsController
 import ru.wutiarn.edustor.models.Lesson
 import ru.wutiarn.edustor.models.util.sync.SyncTask
 import ru.wutiarn.edustor.repository.SubjectsRepository
+import java.time.LocalDate
 
 @Component
 open class LessonsSyncController @Autowired constructor(
@@ -20,9 +21,9 @@ open class LessonsSyncController @Autowired constructor(
     }
 
     fun getByDate(task: SyncTask): Lesson? {
-//        val subject = subjectRepo.findOne(task.params["subject"]) ?: return null
-//        val lesson = lessonsController.getLessonByDate(subject, LocalDate.ofEpochDay(task.params["date"]!!.toLong()))
-//        return lesson
-        return null
+        val subject = subjectRepo.findOne(task.params["subject"]) ?: return null
+        val lesson = lessonsController.getLessonByDate(subject, LocalDate.ofEpochDay(task.params["date"]!!.toLong()))
+        return lesson
+//        return null
     }
 }

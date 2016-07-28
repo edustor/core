@@ -1,8 +1,6 @@
 package ru.wutiarn.edustor.models
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import org.springframework.data.annotation.Id
-import org.springframework.data.annotation.Version
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
 import java.time.LocalDate
@@ -14,8 +12,7 @@ data class Lesson(
         var date: LocalDate? = null,
         var topic: String? = null,
         @DBRef var documents: MutableList<Document> = mutableListOf(),
-        @Id var id: String = UUID.randomUUID().toString(),
-        @Version @JsonIgnore var version: Long = 0
+        @Id var id: String = UUID.randomUUID().toString()
 ) : Comparable<Lesson> {
     override fun compareTo(other: Lesson): Int {
         return date?.compareTo(other.date) ?: 0
