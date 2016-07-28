@@ -54,7 +54,7 @@ open class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepo
         lessonsRepo.save(lesson)
     }
 
-    @RequestMapping("/date/{date}/{subject}/topic", method = arrayOf(RequestMethod.POST))
+    @RequestMapping("/date/{date}/{subject}/topic", method = arrayOf(RequestMethod.PUT))
     fun setTopicByDate(@PathVariable subject: Subject, @PathVariable date: LocalDate, @RequestParam(required = false) topic: String?, @AuthenticationPrincipal user: User) {
         val lesson = getLessonByDate(subject, date)
         user.assertHasAccess(lesson)

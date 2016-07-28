@@ -18,7 +18,7 @@ open class LessonsSyncController @Autowired constructor(
     fun processTask(task: SyncTask): Any? {
         when (task.method) {
             "date" -> return getByDate(task)
-            "date/topic/set" -> setTopicByDate(task)
+            "date/topic/put" -> setTopicByDate(task)
         }
         return null
     }
