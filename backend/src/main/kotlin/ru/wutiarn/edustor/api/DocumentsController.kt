@@ -9,6 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
+import ru.wutiarn.edustor.exceptions.NotFoundException
 import ru.wutiarn.edustor.models.Document
 import ru.wutiarn.edustor.models.Lesson
 import ru.wutiarn.edustor.models.Subject
@@ -71,23 +72,19 @@ class DocumentsController @Autowired constructor(
                      @RequestParam("lesson") lessonId: String,
                      @RequestParam(required = false) instant: Instant?,
                      @AuthenticationPrincipal user: User
-    ): Document {
-
-
+    ) {
         repo.findByUuid(uuid)?.let {
             throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This UUID is already activated")
         }
 
-        val lesson = lessonsRepo.findOne(lessonId) ?: throw throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Specified lesson is not found")
+        val lesson = lessonsRepo.findOne(lessonId) ?: throw  NotFoundException("Specified lesson is not found")
         user.assertHasAccess(lesson)
 
         val document = Document(uuid = uuid, owner = user, timestamp = instant ?: Instant.now())
         lesson.documents.add(document)
         repo.save(document)
 
-        //        TODO: Optimistic lock handling
         lessonsRepo.save(lesson)
-        return document
     }
 
     @RequestMapping("/{document}", method = arrayOf(RequestMethod.DELETE))
