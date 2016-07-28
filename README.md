@@ -21,13 +21,13 @@ And by the way, don't forget that Edustor source code is available under Non-Pro
  
 ## Any other options? 
  
- Of course! If you are interested in testing (or anything else), feel free to contact me at me@wutiarn.ru or 
- in [Telegram](https://telegram.me/wutiarn).
+ Of course! If you are interested in testing (or anything else), feel free to contact me at **me@wutiarn.ru** or 
+ in [**Telegram**](https://telegram.me/wutiarn).
  
 ## How can I help?
 
 If you want to contribute, please contact me. Due to the fact that I'm currently working on this alone, there is no 
-documentation, as well as issues and development plans.
+comprehensive documentation, as well as issues and development plans.
 
 ## Are there any documentation?
 
