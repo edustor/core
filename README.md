@@ -31,4 +31,4 @@ comprehensive documentation, as well as issues and development plans.
 
 ## Are there any documentation?
 
-Kind of. **API documentation** can be found [**here**](api/index)
+Kind of. **API documentation** can be found [**here**](https://gitlab.com/wutiarn/edustor/wikis/api/index)
