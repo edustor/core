@@ -10,6 +10,7 @@ import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.models.util.sync.SyncTask
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.repository.SubjectsRepository
+import ru.wutiarn.edustor.sync.DocumentsSyncController
 import ru.wutiarn.edustor.sync.LessonsSyncController
 
 @RestController
@@ -17,7 +18,8 @@ import ru.wutiarn.edustor.sync.LessonsSyncController
 class SyncController @Autowired constructor(
         val subjectRepo: SubjectsRepository,
         val lessonRepo: LessonsRepository,
-        val lessonsSyncController: LessonsSyncController
+        val lessonsSyncController: LessonsSyncController,
+        val documentsSyncController: DocumentsSyncController
 ) {
     val delimiterRegex = "/".toRegex()
 
@@ -57,6 +59,7 @@ class SyncController @Autowired constructor(
 
         when (group) {
             "lessons" -> return lessonsSyncController.processTask(localTask)
+            "documents" -> return documentsSyncController.processTask(localTask)
         }
         return null
     }
