@@ -5,6 +5,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
 import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.models.util.sync.SyncTask
 import ru.wutiarn.edustor.repository.LessonsRepository
@@ -36,8 +37,15 @@ class SyncController @Autowired constructor(
         val results = mutableListOf<Any?>()
         tasks.forEach {
             it.user = user
-            val taskResult = processTask(it)
-            results.add(taskResult)
+            try {
+                val taskResult = processTask(it)
+                results.add(mapOf(
+                        "success" to true,
+                        "result" to taskResult
+                ))
+            } catch (e: Exception) {
+                results.add(formatException(e))
+            }
         }
         return results
     }
@@ -51,5 +59,21 @@ class SyncController @Autowired constructor(
             "lessons" -> return lessonsSyncController.processTask(localTask)
         }
         return null
+    }
+
+    private fun formatException(e: Exception): MutableMap<String, Any?> {
+        val resp = mutableMapOf<String, Any?>()
+        resp["success"] = false
+        val error = mutableMapOf<String, Any?>()
+        resp["error"] = error
+        if (e is HttpRequestProcessingException) {
+            error["status"] = e.status.value()
+            error["message"] = "${e.status.reasonPhrase}: ${e.message}"
+        } else {
+            error["status"] = 500
+            error["message"] = "${e.javaClass.name}. ${e.message}"
+        }
+
+        return resp
     }
 }
