@@ -51,7 +51,7 @@ open class LessonsSyncController @Autowired constructor(
 
     private fun getDocument(task: SyncTask, field: String = "document", required: Boolean = true): Document? {
         val key = task.params[field] ?: if (required)
-            throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "$field field is not provided") else null
+            throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "$field field is not provided") else return null
 
         return documentsRepository.findOne(key) ?: throw NotFoundException("Document ($field) is not found")
 
