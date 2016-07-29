@@ -1,5 +1,7 @@
 package ru.wutiarn.edustor.api
 
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.RequestBody
@@ -19,7 +21,8 @@ class SyncController @Autowired constructor(
         val subjectRepo: SubjectsRepository,
         val lessonRepo: LessonsRepository,
         val lessonsSyncController: LessonsSyncController,
-        val documentsSyncController: DocumentsSyncController
+        val documentsSyncController: DocumentsSyncController,
+        val mapper: ObjectMapper
 ) {
     val delimiterRegex = "/".toRegex()
 
@@ -35,7 +38,8 @@ class SyncController @Autowired constructor(
     }
 
     @RequestMapping("/push")
-    fun push(@RequestBody tasks: List<SyncTask>, @AuthenticationPrincipal user: User): MutableList<Any?> {
+    fun push(@RequestBody body: String, @AuthenticationPrincipal user: User): MutableList<Any?> {
+        val tasks = mapper.readValue<List<SyncTask>>(body, object : TypeReference<List<SyncTask>>() {})
         val results = mutableListOf<Any?>()
         tasks.forEach {
             it.user = user
