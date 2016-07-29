@@ -1,11 +1,11 @@
 package ru.wutiarn.edustor.models
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
 import java.time.Instant
+import java.util.*
 
 @org.springframework.data.mongodb.core.mapping.Document
 class Document(
@@ -15,7 +15,7 @@ class Document(
         var contentType: String? = null,
         var timestamp: Instant = Instant.now(),
         var uploadedTimestamp: Instant? = null,
-        @Id var id: String = ObjectId.get().toHexString()
+        @Id var id: String = UUID.randomUUID().toString()
 ) {
     @DBRef @JsonIgnore lateinit var owner: User
 

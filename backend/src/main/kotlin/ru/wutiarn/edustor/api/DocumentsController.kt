@@ -21,6 +21,7 @@ import ru.wutiarn.edustor.utils.extensions.assertHasAccess
 import ru.wutiarn.edustor.utils.extensions.assertIsOwner
 import java.time.Instant
 import java.time.LocalDate
+import java.util.*
 
 @RestController
 @RequestMapping("/api/documents")
@@ -29,7 +30,8 @@ class DocumentsController @Autowired constructor(
         val lessonsRepo: LessonsRepository,
         val documentsRepository: DocumentsRepository,
         val PdfUploadService: PdfUploadService,
-        val gfs: GridFsOperations
+        val gfs: GridFsOperations,
+        val lessonsController: LessonsController
 ) {
     @RequestMapping("upload", method = arrayOf(RequestMethod.POST))
     fun upload(@RequestParam("file") file: MultipartFile, @AuthenticationPrincipal user: User,
@@ -68,26 +70,33 @@ class DocumentsController @Autowired constructor(
 
     @RequestMapping("/uuid/activate")
     fun activateUuid(@RequestParam uuid: String,
-                     @RequestParam("lesson") lessonId: String,
+                     @RequestParam lesson: Lesson,
                      @RequestParam(required = false) instant: Instant?,
-                     @AuthenticationPrincipal user: User
-    ): Document {
-
-
+                     @AuthenticationPrincipal user: User,
+                     @RequestParam id: String = UUID.randomUUID().toString()
+    ) {
         repo.findByUuid(uuid)?.let {
             throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This UUID is already activated")
         }
 
-        val lesson = lessonsRepo.findOne(lessonId) ?: throw throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Specified lesson is not found")
         user.assertHasAccess(lesson)
 
-        val document = Document(uuid = uuid, owner = user, timestamp = instant ?: Instant.now())
+        val document = Document(uuid = uuid, owner = user, timestamp = instant ?: Instant.now(), id = id)
         lesson.documents.add(document)
         repo.save(document)
 
-        //        TODO: Optimistic lock handling
         lessonsRepo.save(lesson)
-        return document
+    }
+
+    @RequestMapping("/uuid/activate/date")
+    fun activateUUidByDate(@RequestParam uuid: String,
+                           @RequestParam subject: Subject,
+                           @RequestParam date: LocalDate,
+                           @RequestParam(required = false) instant: Instant?,
+                           @AuthenticationPrincipal user: User,
+                           @RequestParam id: String = UUID.randomUUID().toString()) {
+        val lesson = lessonsController.getLessonByDate(subject, date)
+        activateUuid(uuid, lesson, instant, user, id)
     }
 
     @RequestMapping("/{document}", method = arrayOf(RequestMethod.DELETE))
