@@ -18,3 +18,5 @@ deploy:
   script:
     - apk add -U wget
     - wget $DEPLOY_TRIGGER_URL -T 1800 -O - --content-on-error
+  only:
+    - master
