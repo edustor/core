@@ -22,6 +22,7 @@ import ru.wutiarn.edustor.utils.extensions.assertHasAccess
 import ru.wutiarn.edustor.utils.extensions.assertIsOwner
 import java.time.Instant
 import java.time.LocalDate
+import java.util.*
 
 @RestController
 @RequestMapping("/api/documents")
@@ -71,7 +72,8 @@ class DocumentsController @Autowired constructor(
     fun activateUuid(@RequestParam uuid: String,
                      @RequestParam("lesson") lessonId: String,
                      @RequestParam(required = false) instant: Instant?,
-                     @AuthenticationPrincipal user: User
+                     @AuthenticationPrincipal user: User,
+                     @RequestParam id: String = UUID.randomUUID().toString()
     ) {
         repo.findByUuid(uuid)?.let {
             throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This UUID is already activated")
@@ -80,7 +82,7 @@ class DocumentsController @Autowired constructor(
         val lesson = lessonsRepo.findOne(lessonId) ?: throw  NotFoundException("Specified lesson is not found")
         user.assertHasAccess(lesson)
 
-        val document = Document(uuid = uuid, owner = user, timestamp = instant ?: Instant.now())
+        val document = Document(uuid = uuid, owner = user, timestamp = instant ?: Instant.now(), id = id)
         lesson.documents.add(document)
         repo.save(document)
 

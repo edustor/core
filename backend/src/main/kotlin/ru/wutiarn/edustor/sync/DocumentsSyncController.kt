@@ -23,7 +23,8 @@ open class DocumentsSyncController @Autowired constructor(
 
     fun activateUUID(task: SyncTask) {
         val instant = Instant.ofEpochSecond(task.params["instant"]!!.toLong())
-        documentsController.activateUuid(task.params["uuid"]!!, task.params["lesson"]!!, instant, task.user)
+        documentsController.activateUuid(task.params["uuid"]!!, task.params["lesson"]!!,
+                instant, task.user, task.params["id"]!!)
     }
 
     fun delete(task: SyncTask) {
