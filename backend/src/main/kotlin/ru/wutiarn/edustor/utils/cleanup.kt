@@ -22,9 +22,9 @@ open class CleanupUtils {
         logger.info("Lesson's cleanup initiated")
         val result = mongoOperations.remove(Query.query(Criteria
                 .where("documents").size(0)
-                .and("topic").`is`(null)
                 .and("date").lt(LocalDate.now().minusMonths(1))
         ), "lesson")
+
         logger.info("Lesson's cleanup completed. Affected: ${result.n}")
     }
 }
