@@ -42,6 +42,7 @@ open class SecurityFilter @Autowired constructor(val repo: SessionRepository) : 
                 }
 
                 session?.let {
+                    session.user.currentSession = session
                     val auth = UsernamePasswordAuthenticationToken(session.user, null, userAuthorities)
                     SecurityContextHolder.getContext().authentication = auth
                 }
