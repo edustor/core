@@ -18,7 +18,7 @@ open class DocumentsSyncController @Autowired constructor(
         val documentsController: DocumentsController,
         val documentsRepository: DocumentsRepository
 ) {
-    fun processTask(task: SyncTask): Any? {
+    fun processTask(task: SyncTask): Any {
         when (task.method) {
             "uuid/activate" -> return activateUUID(task)
             "uuid/activate/date" -> return activateUUIDByDate(task)

@@ -58,7 +58,7 @@ class SyncController @Autowired constructor(
         return results
     }
 
-    private fun processTask(task: SyncTask): Any? {
+    private fun processTask(task: SyncTask): Any {
 
         val (group, method) = task.method.split(delimiterRegex, 2)
         val localTask = SyncTask(method, task.params, task.user)

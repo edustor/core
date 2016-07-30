@@ -20,7 +20,7 @@ open class LessonsSyncController @Autowired constructor(
         val subjectRepo: SubjectsRepository,
         val documentsRepository: DocumentsRepository
 ) {
-    fun processTask(task: SyncTask): Any? {
+    fun processTask(task: SyncTask): Any {
         when (task.method) {
             "date" -> return getByDate(task)
             "date/topic/put" -> return setTopicByDate(task)
