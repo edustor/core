@@ -13,6 +13,7 @@ class Session() {
     @DBRef @Indexed lateinit var user: User
     @Indexed val token: String = UUID.randomUUID().toString()
     @JsonIgnore val createdAt = Instant.now()
+    @JsonIgnore var FCMToken: String? = null
     @Id var id: String = UUID.randomUUID().toString()
 
     constructor(user: User) : this() {
