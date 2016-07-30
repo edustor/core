@@ -67,8 +67,8 @@ class SyncController @Autowired constructor(
             "lessons" -> return lessonsSyncController.processTask(localTask)
             "documents" -> return documentsSyncController.processTask(localTask)
             "account" -> return accountSyncController.processTask(localTask)
+            else -> throw NoSuchMethodException("SyncController cannot resolve $group")
         }
-        return null
     }
 
     private fun formatException(e: Exception): MutableMap<String, Any?> {
@@ -76,14 +76,16 @@ class SyncController @Autowired constructor(
         resp["success"] = false
         val error = mutableMapOf<String, Any?>()
         resp["error"] = error
-        if (e is HttpRequestProcessingException) {
-            error["status"] = e.status.value()
-            error["message"] = "${e.status.reasonPhrase}: ${e.message}"
-        } else {
-            error["status"] = 500
-            error["message"] = "${e.javaClass.name}. ${e.message}"
-        }
+        error["message"] = "${e.javaClass.name}. ${e.message}"
 
+        when (e) {
+            is HttpRequestProcessingException -> {
+                error["status"] = e.status.value()
+                error["message"] = "${e.status.reasonPhrase}: ${e.message}"
+            }
+            is NoSuchMethodException -> error["status"] = 405
+            else -> error["status"] = 500
+        }
         return resp
     }
 }

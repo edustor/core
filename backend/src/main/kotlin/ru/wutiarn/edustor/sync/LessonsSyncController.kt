@@ -23,10 +23,10 @@ open class LessonsSyncController @Autowired constructor(
     fun processTask(task: SyncTask): Any? {
         when (task.method) {
             "date" -> return getByDate(task)
-            "date/topic/put" -> setTopicByDate(task)
-            "date/documents/reorder" -> reorderDocumentsByDate(task)
+            "date/topic/put" -> return setTopicByDate(task)
+            "date/documents/reorder" -> return reorderDocumentsByDate(task)
+            else -> throw NoSuchMethodException("LessonsSyncController cannot resolve ${task.method}")
         }
-        return null
     }
 
     fun getByDate(task: SyncTask): Lesson {

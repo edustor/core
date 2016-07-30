@@ -20,11 +20,11 @@ open class DocumentsSyncController @Autowired constructor(
 ) {
     fun processTask(task: SyncTask): Any? {
         when (task.method) {
-            "uuid/activate" -> activateUUID(task)
-            "uuid/activate/date" -> activateUUIDByDate(task)
-            "delete" -> delete(task)
+            "uuid/activate" -> return activateUUID(task)
+            "uuid/activate/date" -> return activateUUIDByDate(task)
+            "delete" -> return delete(task)
+            else -> throw NoSuchMethodException("DocumentsSyncController cannot resolve ${task.method}")
         }
-        return null
     }
 
     fun activateUUID(task: SyncTask) {

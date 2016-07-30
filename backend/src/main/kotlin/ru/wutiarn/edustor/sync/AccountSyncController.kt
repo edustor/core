@@ -9,9 +9,9 @@ import ru.wutiarn.edustor.models.util.sync.SyncTask
 open class AccountSyncController @Autowired constructor(val accountController: AccountController) {
     fun processTask(task: SyncTask): Any? {
         when (task.method) {
-            "FCMToken/put" -> setFCMToken(task)
+            "FCMToken/put" -> return setFCMToken(task)
+            else -> throw NoSuchMethodException("AccountSyncController cannot resolve ${task.method}")
         }
-        return null
     }
 
     fun setFCMToken(syncTask: SyncTask) {
