@@ -1,6 +1,11 @@
-build_image:
+stages:
+  - test
+  - upload
+  - deploy
+
+test_build:
   image: docker:git
-  stage: build
+  stage: test
   services:
     - docker:dind
   script:
@@ -8,23 +13,25 @@ build_image:
   except:
     - master
 
-upload_image:
+build_homeserver_image:
   image: docker:git
-  stage: build
+  stage: upload
+  environment: homeserver
   services:
     - docker:dind
   script:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
-    - docker build -t registry.gitlab.com/edustor/core .
-    - docker push registry.gitlab.com/edustor/core:latest
+    - docker build -t registry.gitlab.com/edustor/core:homeserver .
+    - docker push registry.gitlab.com/edustor/core:homeserver
     - docker images
-    - docker history registry.gitlab.com/edustor/core
+    - docker history registry.gitlab.com/edustor/core:homeserver
   only:
     - master
 
 deploy:
   image: alpine
   stage: deploy
+  environment: homeserver
   script:
     - apk add -U wget
     - wget $DEPLOY_TRIGGER_URL -T 1800 -O - --content-on-error
