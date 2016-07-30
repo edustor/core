@@ -18,7 +18,7 @@ class AccountController @Autowired constructor(val sessionRepository: SessionRep
     }
 
     @RequestMapping("/FCMToken", method = arrayOf(RequestMethod.PUT))
-    fun setFCMToken(@RequestParam token: String, @AuthenticationPrincipal user: User) {
+    fun setFCMToken(@RequestParam token: String?, @AuthenticationPrincipal user: User) {
         val session = user.currentSession!!
         session.FCMToken = token
         sessionRepository.save(session)
