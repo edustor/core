@@ -6,3 +6,5 @@ spring:
     mongodb:
       host: mongo
       database: edustor
+  rabbitmq:
+    host: rabbit
