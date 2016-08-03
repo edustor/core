@@ -12,6 +12,7 @@ import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.models.util.sync.SyncTask
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.repository.SubjectsRepository
+import ru.wutiarn.edustor.services.FCMService
 import ru.wutiarn.edustor.sync.AccountSyncController
 import ru.wutiarn.edustor.sync.DocumentsSyncController
 import ru.wutiarn.edustor.sync.LessonsSyncController
@@ -24,7 +25,8 @@ class SyncController @Autowired constructor(
         val lessonsSyncController: LessonsSyncController,
         val documentsSyncController: DocumentsSyncController,
         val accountSyncController: AccountSyncController,
-        val mapper: ObjectMapper
+        val mapper: ObjectMapper,
+        val fcmService: FCMService
 ) {
     val delimiterRegex = "/".toRegex()
 
@@ -55,6 +57,7 @@ class SyncController @Autowired constructor(
                 results.add(formatException(e))
             }
         }
+        if (tasks.isNotEmpty()) fcmService.sendUserSyncNotification(user)
         return results
     }
 

@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse
 open class FCMInterceptor : HandlerInterceptorAdapter() {
     @Autowired private lateinit var fcmService: FCMService
 
-    val regex = "^/+api/(?!account/login([/]|$)).*".toRegex()
+    val regex = "^/+api/(?!((sync)|(account/login))([/]|$)).*".toRegex()
 
     override fun afterCompletion(request: HttpServletRequest, response: HttpServletResponse, handler: Any, ex: Exception?) {
         val user = SecurityContextHolder.getContext().authentication?.principal as User?
