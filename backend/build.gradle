@@ -35,6 +35,7 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-security"
     compile "org.springframework.boot:spring-boot-starter-freemarker"
     compile "org.springframework.boot:spring-boot-starter-logging"
+    compile "org.springframework.boot:spring-boot-starter-amqp"
     compile "com.google.zxing:core:3.2.1"
     compile "com.google.zxing:javase:3.2.1"
     compile 'com.itextpdf:itextpdf:5.5.8'

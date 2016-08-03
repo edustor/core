@@ -13,13 +13,18 @@ import ru.wutiarn.edustor.models.Subject
 import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
+import ru.wutiarn.edustor.services.FCMService
 import ru.wutiarn.edustor.utils.extensions.assertHasAccess
 import rx.Observable
 import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/lessons")
-open class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepository, val documentsRepository: DocumentsRepository) {
+open class LessonsController @Autowired constructor(
+        val lessonsRepo: LessonsRepository,
+        val documentsRepository: DocumentsRepository,
+        val fcmService: FCMService
+) {
 
     @RequestMapping("/subject/{subject}")
     fun subjectLessons(@PathVariable subject: Subject?, @RequestParam(required = false, defaultValue = "0") page: Int): List<Lesson> {
@@ -60,6 +65,7 @@ open class LessonsController @Autowired constructor(val lessonsRepo: LessonsRepo
         user.assertHasAccess(lesson)
         lesson.topic = topic
         lessonsRepo.save(lesson)
+        fcmService.sendUserSyncNotification(user)
     }
 
     @RequestMapping("/uuid/{uuid}")
