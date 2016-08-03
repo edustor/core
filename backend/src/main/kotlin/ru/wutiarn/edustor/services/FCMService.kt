@@ -12,6 +12,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.wutiarn.edustor.models.User
+import ru.wutiarn.edustor.models.util.sync.FCMRequest
 import ru.wutiarn.edustor.repository.SessionRepository
 
 @Service
@@ -20,11 +21,10 @@ open class FCMService @Autowired constructor(
         val sessionRepository: SessionRepository,
         val objectMapper: ObjectMapper
 ) {
-
     val FCM_KEY = System.getenv("FCM_KEY")
 
     fun sendUserSyncNotification(user: User) {
-        rabbitTemplate.convertAndSend("edustor", "fcm-sync-notifications", user)
+        rabbitTemplate.convertAndSend("edustor", "fcm-sync-notifications", FCMRequest(user, user.currentSession))
     }
 
     @RabbitListener(bindings = arrayOf(QueueBinding(
@@ -32,8 +32,9 @@ open class FCMService @Autowired constructor(
             exchange = Exchange(value = "edustor", durable = "true"),
             key = "fcm-sync-notifications"
     )))
-    private fun process(user: User, channel: Channel) {
-        val sessions = sessionRepository.findByUser(user).filter { it.FCMToken != null }
+    private fun process(request: FCMRequest, channel: Channel) {
+        val sessions = sessionRepository.findByUser(request.user).filter { it.FCMToken != null }
+                .filter { it.id != request.activeSession?.id }
         val tokens = sessions.map { it.FCMToken }
 
         val reqBody = objectMapper.writeValueAsString(mapOf(
