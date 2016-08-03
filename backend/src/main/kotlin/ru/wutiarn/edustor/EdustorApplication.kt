@@ -12,11 +12,17 @@ import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.messaging.converter.MappingJackson2MessageConverter
 import org.springframework.messaging.handler.annotation.support.DefaultMessageHandlerMethodFactory
 import org.springframework.scheduling.annotation.EnableScheduling
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
+import ru.wutiarn.edustor.interceptor.FCMInterceptor
 import java.util.*
 
 @SpringBootApplication
 @EnableScheduling
-open class EdustorApplication : RabbitListenerConfigurer {
+open class EdustorApplication : RabbitListenerConfigurer, WebMvcConfigurerAdapter() {
+
+    @Autowired lateinit var fcmInterceptor: FCMInterceptor
+
     init {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
     }
@@ -40,5 +46,9 @@ open class EdustorApplication : RabbitListenerConfigurer {
     @Autowired
     fun configureRabbitTemplate(template: RabbitTemplate) {
         template.messageConverter = Jackson2JsonMessageConverter()
+    }
+
+    override fun addInterceptors(registry: InterceptorRegistry) {
+        registry.addInterceptor(fcmInterceptor)
     }
 }

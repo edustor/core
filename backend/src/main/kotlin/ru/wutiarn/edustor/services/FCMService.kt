@@ -37,6 +37,8 @@ open class FCMService @Autowired constructor(
                 .filter { it.id != request.activeSession?.id }
         val tokens = sessions.map { it.FCMToken }
 
+        if (tokens.isEmpty()) return
+
         val reqBody = objectMapper.writeValueAsString(mapOf(
                 "data" to mapOf("command" to "sync"),
                 "registration_ids" to tokens
