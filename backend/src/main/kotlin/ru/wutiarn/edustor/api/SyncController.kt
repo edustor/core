@@ -12,6 +12,8 @@ import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.models.util.sync.SyncTask
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.repository.SubjectsRepository
+import ru.wutiarn.edustor.services.FCMService
+import ru.wutiarn.edustor.sync.AccountSyncController
 import ru.wutiarn.edustor.sync.DocumentsSyncController
 import ru.wutiarn.edustor.sync.LessonsSyncController
 
@@ -22,7 +24,9 @@ class SyncController @Autowired constructor(
         val lessonRepo: LessonsRepository,
         val lessonsSyncController: LessonsSyncController,
         val documentsSyncController: DocumentsSyncController,
-        val mapper: ObjectMapper
+        val accountSyncController: AccountSyncController,
+        val mapper: ObjectMapper,
+        val fcmService: FCMService
 ) {
     val delimiterRegex = "/".toRegex()
 
@@ -53,10 +57,11 @@ class SyncController @Autowired constructor(
                 results.add(formatException(e))
             }
         }
+        if (tasks.isNotEmpty()) fcmService.sendUserSyncNotification(user)
         return results
     }
 
-    private fun processTask(task: SyncTask): Any? {
+    private fun processTask(task: SyncTask): Any {
 
         val (group, method) = task.method.split(delimiterRegex, 2)
         val localTask = SyncTask(method, task.params, task.user)
@@ -64,8 +69,9 @@ class SyncController @Autowired constructor(
         when (group) {
             "lessons" -> return lessonsSyncController.processTask(localTask)
             "documents" -> return documentsSyncController.processTask(localTask)
+            "account" -> return accountSyncController.processTask(localTask)
+            else -> throw NoSuchMethodException("SyncController cannot resolve $group")
         }
-        return null
     }
 
     private fun formatException(e: Exception): MutableMap<String, Any?> {
@@ -73,14 +79,16 @@ class SyncController @Autowired constructor(
         resp["success"] = false
         val error = mutableMapOf<String, Any?>()
         resp["error"] = error
-        if (e is HttpRequestProcessingException) {
-            error["status"] = e.status.value()
-            error["message"] = "${e.status.reasonPhrase}: ${e.message}"
-        } else {
-            error["status"] = 500
-            error["message"] = "${e.javaClass.name}. ${e.message}"
-        }
+        error["message"] = "${e.javaClass.name}. ${e.message}"
 
+        when (e) {
+            is HttpRequestProcessingException -> {
+                error["status"] = e.status.value()
+                error["message"] = "${e.status.reasonPhrase}: ${e.message}"
+            }
+            is NoSuchMethodException -> error["status"] = 405
+            else -> error["status"] = 500
+        }
         return resp
     }
 }

@@ -2,11 +2,11 @@
 
 Edustor is a cloud service for storing scanned notes.
 
-## How am I supposed to use ths?
+## How am I supposed to use this?
 
 * Download specially generated pdf with unique pages from [here](https://edustor.ru/pdf), print it and write whatever 
   you want on these pages. 
-* Get [Edustor Android app](https://gitlab.com/wutiarn/edustor-android), select subject, select existed/create new class,
+* Get [Edustor Android app](https://gitlab.com/edustor/android), select subject, select existed/create new class,
   type topic (optional) and link pages with qr-code scanning.
 * Scan used pages, put them to pdf and upload it to Edustor
 * Now you can access these scans in mobile app on class details screen
@@ -31,4 +31,4 @@ comprehensive documentation, as well as issues and development plans.
 
 ## Are there any documentation?
 
-Kind of. **API documentation** can be found [**here**](https://gitlab.com/wutiarn/edustor/wikis/api/index)
+Kind of. **API documentation** can be found [**here**](https://gitlab.com/edustor/core/wikis/api/index)
