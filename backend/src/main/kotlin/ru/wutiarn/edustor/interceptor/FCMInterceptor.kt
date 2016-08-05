@@ -17,14 +17,14 @@ open class FCMInterceptor : HandlerInterceptorAdapter() {
     val regex = "^/+api/(?!((sync)|(account/login))([/]|$)).*".toRegex()
 
     override fun afterCompletion(request: HttpServletRequest, response: HttpServletResponse, handler: Any, ex: Exception?) {
-        val user = SecurityContextHolder.getContext().authentication?.principal as User?
-        if (request.method in arrayOf(
+        val principal = SecurityContextHolder.getContext().authentication?.principal
+        if (principal is User && request.method in arrayOf(
                 HttpMethod.POST.name,
                 HttpMethod.PUT.name,
                 HttpMethod.PATCH.name,
                 HttpMethod.DELETE.name
         ) && request.requestURI.matches(regex)) {
-            user?.let { fcmService.sendUserSyncNotification(it) }
+            principal.let { fcmService.sendUserSyncNotification(it) }
         }
     }
 }
