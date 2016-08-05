@@ -27,13 +27,3 @@ build_homeserver_image:
     - docker history registry.gitlab.com/edustor/core:homeserver
   only:
     - master
-
-deploy:
-  image: alpine
-  stage: deploy
-  environment: homeserver
-  script:
-    - apk add -U wget
-    - wget $DEPLOY_TRIGGER_URL -T 1800 -O - --content-on-error
-  only:
-    - master
