@@ -21,6 +21,10 @@ import java.util.*
 @EnableScheduling
 open class EdustorApplication : RabbitListenerConfigurer, WebMvcConfigurerAdapter() {
 
+    companion object {
+        val VERSION: String = "0.4.1"
+    }
+
     @Autowired lateinit var fcmInterceptor: FCMInterceptor
 
     init {
