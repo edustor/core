@@ -79,8 +79,8 @@ fun getPdf(count: Int = 1): ByteArray {
         val content = pdfStamper.getOverContent(i)
         table.writeSelectedRows(0, -1, 0, -1, 12f, table.totalHeight + 12, content)
 
-        image.scaleAbsolute(Rectangle(45f, 45f))
-        image.setAbsolutePosition(535f, 24f)
+        image.scaleAbsolute(Rectangle(41f, 41f))
+        image.setAbsolutePosition(540f, 23.5f)
         content.addImage(image)
     }
 
