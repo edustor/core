@@ -36,7 +36,8 @@ class PdfUploadService @Autowired constructor(
         private val gfs: GridFsOperations,
         private val documentRepo: DocumentsRepository,
         private val lessonsRepository: LessonsRepository,
-        private val telegramService: TelegramService
+        private val telegramService: TelegramService,
+        private val fcmService: FCMService
 ) {
     private val logger = LoggerFactory.getLogger(PdfUploadService::class.java)
     private val renderThreadExecutor = Executors.newSingleThreadExecutor(CustomizableThreadFactory("pdf-render"));
@@ -82,7 +83,10 @@ class PdfUploadService @Autowired constructor(
                     it
                 }
                 .toList()
-                .subscribe { telegramService.onUploadingComplete(it) }
+                .subscribe {
+                    fcmService.sendUserSyncNotification(uploadPreferences.uploader)
+                    telegramService.onUploadingComplete(it, uploadPreferences)
+                }
     }
 
     private fun savePage(page: Page, reader: PdfReader, uploadPreferences: UploadPreferences) {
