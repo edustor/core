@@ -164,7 +164,7 @@ class PdfUploadService @Autowired constructor(
         val QR_REGION_SIZE = 150
 
         val cropped = image.getSubimage(
-                image.width - QR_REGION_SIZE - 20,
+                image.width - QR_REGION_SIZE - 10,
                 image.height - QR_REGION_SIZE - 20,
                 QR_REGION_SIZE,
                 QR_REGION_SIZE
