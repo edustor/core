@@ -47,6 +47,7 @@ class PdfUploadService @Autowired constructor(
     data class Page(
             val index: Int,
             var renderedImage: BufferedImage? = null,
+            var qrImage: BufferedImage? = null,
             var uuid: String? = null,
             var lesson: Lesson? = null
     )
@@ -74,7 +75,7 @@ class PdfUploadService @Autowired constructor(
                 }
                 .observeOn(Schedulers.computation())
                 .map { Page(index = it.second, renderedImage = it.first as BufferedImage) }
-                .map { it.uuid = readQR(it.renderedImage!!); it }
+                .map { readQR(it.renderedImage!!, it); it }
                 .map { page -> page.uuid?.let { page.renderedImage = null }; page }
                 .map {
                     logger.info("Saving ${it.index}")
@@ -158,7 +159,7 @@ class PdfUploadService @Autowired constructor(
     /**
      * @throws com.google.zxing.NotFoundException
      */
-    private fun readQR(image: BufferedImage): String? {
+    private fun readQR(image: BufferedImage, page: Page) {
         logger.trace("Cropping and scaling")
 
         val QR_REGION_SIZE = 150
@@ -174,6 +175,9 @@ class PdfUploadService @Autowired constructor(
 
         logger.trace("Drawing")
         val qrImage = BufferedImage(QR_REGION_SIZE, QR_REGION_SIZE, BufferedImage.TYPE_BYTE_BINARY)
+
+        page.qrImage = qrImage
+
         val bwGraphics = qrImage.createGraphics()
         bwGraphics.drawImage(cropped, 0, 0, null)
         bwGraphics.dispose()
@@ -187,10 +191,9 @@ class PdfUploadService @Autowired constructor(
             ))
             val result = qrResult.text
             logger.trace("found $result")
-            return result
+            page.uuid = result
         } catch (e: Exception) {
             logger.warn("Exception thrown while reading QR", e)
-            return null
         }
 
     }

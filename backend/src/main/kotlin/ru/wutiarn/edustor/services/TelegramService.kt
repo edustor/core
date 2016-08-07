@@ -54,11 +54,12 @@ class TelegramService {
 
         sendText(text)
 
-        uploaded.filter { it.renderedImage != null }
+        uploaded.filter { it.renderedImage != null && it.qrImage != null }
+                .flatMap { listOf(it.renderedImage!!, it.qrImage!!) }
                 .forEach {
                     val entity = MultipartEntityBuilder.create()
                             .addTextBody("chat_id", "43457173")
-                            .addBinaryBody("photo", it.renderedImage!!.getAsByteArray(), ContentType.APPLICATION_OCTET_STREAM, "img.png")
+                            .addBinaryBody("photo", it.getAsByteArray(), ContentType.APPLICATION_OCTET_STREAM, "img.png")
                             .build()
                     val httpPost = HttpPost(url + "sendPhoto")
                     httpPost.entity = entity
