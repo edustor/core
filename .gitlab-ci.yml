@@ -32,3 +32,5 @@ deploy:
   stage: deploy
   script:
     - curl -X POST -F token=$EDUSTOR_DEPLOY_TRIGGER_TOKEN -F ref=edustor https://gitlab.com/api/v3/projects/1237981/trigger/builds
+  only:
+    - master
