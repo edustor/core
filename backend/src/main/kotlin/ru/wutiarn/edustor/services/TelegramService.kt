@@ -32,6 +32,7 @@ class TelegramService {
         Unirest.post(url + "sendMessage")
                 .field("chat_id", "43457173")
                 .field("text", text)
+                .field("disable_notification", "true")
                 .asStringAsync()
     }
 
