@@ -26,9 +26,11 @@ fun getQR(text: String = randomUUID().toString()): BufferedImage {
 }
 
 fun getPdf(count: Int = 1): ByteArray {
+
+    val proximaThinFont = BaseFont.createFont("fonts/Proxima Nova Thin.otf", BaseFont.WINANSI, true)
+
     val origPdfReader = PdfReader("page.pdf")
     val out1 = ByteArrayOutputStream()
-
 
     val document = Document()
     val copy = PdfSmartCopy(document, out1)
@@ -60,7 +62,7 @@ fun getPdf(count: Int = 1): ByteArray {
         val idString = "#${uuidEnd.substring(0, 4)}-${uuidEnd.substring(4, 8)}-${uuidEnd.substring(8, 12)}"
 
         val phrase = Phrase()
-        phrase.font = FontFactory.getFont(FontFactory.HELVETICA, 9f, BaseColor(98, 94, 94))
+        phrase.font = Font(proximaThinFont, 8f, Font.NORMAL, BaseColor.BLACK)
         phrase.add(nowStr)
         phrase.add(Chunk(VerticalPositionMark()))
         phrase.add(idString)
@@ -75,12 +77,6 @@ fun getPdf(count: Int = 1): ByteArray {
 
         val content = pdfStamper.getOverContent(i)
         table.writeSelectedRows(0, -1, 0, -1, 12f, table.totalHeight + 12, content)
-
-
-        //        ColumnText.showTextAligned(content, Element.ALIGN_UNDEFINED, phrase, 423f, 819f, 0f) // Top right string
-
-
-//        ColumnText.showTextAligned(content, Element.ALIGN_RIGHT, phrase, 533f, 15f, 0f, PdfWriter.RUN_DIRECTION_RTL, ColumnText.AR_NOVOWEL)
 
         image.scaleAbsolute(Rectangle(45f, 45f))
         image.setAbsolutePosition(535f, 24f)
