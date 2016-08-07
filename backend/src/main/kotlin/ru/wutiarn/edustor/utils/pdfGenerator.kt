@@ -6,12 +6,13 @@ import com.google.zxing.MultiFormatWriter
 import com.google.zxing.client.j2se.MatrixToImageWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import com.itextpdf.text.*
-import com.itextpdf.text.pdf.ColumnText
-import com.itextpdf.text.pdf.PdfReader
-import com.itextpdf.text.pdf.PdfSmartCopy
-import com.itextpdf.text.pdf.PdfStamper
+import com.itextpdf.text.pdf.*
+import com.itextpdf.text.pdf.draw.VerticalPositionMark
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.UUID.randomUUID
 
 
@@ -46,25 +47,43 @@ fun getPdf(count: Int = 1): ByteArray {
     val out2 = ByteArrayOutputStream()
     val pdfStamper = PdfStamper(pdfReader, out2)
 
+    val now = LocalDateTime.now(ZoneId.of("Europe/Moscow")).withNano(0)
+    val nowStr = "Generated on ${now.format(DateTimeFormatter.ISO_LOCAL_DATE)} ${now.format(DateTimeFormatter.ISO_LOCAL_TIME)}. " +
+            "© Edustor Project. Dmitry Romanov, 2016"
+
     for (i in 1..pdfReader.numberOfPages) {
 
         val uuid = randomUUID().toString()
         val image = Image.getInstance(getQR(uuid).getAsByteArray())
 
-        val font = FontFactory.getFont(FontFactory.HELVETICA, 9f, BaseColor(98, 94, 94))
-
         val uuidEnd = uuid.split("-").last()
         val idString = "#${uuidEnd.substring(0, 4)}-${uuidEnd.substring(4, 8)}-${uuidEnd.substring(8, 12)}"
 
-        val phrase = Phrase(idString, font)
+        val phrase = Phrase()
+        phrase.font = FontFactory.getFont(FontFactory.HELVETICA, 9f, BaseColor(98, 94, 94))
+        phrase.add(nowStr)
+        phrase.add(Chunk(VerticalPositionMark()))
+        phrase.add(idString)
+
+        val cell = PdfPCell(phrase)
+        cell.border = PdfPCell.NO_BORDER
+
+        val table = PdfPTable(1)
+        table.addCell(cell)
+        table.totalWidth = page.width - 12 * 2
+
 
         val content = pdfStamper.getOverContent(i)
+        table.writeSelectedRows(0, -1, 0, -1, 12f, table.totalHeight + 12, content)
+
 
         //        ColumnText.showTextAligned(content, Element.ALIGN_UNDEFINED, phrase, 423f, 819f, 0f) // Top right string
-        ColumnText.showTextAligned(content, Element.ALIGN_BOTTOM, phrase, 503f, 15f, 0f)
+
+
+//        ColumnText.showTextAligned(content, Element.ALIGN_RIGHT, phrase, 533f, 15f, 0f, PdfWriter.RUN_DIRECTION_RTL, ColumnText.AR_NOVOWEL)
 
         image.scaleAbsolute(Rectangle(45f, 45f))
-        image.setAbsolutePosition(526f, 26f)
+        image.setAbsolutePosition(535f, 24f)
         content.addImage(image)
     }
 
