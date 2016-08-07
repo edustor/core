@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.mashape.unirest.http.Unirest
 import com.rabbitmq.client.Channel
 import org.apache.http.HttpException
+import org.springframework.amqp.core.Message
 import org.springframework.amqp.rabbit.annotation.Exchange
 import org.springframework.amqp.rabbit.annotation.Queue
 import org.springframework.amqp.rabbit.annotation.QueueBinding
@@ -32,7 +33,11 @@ open class FCMService @Autowired constructor(
             exchange = Exchange(value = "edustor", durable = "true"),
             key = "fcm-sync-notifications"
     )))
-    private fun process(request: FCMRequest, channel: Channel) {
+    private fun process(request: FCMRequest, message: Message, channel: Channel) {
+        if (message.messageProperties.isRedelivered) {
+            channel.basicNack(message.messageProperties.deliveryTag, false, false)
+        }
+
         val sessions = sessionRepository.findByUser(request.user).filter { it.FCMToken != null }
                 .filter { it.id != request.activeSession?.id }
         val tokens = sessions.map { it.FCMToken }
