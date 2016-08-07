@@ -36,7 +36,8 @@ class PdfUploadService @Autowired constructor(
         private val gfs: GridFsOperations,
         private val documentRepo: DocumentsRepository,
         private val lessonsRepository: LessonsRepository,
-        private val telegramService: TelegramService
+        private val telegramService: TelegramService,
+        private val fcmService: FCMService
 ) {
     private val logger = LoggerFactory.getLogger(PdfUploadService::class.java)
     private val renderThreadExecutor = Executors.newSingleThreadExecutor(CustomizableThreadFactory("pdf-render"));
@@ -82,7 +83,10 @@ class PdfUploadService @Autowired constructor(
                     it
                 }
                 .toList()
-                .subscribe { telegramService.onUploadingComplete(it) }
+                .subscribe {
+                    fcmService.sendUserSyncNotification(uploadPreferences.uploader)
+                    telegramService.onUploadingComplete(it, uploadPreferences)
+                }
     }
 
     private fun savePage(page: Page, reader: PdfReader, uploadPreferences: UploadPreferences) {
@@ -135,7 +139,7 @@ class PdfUploadService @Autowired constructor(
         return byteArrayOutputStream.toByteArray()
     }
 
-    private fun getPageRanges(pageCount: Int, itemsPerRange: Int = 3): MutableList<Pair<Int, Int>> {
+    private fun getPageRanges(pageCount: Int, itemsPerRange: Int = 5): MutableList<Pair<Int, Int>> {
         val result = mutableListOf<Pair<Int, Int>>()
 
         for (n in 0..((pageCount - 1) / itemsPerRange)) {
@@ -157,14 +161,17 @@ class PdfUploadService @Autowired constructor(
     private fun readQR(image: BufferedImage): String? {
         logger.trace("Cropping and scaling")
 
-        val QR_REGION_SIZE = 125
+        val QR_REGION_SIZE = 150
 
         val cropped = image.getSubimage(
-                image.width - QR_REGION_SIZE - 40,
-                image.height - QR_REGION_SIZE - 40,
+                image.width - QR_REGION_SIZE - 20,
+                image.height - QR_REGION_SIZE - 20,
                 QR_REGION_SIZE,
                 QR_REGION_SIZE
         )
+
+//        File("qr/${Instant.now().toEpochMilli()}-${cropped.hashCode()}.png").writeBytes(cropped.getAsByteArray())
+
         logger.trace("Drawing")
         val qrImage = BufferedImage(QR_REGION_SIZE, QR_REGION_SIZE, BufferedImage.TYPE_BYTE_BINARY)
         val bwGraphics = qrImage.createGraphics()

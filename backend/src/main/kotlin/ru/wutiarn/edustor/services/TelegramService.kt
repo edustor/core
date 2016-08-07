@@ -7,6 +7,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.impl.client.HttpClients
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import ru.wutiarn.edustor.utils.UploadPreferences
 import ru.wutiarn.edustor.utils.getAsByteArray
 import rx.Observable
 import rx.schedulers.Schedulers
@@ -38,7 +39,7 @@ class TelegramService {
         sendText("Processing file...")
     }
 
-    fun onUploadingComplete(uploaded: List<PdfUploadService.Page>) {
+    fun onUploadingComplete(uploaded: List<PdfUploadService.Page>, uploadPreferences: UploadPreferences) {
         val total = uploaded.count()
         val noUuid = uploaded.count { it.uuid == null }
         val uuids = uploaded.filter { it.uuid != null }.fold("", {
