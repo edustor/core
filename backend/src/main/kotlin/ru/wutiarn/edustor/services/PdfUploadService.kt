@@ -22,6 +22,7 @@ import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.utils.UploadPreferences
 import rx.Observable
+import rx.lang.kotlin.onError
 import rx.lang.kotlin.toObservable
 import rx.schedulers.Schedulers
 import java.awt.image.BufferedImage
@@ -82,6 +83,9 @@ class PdfUploadService @Autowired constructor(
                     savePage(it, document, uploadPreferences)
                     logger.info("completed: ${it.index} ${it.uuid}")
                     it
+                }
+                .onError {
+                    logger.warn("Error occurred while processing page", it)
                 }
                 .toList()
                 .subscribe {
