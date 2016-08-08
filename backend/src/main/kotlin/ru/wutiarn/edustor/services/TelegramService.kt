@@ -11,6 +11,7 @@ import ru.wutiarn.edustor.utils.UploadPreferences
 import ru.wutiarn.edustor.utils.getAsByteArray
 import rx.Observable
 import rx.schedulers.Schedulers
+import java.awt.image.BufferedImage
 import java.time.format.DateTimeFormatter
 import javax.annotation.PostConstruct
 
@@ -54,18 +55,28 @@ class TelegramService {
 
         sendText(text)
 
-        uploaded.filter { it.renderedImage != null && it.qrImage != null }
-                .flatMap { listOf(it.renderedImage!!, it.qrImage!!) }
+        uploaded.filter { it.renderedImage != null }
                 .forEach {
-                    val entity = MultipartEntityBuilder.create()
-                            .addTextBody("chat_id", "43457173")
-                            .addBinaryBody("photo", it.getAsByteArray(), ContentType.APPLICATION_OCTET_STREAM, "img.png")
-                            .build()
-                    val httpPost = HttpPost(url + "sendPhoto")
-                    httpPost.entity = entity
-                    Observable.just(httpPost)
-                            .observeOn(Schedulers.io())
-                            .subscribe { HttpClients.createDefault().execute(it).close() }
+                    val index = uploaded.indexOf(it).toString()
+                    sendImage(it.renderedImage!!, "Img $index")
+
+                    for (i in 0..it.qrImages.lastIndex) {
+                        sendImage(it.qrImages[i], "Img $index place $i")
+                    }
+
                 }
+    }
+
+    fun sendImage(image: BufferedImage, caption: String) {
+        val entity = MultipartEntityBuilder.create()
+                .addTextBody("chat_id", "43457173")
+                .addTextBody("caption", caption)
+                .addBinaryBody("photo", image.getAsByteArray(), ContentType.APPLICATION_OCTET_STREAM, "img.png")
+                .build()
+        val httpPost = HttpPost(url + "sendPhoto")
+        httpPost.entity = entity
+        Observable.just(httpPost)
+                .observeOn(Schedulers.io())
+                .subscribe { HttpClients.createDefault().execute(it).close() }
     }
 }

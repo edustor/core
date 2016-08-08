@@ -47,7 +47,7 @@ class PdfUploadService @Autowired constructor(
     data class Page(
             val index: Int,
             var renderedImage: BufferedImage? = null,
-            var qrImage: BufferedImage? = null,
+            var qrImages: MutableList<BufferedImage> = mutableListOf(),
             var uuid: String? = null,
             var lesson: Lesson? = null
     )
@@ -184,7 +184,7 @@ class PdfUploadService @Autowired constructor(
             logger.trace("Drawing")
             val qrImage = BufferedImage(QR_REGION_SIZE, QR_REGION_SIZE, BufferedImage.TYPE_INT_RGB)
 
-            page.qrImage = qrImage
+            page.qrImages.add(qrImage)
 
             val graphics = qrImage.createGraphics()
             graphics.drawImage(cropped, 0, 0, null)
