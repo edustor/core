@@ -63,7 +63,6 @@ class TelegramService {
                     for (i in 0..it.qrImages.lastIndex) {
                         sendImage(it.qrImages[i], "Img $index place $i")
                     }
-
                 }
     }
 
