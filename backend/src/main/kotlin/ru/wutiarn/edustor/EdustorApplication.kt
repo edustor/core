@@ -22,7 +22,7 @@ import java.util.*
 open class EdustorApplication : RabbitListenerConfigurer, WebMvcConfigurerAdapter() {
 
     companion object {
-        val VERSION: String = "0.4.2"
+        val VERSION: String = "0.4.2.1"
     }
 
     @Autowired lateinit var fcmInterceptor: FCMInterceptor

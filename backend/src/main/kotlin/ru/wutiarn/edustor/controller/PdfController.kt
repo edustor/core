@@ -19,15 +19,25 @@ import java.io.ByteArrayOutputStream
 
 @Controller
 class PdfController @Autowired constructor(val gfs: GridFsOperations) {
-    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // Kotlin's Int can't be == null
     @RequestMapping("/pdf", produces = arrayOf("application/pdf"))
     @ResponseBody
-    fun pdf(@RequestParam(required = false) c: Integer?): ByteArray {
+    fun pdf(@RequestParam(required = false) c: Int?): ByteArray {
         val count = c?.toInt() ?: 10
         if (!(count >= 1 && count <= 100)) {
             throw RuntimeException("Too much pages")
         }
         val pdf = getPdf(count)
+        return pdf
+    }
+
+    @RequestMapping("/pdf/overprint", produces = arrayOf("application/pdf"))
+    @ResponseBody
+    fun pdf_overprint(@RequestParam(required = false) c: Int?): ByteArray {
+        val count = c?.toInt() ?: 10
+        if (!(count >= 1 && count <= 100)) {
+            throw RuntimeException("Too much pages")
+        }
+        val pdf = getPdf(count, "pdf_templates/overprint.pdf", true)
         return pdf
     }
 

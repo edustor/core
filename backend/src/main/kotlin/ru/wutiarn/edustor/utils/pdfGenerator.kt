@@ -26,11 +26,11 @@ fun getQR(text: String = randomUUID().toString()): BufferedImage {
     return bufferedImage
 }
 
-fun getPdf(count: Int = 1): ByteArray {
+fun getPdf(count: Int = 1, template: String = "pdf_templates/page.pdf", reserveCodes: Boolean = false): ByteArray {
 
     val proximaThinFont = BaseFont.createFont("fonts/Proxima Nova Thin.otf", BaseFont.WINANSI, true)
 
-    val origPdfReader = PdfReader("page.pdf")
+    val origPdfReader = PdfReader(template)
     val out1 = ByteArrayOutputStream()
 
     val document = Document()
@@ -57,7 +57,6 @@ fun getPdf(count: Int = 1): ByteArray {
     for (i in 1..pdfReader.numberOfPages) {
 
         val uuid = randomUUID().toString()
-        val image = Image.getInstance(getQR(uuid).getAsByteArray())
 
         val uuidEnd = uuid.split("-").last()
         val idString = "#${uuidEnd.substring(0, 4)}-${uuidEnd.substring(4, 8)}-${uuidEnd.substring(8, 12)}"
@@ -79,9 +78,24 @@ fun getPdf(count: Int = 1): ByteArray {
         val content = pdfStamper.getOverContent(i)
         table.writeSelectedRows(0, -1, 0, -1, 12f, table.totalHeight + 12, content)
 
-        image.scaleAbsolute(Rectangle(41f, 41f))
-        image.setAbsolutePosition(540f, 23.5f)
-        content.addImage(image)
+        val qrCoords = mutableListOf(
+                540f to 23.5f
+        )
+
+        if (reserveCodes) {
+            qrCoords.addAll(listOf(
+                    540f to 775.5f,
+                    14.5f to 775.5f,
+                    14.5f to 23.5f
+            ))
+        }
+
+        qrCoords.forEach {
+            val image = Image.getInstance(getQR(uuid).getAsByteArray())
+            image.scaleAbsolute(Rectangle(41f, 41f))
+            image.setAbsolutePosition(it.first, it.second)
+            content.addImage(image)
+        }
     }
 
     pdfStamper.close()

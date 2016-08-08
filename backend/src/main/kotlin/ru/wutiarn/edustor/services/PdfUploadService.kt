@@ -164,37 +164,46 @@ class PdfUploadService @Autowired constructor(
 
         val QR_REGION_SIZE = 150
 
-        val cropped = image.getSubimage(
-                image.width - QR_REGION_SIZE - 10,
-                image.height - QR_REGION_SIZE - 20,
-                QR_REGION_SIZE,
-                QR_REGION_SIZE
+        val qrCodeLocations = listOf(
+                image.width - QR_REGION_SIZE - 10 to image.height - QR_REGION_SIZE - 20, // Right bottom
+                image.width - QR_REGION_SIZE - 10 to 20, // Right top
+                10 to 20, // Left top
+                10 to image.height - QR_REGION_SIZE - 20  // Left bottom
         )
 
-//        File("qr/${Instant.now().toEpochMilli()}-${cropped.hashCode()}.png").writeBytes(cropped.getAsByteArray())
+        for (location in qrCodeLocations) {
+            val cropped = image.getSubimage(
+                    location.first,
+                    location.second,
+                    QR_REGION_SIZE,
+                    QR_REGION_SIZE
+            )
 
-        logger.trace("Drawing")
-        val qrImage = BufferedImage(QR_REGION_SIZE, QR_REGION_SIZE, BufferedImage.TYPE_BYTE_BINARY)
+//            File("${Instant.now().toEpochMilli()}-${cropped.hashCode()}.png").writeBytes(cropped.getAsByteArray())
 
-        page.qrImage = qrImage
+            logger.trace("Drawing")
+            val qrImage = BufferedImage(QR_REGION_SIZE, QR_REGION_SIZE, BufferedImage.TYPE_INT_RGB)
 
-        val bwGraphics = qrImage.createGraphics()
-        bwGraphics.drawImage(cropped, 0, 0, null)
-        bwGraphics.dispose()
-        //                FileOutputStream("bw.png").use { it.write(qrImage.getAsByteArray()) }
-        logger.trace("Preparing scan")
-        val binaryBitmap = BinaryBitmap(HybridBinarizer(BufferedImageLuminanceSource(qrImage)))
-        logger.trace("Scanning")
-        try {
-            val qrResult = codeReader.decode(binaryBitmap, mapOf(
-                    DecodeHintType.TRY_HARDER to true
-            ))
-            val result = qrResult.text
-            logger.trace("found $result")
-            page.uuid = result
-        } catch (e: Exception) {
-            logger.warn("Exception thrown while reading QR", e)
+            page.qrImage = qrImage
+
+            val graphics = qrImage.createGraphics()
+            graphics.drawImage(cropped, 0, 0, null)
+            graphics.dispose()
+//            File("img.png").writeBytes(qrImage.getAsByteArray())
+            logger.trace("Preparing scan")
+            val binaryBitmap = BinaryBitmap(HybridBinarizer(BufferedImageLuminanceSource(qrImage)))
+            logger.trace("Scanning")
+            try {
+                val qrResult = codeReader.decode(binaryBitmap, mapOf(
+                        DecodeHintType.TRY_HARDER to true
+                ))
+                val result = qrResult.text
+                logger.trace("found $result")
+                page.uuid = result
+                break
+            } catch (e: Exception) {
+                logger.warn("Exception thrown while reading QR", e)
+            }
         }
-
     }
 }
