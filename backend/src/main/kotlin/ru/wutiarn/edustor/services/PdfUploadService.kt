@@ -22,6 +22,7 @@ import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.utils.UploadPreferences
 import rx.Observable
+import rx.lang.kotlin.onError
 import rx.lang.kotlin.toObservable
 import rx.schedulers.Schedulers
 import java.awt.image.BufferedImage
@@ -47,7 +48,7 @@ class PdfUploadService @Autowired constructor(
     data class Page(
             val index: Int,
             var renderedImage: BufferedImage? = null,
-            var qrImage: BufferedImage? = null,
+            var qrImages: MutableList<BufferedImage> = mutableListOf(),
             var uuid: String? = null,
             var lesson: Lesson? = null
     )
@@ -82,6 +83,9 @@ class PdfUploadService @Autowired constructor(
                     savePage(it, document, uploadPreferences)
                     logger.info("completed: ${it.index} ${it.uuid}")
                     it
+                }
+                .onError {
+                    logger.warn("Error occurred while processing page", it)
                 }
                 .toList()
                 .subscribe {
@@ -184,7 +188,7 @@ class PdfUploadService @Autowired constructor(
             logger.trace("Drawing")
             val qrImage = BufferedImage(QR_REGION_SIZE, QR_REGION_SIZE, BufferedImage.TYPE_INT_RGB)
 
-            page.qrImage = qrImage
+            page.qrImages.add(qrImage)
 
             val graphics = qrImage.createGraphics()
             graphics.drawImage(cropped, 0, 0, null)
