@@ -34,22 +34,11 @@ class DocumentsController @Autowired constructor(
         val lessonsController: LessonsController
 ) {
     @RequestMapping("upload", method = arrayOf(RequestMethod.POST))
-    fun upload(@RequestParam("file") file: MultipartFile, @AuthenticationPrincipal user: User,
-               @RequestParam(required = false) subject: Subject?,
-               @RequestParam("date", required = false) date_str: String?,
-               @RequestParam(required = false) topic: String?
+    fun upload(@RequestParam("file") file: MultipartFile,
+               @AuthenticationPrincipal user: User,
+               @RequestParam(required = false) lesson: Lesson?
     ): String? {
-        var date: LocalDate? = null
-        date_str?.let {
-            date = LocalDate.parse(date_str)
-        }
-
-        val uploadPreferences = UploadPreferences(uploader = user)
-
-        if (subject != null && date != null) {
-            uploadPreferences.lesson = lessonsRepo.findLessonBySubjectAndDate(subject, date!!) ?: Lesson(subject, date, topic)
-        }
-
+        val uploadPreferences = UploadPreferences(uploader = user, lesson = lesson)
         when (file.contentType) {
             "application/pdf" -> {
                 PdfUploadService.processPdfUpload(file.inputStream, uploadPreferences)
@@ -95,7 +84,7 @@ class DocumentsController @Autowired constructor(
                            @RequestParam(required = false) instant: Instant?,
                            @AuthenticationPrincipal user: User,
                            @RequestParam id: String = UUID.randomUUID().toString()) {
-        val lesson = lessonsController.getLessonByDate(subject, date)
+        val lesson = lessonsController.getLessonByDate(subject, date, user)
         activateUuid(uuid, lesson, instant, user, id)
     }
 
