@@ -30,7 +30,7 @@ open class LessonsSyncController @Autowired constructor(
     }
 
     fun getByDate(task: SyncTask): Lesson {
-        val lesson = lessonsController.getLessonByDate(getSubject(task), parseDate(task))
+        val lesson = lessonsController.getLessonByDate(getSubject(task), parseDate(task), task.user)
         return lesson
     }
 

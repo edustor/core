@@ -35,16 +35,20 @@ open class LessonsController @Autowired constructor(
     @RequestMapping("/{lesson}")
     fun getLesson(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: User): Lesson {
         user.assertHasAccess(lesson)
-
         return lesson
     }
 
     @RequestMapping("/date/{date}/{subject}")
-    fun getLessonByDate(@PathVariable subject: Subject, @PathVariable date: LocalDate): Lesson {
-//        TODO: Access check
+    fun getLessonByDate(@PathVariable subject: Subject,
+                        @PathVariable date: LocalDate,
+                        @AuthenticationPrincipal user: User
+    ): Lesson {
         var lesson = lessonsRepo.findLessonBySubjectAndDate(subject, date)
 
+        lesson?.let { user.assertHasAccess(it) }
+
         if (lesson == null) {
+            user.assertHasAccess(subject)
             lesson = Lesson(subject, date)
             lessonsRepo.save(lesson)
         }
@@ -61,7 +65,7 @@ open class LessonsController @Autowired constructor(
 
     @RequestMapping("/date/{date}/{subject}/topic", method = arrayOf(RequestMethod.PUT))
     fun setTopicByDate(@PathVariable subject: Subject, @PathVariable date: LocalDate, @RequestParam(required = false) topic: String?, @AuthenticationPrincipal user: User) {
-        val lesson = getLessonByDate(subject, date)
+        val lesson = getLessonByDate(subject, date, user)
         user.assertHasAccess(lesson)
         lesson.topic = topic
         lessonsRepo.save(lesson)
@@ -105,7 +109,7 @@ open class LessonsController @Autowired constructor(
     @RequestMapping("date/{date}/{subject}/documents/reorder")
     fun reorderDocumentsByDate(@AuthenticationPrincipal user: User, @PathVariable subject: Subject, @PathVariable date: LocalDate,
                                @RequestParam document: Document, @RequestParam(required = false) after: Document?) {
-        val lesson = getLessonByDate(subject, date)
+        val lesson = getLessonByDate(subject, date, user)
         reorderDocuments(user, lesson, document, after)
 
     }

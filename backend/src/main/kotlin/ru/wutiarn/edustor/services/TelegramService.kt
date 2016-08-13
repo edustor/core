@@ -55,15 +55,20 @@ class TelegramService {
 
         sendText(text)
 
-        uploaded.filter { it.renderedImage != null }
-                .forEach {
-                    val index = uploaded.indexOf(it).toString()
-                    sendImage(it.renderedImage!!, "Img $index")
+        if (uploadPreferences.lesson == null) {
+            uploaded.filter { it.renderedImage != null }
+                    .forEach {
+                        val index = uploaded.indexOf(it).toString()
+                        sendImage(it.renderedImage!!, "Img $index")
 
-                    for (i in 0..it.qrImages.lastIndex) {
-                        sendImage(it.qrImages[i], "Img $index place $i")
+                        for (i in 0..it.qrImages.lastIndex) {
+                            sendImage(it.qrImages[i], "Img $index place $i")
+                        }
                     }
-                }
+        } else {
+            val lesson = uploadPreferences.lesson!!
+            sendText("QR read errors has been suppressed due to target lesson was explicitly specified: ${lesson.subject?.name} on ${lesson.date}")
+        }
     }
 
     fun sendImage(image: BufferedImage, caption: String) {
