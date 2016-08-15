@@ -1,7 +1,7 @@
 FROM java:8-jdk
 
 RUN apt-get update
-RUN apt-get install zbar-tools -y
+RUN apt-get install libgs-dev zbar-tools -y
 ADD . /code/src
 
 WORKDIR /code/src
