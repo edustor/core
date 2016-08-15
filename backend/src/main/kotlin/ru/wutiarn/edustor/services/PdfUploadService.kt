@@ -1,9 +1,5 @@
 package ru.wutiarn.edustor.services
 
-import com.google.zxing.BinaryBitmap
-import com.google.zxing.DecodeHintType
-import com.google.zxing.client.j2se.BufferedImageLuminanceSource
-import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.qrcode.QRCodeReader
 import com.itextpdf.text.pdf.PdfCopy
 import com.itextpdf.text.pdf.PdfReader
@@ -21,12 +17,14 @@ import ru.wutiarn.edustor.models.Lesson
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.utils.UploadPreferences
+import ru.wutiarn.edustor.utils.getAsByteArray
 import rx.Observable
 import rx.lang.kotlin.onError
 import rx.lang.kotlin.toObservable
 import rx.schedulers.Schedulers
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.InputStream
 import java.time.Instant
 import java.util.concurrent.Executors
@@ -160,9 +158,6 @@ class PdfUploadService @Autowired constructor(
         return result
     }
 
-    /**
-     * @throws com.google.zxing.NotFoundException
-     */
     private fun readQR(image: BufferedImage, page: Page) {
         logger.trace("Cropping and scaling")
 
@@ -183,31 +178,28 @@ class PdfUploadService @Autowired constructor(
                     QR_REGION_SIZE
             )
 
-//            File("${Instant.now().toEpochMilli()}-${cropped.hashCode()}.png").writeBytes(cropped.getAsByteArray())
+            val tempFile = File.createTempFile("edustor-qr", ".tmp.png")
+            tempFile.writeBytes(cropped.getAsByteArray())
 
-            logger.trace("Drawing")
-            val qrImage = BufferedImage(QR_REGION_SIZE, QR_REGION_SIZE, BufferedImage.TYPE_INT_RGB)
+            val process = Runtime.getRuntime().exec(arrayOf(
+                    "zbarimg", "-q", "--raw", tempFile.absolutePath
+            ))
 
-            page.qrImages.add(qrImage)
 
-            val graphics = qrImage.createGraphics()
-            graphics.drawImage(cropped, 0, 0, null)
-            graphics.dispose()
-//            File("img.png").writeBytes(qrImage.getAsByteArray())
-            logger.trace("Preparing scan")
-            val binaryBitmap = BinaryBitmap(HybridBinarizer(BufferedImageLuminanceSource(qrImage)))
-            logger.trace("Scanning")
-            try {
-                val qrResult = codeReader.decode(binaryBitmap, mapOf(
-                        DecodeHintType.TRY_HARDER to true
-                ))
-                val result = qrResult.text
-                logger.trace("found $result")
-                page.uuid = result
+            val result = process.inputStream.reader().readLines()
+
+            tempFile.delete()
+
+            val foundCode = result.getOrNull(0)
+            if (foundCode != null) {
+                logger.info("Page ${page.index} loc ${qrCodeLocations.indexOf(location)}. Found: $foundCode")
+                page.uuid = foundCode
                 break
-            } catch (e: Exception) {
-                logger.warn("Exception thrown while reading QR", e)
+            } else {
+                logger.info("Page ${page.index} loc ${qrCodeLocations.indexOf(location)}. QR is not found")
             }
+
+            page.qrImages.add(cropped)
         }
     }
 }
