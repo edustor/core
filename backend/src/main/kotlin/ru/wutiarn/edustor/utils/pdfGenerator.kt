@@ -90,8 +90,11 @@ fun getPdf(count: Int = 1, template: String = "pdf_templates/page.pdf", reserveC
             ))
         }
 
+        val uri = "edustor://d/$uuid"
+        val qr = getQR(uri).getAsByteArray()
+
         qrCoords.forEach {
-            val image = Image.getInstance(getQR(uuid).getAsByteArray())
+            val image = Image.getInstance(qr)
             image.scaleAbsolute(Rectangle(41f, 41f))
             image.setAbsolutePosition(it.first, it.second)
             content.addImage(image)

@@ -27,6 +27,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.InputStream
 import java.time.Instant
+import java.util.*
 import java.util.concurrent.Executors
 import com.itextpdf.text.Document as PdfDocument
 
@@ -192,8 +193,22 @@ class PdfUploadService @Autowired constructor(
 
             val foundCode = result.getOrNull(0)
             if (foundCode != null) {
-                logger.info("Page ${page.index} loc ${qrCodeLocations.indexOf(location)}. Found: $foundCode")
-                page.uuid = foundCode
+                val uuid: String
+
+                if (!foundCode.startsWith("edustor://d/")) {
+                    try {
+                        uuid = UUID.fromString(foundCode).toString()
+                        logger.info("Found old qr code payload: $foundCode")
+                    } catch (e: IllegalAccessException) {
+                        logger.info("QR code payload is invalid $foundCode, skipping")
+                        continue
+                    }
+                } else {
+                    uuid = foundCode.split("/").last()
+                }
+
+                logger.info("Page ${page.index} loc ${qrCodeLocations.indexOf(location)}. Found: $uuid")
+                page.uuid = uuid
                 break
             } else {
                 logger.info("Page ${page.index} loc ${qrCodeLocations.indexOf(location)}. QR is not found")
