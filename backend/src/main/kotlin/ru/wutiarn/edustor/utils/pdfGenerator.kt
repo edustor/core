@@ -8,7 +8,9 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import com.itextpdf.text.*
 import com.itextpdf.text.pdf.*
 import com.itextpdf.text.pdf.draw.VerticalPositionMark
+import org.springframework.http.HttpStatus
 import ru.wutiarn.edustor.EdustorApplication
+import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.time.LocalDateTime
@@ -26,7 +28,16 @@ fun getQR(text: String = randomUUID().toString()): BufferedImage {
     return bufferedImage
 }
 
-fun getPdf(count: Int = 1, template: String = "pdf_templates/page.pdf", reserveCodes: Boolean = false): ByteArray {
+private val qrPossibleLocations = listOf(
+        540f to 23.5f,
+        540f to 775.5f,
+        14.5f to 775.5f,
+        14.5f to 23.5f
+)
+
+fun getPdf(count: Int = 1,
+           template: String = "pdf_templates/page.pdf",
+           requestedCodeLocations: List<Int> = listOf(0)): ByteArray {
 
     val proximaThinFont = BaseFont.createFont("fonts/Proxima Nova Thin.otf", BaseFont.WINANSI, true)
 
@@ -78,17 +89,14 @@ fun getPdf(count: Int = 1, template: String = "pdf_templates/page.pdf", reserveC
         val content = pdfStamper.getOverContent(i)
         table.writeSelectedRows(0, -1, 0, -1, 12f, table.totalHeight + 12, content)
 
-        val qrCoords = mutableListOf(
-                540f to 23.5f
-        )
-
-        if (reserveCodes) {
-            qrCoords.addAll(listOf(
-                    540f to 775.5f,
-                    14.5f to 775.5f,
-                    14.5f to 23.5f
-            ))
+        val qrCoords = requestedCodeLocations.map {
+            try {
+                qrPossibleLocations[it]
+            } catch (e: IndexOutOfBoundsException) {
+                throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "Can't found qr location for index $it")
+            }
         }
+
 
         val uri = "edustor://d/$uuid"
         val qr = getQR(uri).getAsByteArray()
