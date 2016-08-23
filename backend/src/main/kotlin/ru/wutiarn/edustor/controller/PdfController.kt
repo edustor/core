@@ -32,12 +32,17 @@ class PdfController @Autowired constructor(val gfs: GridFsOperations) {
 
     @RequestMapping("/pdf/overprint", produces = arrayOf("application/pdf"))
     @ResponseBody
-    fun pdf_overprint(@RequestParam(required = false) c: Int?): ByteArray {
+    fun pdf_overprint(@RequestParam(required = false) c: Int?,
+                      @RequestParam(required = false) qrp: String?
+    ): ByteArray {
         val count = c?.toInt() ?: 10
         if (!(count >= 1 && count <= 100)) {
             throw RuntimeException("Too much pages")
         }
-        val pdf = getPdf(count, "pdf_templates/overprint.pdf", true)
+
+        val qrPositions = (qrp ?: "0,1,2,3").split(",").map { it.toInt() }
+
+        val pdf = getPdf(count, "pdf_templates/overprint.pdf", qrPositions)
         return pdf
     }
 
