@@ -9,3 +9,8 @@ spring:
     multipart:
       max-file-size: 100Mb
       max-request-size: 100Mb
+# TODO: Remove on ghostscript's "Invalid calling convention 63" fix and upgrade to spring boot 1.4.0
+# (since multipart was deprecated in spring boot 1.4.0)
+multipart:
+  max-file-size: 100Mb
+  max-request-size: 100Mb
