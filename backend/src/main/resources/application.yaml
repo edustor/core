@@ -1,6 +1,3 @@
-multipart:
-  max-file-size: 300Mb
-  max-request-size: 300Mb
 spring:
   data:
     mongodb:
@@ -8,3 +5,7 @@ spring:
       database: edustor
   rabbitmq:
     host: rabbit
+  http:
+    multipart:
+      max-file-size: 100Mb
+      max-request-size: 100Mb
