@@ -70,24 +70,25 @@ fun getPdf(count: Int = 1,
         val uuid = randomUUID().toString()
 
         val uuidEnd = uuid.split("-").last()
-        val idString = "#${uuidEnd.substring(0, 4)}-${uuidEnd.substring(4, 8)}-${uuidEnd.substring(8, 12)}"
-
-        val phrase = Phrase()
-        phrase.font = Font(proximaThinFont, 8f, Font.NORMAL, BaseColor.BLACK)
-        phrase.add(nowStr)
-        phrase.add(Chunk(VerticalPositionMark()))
-        phrase.add(idString)
-
-        val cell = PdfPCell(phrase)
-        cell.border = PdfPCell.NO_BORDER
-
-        val table = PdfPTable(1)
-        table.addCell(cell)
-        table.totalWidth = page.width - 12 * 2
-
 
         val content = pdfStamper.getOverContent(i)
-        table.writeSelectedRows(0, -1, 0, -1, 12f, table.totalHeight + 12, content)
+
+        val topPhrase = Phrase()
+        topPhrase.font = Font(proximaThinFont, 11f, Font.NORMAL, BaseColor.BLACK)
+        topPhrase.add("Edustor Alpha")
+        topPhrase.add(Chunk(VerticalPositionMark()))
+        topPhrase.add("#${uuidEnd.substring(0, 4)}  #")
+        val topTable = getPhraseTable(topPhrase, page.width - 12 * 2 - 50)
+
+        val bottomPhrase = Phrase()
+        bottomPhrase.font = Font(proximaThinFont, 8f, Font.NORMAL, BaseColor.BLACK)
+        bottomPhrase.add(nowStr)
+        bottomPhrase.add(Chunk(VerticalPositionMark()))
+        bottomPhrase.add("#${uuidEnd.substring(0, 4)}-${uuidEnd.substring(4, 8)}-${uuidEnd.substring(8, 12)}")
+        val bottomTable = getPhraseTable(bottomPhrase, page.width - 12 * 2)
+        bottomTable.writeSelectedRows(0, -1, 0, -1, 12f, bottomTable.totalHeight + 12, content)
+
+        topTable.writeSelectedRows(0, -1, 0, -1, 12f, page.height - topTable.totalHeight / 2 - 2, content)
 
         val qrCoords = requestedCodeLocations.map {
             try {
@@ -112,4 +113,15 @@ fun getPdf(count: Int = 1,
     pdfStamper.close()
 
     return out2.toByteArray()
+}
+
+private fun getPhraseTable(phrase: Phrase, tableWidth: Float): PdfPTable {
+    val cell = PdfPCell(phrase)
+    cell.border = PdfPCell.NO_BORDER
+
+    val table = PdfPTable(1)
+    table.addCell(cell)
+    table.totalWidth = tableWidth
+
+    return table
 }
