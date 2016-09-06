@@ -8,9 +8,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import com.itextpdf.text.*
 import com.itextpdf.text.pdf.*
 import com.itextpdf.text.pdf.draw.VerticalPositionMark
-import org.springframework.http.HttpStatus
 import ru.wutiarn.edustor.EdustorApplication
-import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
 import ru.wutiarn.edustor.utils.extensions.getAsByteArray
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
@@ -21,20 +19,25 @@ import java.util.UUID.randomUUID
 
 object BlankPdfGenerator {
 
-    private val qrPossibleLocations = listOf(
-            540f to 23.5f,
-            540f to 775.5f,
-            14.5f to 775.5f,
-            14.5f to 23.5f
-    )
+    enum class QRLocations(val loc: Pair<Float, Float>) {
+        LEFT_BOTTOM(540f to 23.5f),
+        LEFT_TOP(540f to 775.5f),
+        RIGHT_TOP(14.5f to 775.5f),
+        RIGHT_BOTTOM(14.5f to 23.5f)
+    }
+
+    enum class PdfTemplates(val path: String) {
+        GRID("pdf_templates/page.pdf"),
+        BLANK("pdf_templates/overprint.pdf"),
+    }
 
     fun genPdf(count: Int = 1,
-               template: String = "pdf_templates/page.pdf",
-               requestedCodeLocations: List<Int> = listOf(0)): ByteArray {
+               template: PdfTemplates,
+               requestedCodeLocations: List<QRLocations> = listOf(QRLocations.LEFT_BOTTOM)): ByteArray {
 
         val proximaThinFont = BaseFont.createFont("fonts/Proxima Nova Thin.otf", BaseFont.WINANSI, true)
 
-        val origPdfReader = PdfReader(template)
+        val origPdfReader = PdfReader(template.path)
         val out1 = ByteArrayOutputStream()
 
         val document = Document()
@@ -83,13 +86,7 @@ object BlankPdfGenerator {
 
             topTable.writeSelectedRows(0, -1, 0, -1, 12f, page.height - topTable.totalHeight / 2 - 2, content)
 
-            val qrCoords = requestedCodeLocations.map {
-                try {
-                    qrPossibleLocations[it]
-                } catch (e: IndexOutOfBoundsException) {
-                    throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "Can't found qr location for index $it")
-                }
-            }
+            val qrCoords = requestedCodeLocations.map { it.loc }
 
 
             val uri = "edustor://d/$uuid"

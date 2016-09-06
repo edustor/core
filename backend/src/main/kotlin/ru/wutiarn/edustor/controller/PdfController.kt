@@ -26,7 +26,7 @@ class PdfController @Autowired constructor(val gfs: GridFsOperations) {
         if (!(count >= 1 && count <= 100)) {
             throw RuntimeException("Too much pages")
         }
-        val pdf = BlankPdfGenerator.genPdf(count)
+        val pdf = BlankPdfGenerator.genPdf(count, BlankPdfGenerator.PdfTemplates.GRID)
         return pdf
     }
 
@@ -40,9 +40,17 @@ class PdfController @Autowired constructor(val gfs: GridFsOperations) {
             throw RuntimeException("Too much pages")
         }
 
-        val qrPositions = (qrp ?: "0,1,2,3").split(",").map { it.toInt() }
+        val qrPositions: List<BlankPdfGenerator.QRLocations> = (qrp ?: "0,1,2,3")!!.split(",").map {
+            when (it) {
+                "0" -> BlankPdfGenerator.QRLocations.LEFT_BOTTOM
+                "1" -> BlankPdfGenerator.QRLocations.LEFT_TOP
+                "2" -> BlankPdfGenerator.QRLocations.RIGHT_TOP
+                "3" -> BlankPdfGenerator.QRLocations.RIGHT_BOTTOM
+                else -> null
+            }
+        }.filter { it != null }.map { it!! } // Somehow just filtering is not enough to cast to List<BlankPdfGenerator.QRLocations>
 
-        val pdf = BlankPdfGenerator.genPdf(count, "pdf_templates/overprint.pdf", qrPositions)
+        val pdf = BlankPdfGenerator.genPdf(count, BlankPdfGenerator.PdfTemplates.BLANK, qrPositions)
         return pdf
     }
 
