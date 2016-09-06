@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
 import ru.wutiarn.edustor.models.Lesson
-import ru.wutiarn.edustor.utils.getPdf
+import ru.wutiarn.edustor.utils.BlankPdfGenerator
 import java.io.ByteArrayOutputStream
 
 @Controller
@@ -26,7 +26,7 @@ class PdfController @Autowired constructor(val gfs: GridFsOperations) {
         if (!(count >= 1 && count <= 100)) {
             throw RuntimeException("Too much pages")
         }
-        val pdf = getPdf(count)
+        val pdf = BlankPdfGenerator.genPdf(count)
         return pdf
     }
 
@@ -42,7 +42,7 @@ class PdfController @Autowired constructor(val gfs: GridFsOperations) {
 
         val qrPositions = (qrp ?: "0,1,2,3").split(",").map { it.toInt() }
 
-        val pdf = getPdf(count, "pdf_templates/overprint.pdf", qrPositions)
+        val pdf = BlankPdfGenerator.genPdf(count, "pdf_templates/overprint.pdf", qrPositions)
         return pdf
     }
 

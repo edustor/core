@@ -16,8 +16,8 @@ import ru.wutiarn.edustor.models.Document
 import ru.wutiarn.edustor.models.Lesson
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
-import ru.wutiarn.edustor.utils.UploadPreferences
-import ru.wutiarn.edustor.utils.getAsByteArray
+import ru.wutiarn.edustor.utils.PdfUploadPreferences
+import ru.wutiarn.edustor.utils.extensions.getAsByteArray
 import rx.Observable
 import rx.lang.kotlin.onError
 import rx.lang.kotlin.toObservable
@@ -52,7 +52,7 @@ class PdfUploadService @Autowired constructor(
             var lesson: Lesson? = null
     )
 
-    fun processPdfUpload(fileStream: InputStream, uploadPreferences: UploadPreferences) {
+    fun processPdfUpload(fileStream: InputStream, uploadPreferences: PdfUploadPreferences) {
 
         telegramService.onUploadingStarted()
 
@@ -93,7 +93,7 @@ class PdfUploadService @Autowired constructor(
                 }
     }
 
-    private fun savePage(page: Page, reader: PdfReader, uploadPreferences: UploadPreferences) {
+    private fun savePage(page: Page, reader: PdfReader, uploadPreferences: PdfUploadPreferences) {
 
         var document: Document? = null
 
