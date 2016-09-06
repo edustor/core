@@ -37,7 +37,7 @@ class PdfController @Autowired constructor(val gfs: GridFsOperations) {
     ): ByteArray {
         val count = c?.toInt() ?: 10
         if (!(count >= 1 && count <= 100)) {
-            throw RuntimeException("Too many pages")
+            throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "Too many pages")
         }
 
         val qrPositions: List<BlankPdfGenerator.QRLocations> = (qrp ?: "0,1,2,3")!!.split(",").map {
