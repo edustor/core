@@ -37,7 +37,7 @@ class PdfController @Autowired constructor(val gfs: GridFsOperations) {
     ): ByteArray {
         val count = c?.toInt() ?: 10
         if (!(count >= 1 && count <= 100)) {
-            throw RuntimeException("Too much pages")
+            throw RuntimeException("Too many pages")
         }
 
         val qrPositions: List<BlankPdfGenerator.QRLocations> = (qrp ?: "0,1,2,3")!!.split(",").map {
@@ -46,9 +46,9 @@ class PdfController @Autowired constructor(val gfs: GridFsOperations) {
                 "1" -> BlankPdfGenerator.QRLocations.LEFT_TOP
                 "2" -> BlankPdfGenerator.QRLocations.RIGHT_TOP
                 "3" -> BlankPdfGenerator.QRLocations.RIGHT_BOTTOM
-                else -> null
+                else -> throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "Can't found qr location for index $it")
             }
-        }.filter { it != null }.map { it!! } // Somehow just filtering is not enough to cast to List<BlankPdfGenerator.QRLocations>
+        }
 
         val pdf = BlankPdfGenerator.genPdf(count, BlankPdfGenerator.PdfTemplates.BLANK, qrPositions)
         return pdf
