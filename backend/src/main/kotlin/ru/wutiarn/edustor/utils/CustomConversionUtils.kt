@@ -18,7 +18,7 @@ import java.time.LocalDate
 import java.util.*
 
 @Configuration
-open class ConversionUtils() : WebMvcConfigurerAdapter() {
+open class CustomConversionUtils() : WebMvcConfigurerAdapter() {
     @Autowired
     fun registerCustomSerializers(mapper: ObjectMapper) {
         val module = SimpleModule("ru.edustor.datatype.custom", Version(1, 0, 0, null, "ru.edustor", "edustor"))

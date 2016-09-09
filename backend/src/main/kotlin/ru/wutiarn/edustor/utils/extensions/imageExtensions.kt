@@ -1,4 +1,4 @@
-package ru.wutiarn.edustor.utils
+package ru.wutiarn.edustor.utils.extensions
 
 import java.awt.Image
 import java.awt.image.BufferedImage

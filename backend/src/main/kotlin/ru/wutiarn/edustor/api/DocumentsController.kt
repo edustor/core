@@ -16,7 +16,7 @@ import ru.wutiarn.edustor.models.User
 import ru.wutiarn.edustor.repository.DocumentsRepository
 import ru.wutiarn.edustor.repository.LessonsRepository
 import ru.wutiarn.edustor.services.PdfUploadService
-import ru.wutiarn.edustor.utils.UploadPreferences
+import ru.wutiarn.edustor.utils.PdfUploadPreferences
 import ru.wutiarn.edustor.utils.extensions.assertHasAccess
 import ru.wutiarn.edustor.utils.extensions.assertIsOwner
 import java.time.Instant
@@ -38,7 +38,7 @@ class DocumentsController @Autowired constructor(
                @AuthenticationPrincipal user: User,
                @RequestParam(required = false) lesson: Lesson?
     ): String? {
-        val uploadPreferences = UploadPreferences(uploader = user, lesson = lesson)
+        val uploadPreferences = PdfUploadPreferences(uploader = user, lesson = lesson)
         when (file.contentType) {
             "application/pdf" -> {
                 PdfUploadService.processPdfUpload(file.inputStream, uploadPreferences)

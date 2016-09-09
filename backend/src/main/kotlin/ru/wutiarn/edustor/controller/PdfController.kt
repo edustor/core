@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import ru.wutiarn.edustor.exceptions.HttpRequestProcessingException
 import ru.wutiarn.edustor.models.Lesson
-import ru.wutiarn.edustor.utils.getPdf
+import ru.wutiarn.edustor.utils.BlankPdfGenerator
 import java.io.ByteArrayOutputStream
 
 @Controller
@@ -26,7 +26,7 @@ class PdfController @Autowired constructor(val gfs: GridFsOperations) {
         if (!(count >= 1 && count <= 100)) {
             throw RuntimeException("Too much pages")
         }
-        val pdf = getPdf(count)
+        val pdf = BlankPdfGenerator.genPdf(count, BlankPdfGenerator.PdfTemplates.GRID)
         return pdf
     }
 
@@ -37,12 +37,20 @@ class PdfController @Autowired constructor(val gfs: GridFsOperations) {
     ): ByteArray {
         val count = c?.toInt() ?: 10
         if (!(count >= 1 && count <= 100)) {
-            throw RuntimeException("Too much pages")
+            throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "Too many pages")
         }
 
-        val qrPositions = (qrp ?: "0,1,2,3").split(",").map { it.toInt() }
+        val qrPositions: List<BlankPdfGenerator.QRLocations> = (qrp ?: "0,1,2,3")!!.split(",").map {
+            when (it) {
+                "0" -> BlankPdfGenerator.QRLocations.LEFT_BOTTOM
+                "1" -> BlankPdfGenerator.QRLocations.LEFT_TOP
+                "2" -> BlankPdfGenerator.QRLocations.RIGHT_TOP
+                "3" -> BlankPdfGenerator.QRLocations.RIGHT_BOTTOM
+                else -> throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "Can't found qr location for index $it")
+            }
+        }
 
-        val pdf = getPdf(count, "pdf_templates/overprint.pdf", qrPositions)
+        val pdf = BlankPdfGenerator.genPdf(count, BlankPdfGenerator.PdfTemplates.BLANK, qrPositions)
         return pdf
     }
 
