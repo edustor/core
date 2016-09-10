@@ -1,4 +1,4 @@
-package ru.edustor.core.security
+package ru.edustor.core.config
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import ru.edustor.core.filter.AuthFilter
 
 @Configuration
 @EnableWebSecurity
@@ -15,7 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 open class WebSecurityConfig : WebSecurityConfigurerAdapter() {
 
     @Autowired
-    lateinit var filter: SecurityFilter
+    lateinit var filter: AuthFilter
 
     override fun configure(http: HttpSecurity) {
         http.authorizeRequests()

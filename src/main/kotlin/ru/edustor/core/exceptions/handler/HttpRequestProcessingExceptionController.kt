@@ -1,4 +1,4 @@
-package ru.edustor.core.controller.errorhandler
+package ru.edustor.core.exceptions.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired

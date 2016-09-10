@@ -7,7 +7,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.impl.client.HttpClients
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import ru.edustor.core.util.PdfUploadPreferences
+import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
 import ru.edustor.core.util.extensions.getAsByteArray
 import rx.Observable
 import rx.schedulers.Schedulers

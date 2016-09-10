@@ -1,4 +1,4 @@
-package ru.edustor.core.api.account
+package ru.edustor.core.rest.account
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.annotation.AuthenticationPrincipal

@@ -1,4 +1,4 @@
-package ru.edustor.core.controller.errorhandler
+package ru.edustor.core.exceptions.handler
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.web.ErrorAttributes

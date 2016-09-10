@@ -1,4 +1,4 @@
-package ru.edustor.core.security
+package ru.edustor.core.filter
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @Component
-open class SecurityFilter @Autowired constructor(val repo: SessionRepository) : GenericFilterBean() {
+open class AuthFilter @Autowired constructor(val repo: SessionRepository) : GenericFilterBean() {
 
     val regex = "^/+api/(?!account/login([/]|$)).*".toRegex()
 

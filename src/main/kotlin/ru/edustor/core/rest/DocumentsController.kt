@@ -1,4 +1,4 @@
-package ru.edustor.core.api
+package ru.edustor.core.rest
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.mongodb.core.query.Query
@@ -13,10 +13,10 @@ import ru.edustor.core.model.Document
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Subject
 import ru.edustor.core.model.User
+import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
 import ru.edustor.core.service.PdfUploadService
-import ru.edustor.core.util.PdfUploadPreferences
 import ru.edustor.core.util.extensions.assertHasAccess
 import ru.edustor.core.util.extensions.assertIsOwner
 import java.time.Instant

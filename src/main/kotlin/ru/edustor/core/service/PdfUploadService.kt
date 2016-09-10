@@ -14,9 +14,9 @@ import org.springframework.scheduling.concurrent.CustomizableThreadFactory
 import org.springframework.stereotype.Service
 import ru.edustor.core.model.Document
 import ru.edustor.core.model.Lesson
+import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
-import ru.edustor.core.util.PdfUploadPreferences
 import ru.edustor.core.util.extensions.getAsByteArray
 import rx.Observable
 import rx.lang.kotlin.onError

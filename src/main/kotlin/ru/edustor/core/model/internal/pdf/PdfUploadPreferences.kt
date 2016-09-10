@@ -1,4 +1,4 @@
-package ru.edustor.core.util
+package ru.edustor.core.model.internal.pdf
 
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.User

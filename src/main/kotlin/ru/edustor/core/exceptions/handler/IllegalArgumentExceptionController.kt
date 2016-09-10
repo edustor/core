@@ -1,4 +1,4 @@
-package ru.edustor.core.controller.errorhandler
+package ru.edustor.core.exceptions.handler
 
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ControllerAdvice

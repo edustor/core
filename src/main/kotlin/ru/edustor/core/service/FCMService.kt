@@ -5,7 +5,7 @@ import com.mashape.unirest.http.Unirest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.edustor.core.model.User
-import ru.edustor.core.model.util.sync.FCMRequest
+import ru.edustor.core.model.internal.sync.FCMRequest
 import ru.edustor.core.repository.SessionRepository
 import rx.Observable
 import java.util.concurrent.LinkedBlockingQueue

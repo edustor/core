@@ -1,4 +1,4 @@
-package ru.edustor.core.api
+package ru.edustor.core.rest
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.User
-import ru.edustor.core.model.util.sync.SyncTask
+import ru.edustor.core.model.internal.sync.SyncTask
 import ru.edustor.core.repository.LessonsRepository
 import ru.edustor.core.repository.SubjectsRepository
 import ru.edustor.core.service.FCMService

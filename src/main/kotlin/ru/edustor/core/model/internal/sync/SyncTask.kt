@@ -1,4 +1,4 @@
-package ru.edustor.core.model.util.sync
+package ru.edustor.core.model.internal.sync
 
 import ru.edustor.core.model.User
 
