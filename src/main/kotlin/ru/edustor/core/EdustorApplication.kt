@@ -14,7 +14,7 @@ import java.util.*
 open class EdustorApplication : WebMvcConfigurerAdapter() {
 
     companion object {
-        val VERSION: String = "0.4.3.3"
+        val VERSION: String = "0.4.3.4"
     }
 
     @org.springframework.beans.factory.annotation.Autowired lateinit var fcmInterceptor: FCMInterceptor
