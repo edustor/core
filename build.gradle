@@ -1,4 +1,4 @@
-group 'ru.wutiarn'
+group 'ru.edustor'
 version '0.4.3.3'
 
 buildscript {
