@@ -3,12 +3,4 @@ package ru.edustor.core.models.util.sync
 import ru.edustor.core.models.Session
 import ru.edustor.core.models.User
 
-class FCMRequest() {
-    lateinit var user: User
-    var activeSession: Session? = null
-
-    constructor(user: User, session: Session? = null) : this() {
-        this.user = user
-        this.activeSession = session
-    }
-}
+data class FCMRequest(val user: User, val activeSession: Session?, var retryNum: Int = 0)
