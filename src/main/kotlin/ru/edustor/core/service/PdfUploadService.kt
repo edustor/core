@@ -1,4 +1,4 @@
-package ru.edustor.core.services
+package ru.edustor.core.service
 
 import com.google.zxing.qrcode.QRCodeReader
 import com.itextpdf.text.pdf.PdfCopy
@@ -12,12 +12,12 @@ import org.springframework.data.mongodb.gridfs.GridFsCriteria
 import org.springframework.data.mongodb.gridfs.GridFsOperations
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory
 import org.springframework.stereotype.Service
-import ru.edustor.core.models.Document
-import ru.edustor.core.models.Lesson
+import ru.edustor.core.model.Document
+import ru.edustor.core.model.Lesson
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
-import ru.edustor.core.utils.PdfUploadPreferences
-import ru.edustor.core.utils.extensions.getAsByteArray
+import ru.edustor.core.util.PdfUploadPreferences
+import ru.edustor.core.util.extensions.getAsByteArray
 import rx.Observable
 import rx.lang.kotlin.onError
 import rx.lang.kotlin.toObservable

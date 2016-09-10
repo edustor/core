@@ -1,4 +1,4 @@
-package ru.edustor.core.utils
+package ru.edustor.core.util
 
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonParser

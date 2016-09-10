@@ -1,4 +1,4 @@
-package ru.edustor.core.utils
+package ru.edustor.core.util
 
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
@@ -8,7 +8,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import com.itextpdf.text.*
 import com.itextpdf.text.pdf.*
 import com.itextpdf.text.pdf.draw.VerticalPositionMark
-import ru.edustor.core.utils.extensions.getAsByteArray
+import ru.edustor.core.util.extensions.getAsByteArray
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.time.LocalDateTime

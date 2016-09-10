@@ -2,8 +2,8 @@ package ru.edustor.core.repository
 
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.stereotype.Repository
-import ru.edustor.core.models.Session
-import ru.edustor.core.models.User
+import ru.edustor.core.model.Session
+import ru.edustor.core.model.User
 
 @Repository
 interface SessionRepository : MongoRepository<Session, String> {

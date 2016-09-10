@@ -1,4 +1,4 @@
-package ru.edustor.core.models
+package ru.edustor.core.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.springframework.beans.factory.annotation.Autowired

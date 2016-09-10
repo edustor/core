@@ -1,11 +1,11 @@
-package ru.edustor.core.services
+package ru.edustor.core.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mashape.unirest.http.Unirest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import ru.edustor.core.models.User
-import ru.edustor.core.models.util.sync.FCMRequest
+import ru.edustor.core.model.User
+import ru.edustor.core.model.util.sync.FCMRequest
 import ru.edustor.core.repository.SessionRepository
 import rx.Observable
 import java.util.concurrent.LinkedBlockingQueue

@@ -1,6 +1,6 @@
-package ru.edustor.core.models.util.sync
+package ru.edustor.core.model.util.sync
 
-import ru.edustor.core.models.User
+import ru.edustor.core.model.User
 
 class SyncTask() {
     lateinit var method: String

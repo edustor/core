@@ -1,11 +1,11 @@
-package ru.edustor.core.utils.extensions
+package ru.edustor.core.util.extensions
 
 import org.springframework.http.HttpStatus
 import ru.edustor.core.exceptions.HttpRequestProcessingException
-import ru.edustor.core.models.Document
-import ru.edustor.core.models.Lesson
-import ru.edustor.core.models.Subject
-import ru.edustor.core.models.User
+import ru.edustor.core.model.Document
+import ru.edustor.core.model.Lesson
+import ru.edustor.core.model.Subject
+import ru.edustor.core.model.User
 import ru.edustor.core.repository.LessonsRepository
 
 fun User.hasAccess(subject: Subject): Boolean {

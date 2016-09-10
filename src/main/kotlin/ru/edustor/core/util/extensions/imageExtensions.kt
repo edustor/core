@@ -1,4 +1,4 @@
-package ru.edustor.core.utils.extensions
+package ru.edustor.core.util.extensions
 
 import java.awt.Image
 import java.awt.image.BufferedImage

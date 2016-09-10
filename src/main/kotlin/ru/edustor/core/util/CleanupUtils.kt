@@ -1,4 +1,4 @@
-package ru.edustor.core.utils
+package ru.edustor.core.util
 
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

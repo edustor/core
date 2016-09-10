@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import ru.edustor.core.exceptions.HttpRequestProcessingException
-import ru.edustor.core.models.Session
+import ru.edustor.core.model.Session
 import ru.edustor.core.repository.SessionRepository
 import ru.edustor.core.repository.UserRepository
-import ru.edustor.core.utils.GoogleTokenVerifier
+import ru.edustor.core.util.GoogleTokenVerifier
 
 @RestController
 @RequestMapping("/api/account/login")

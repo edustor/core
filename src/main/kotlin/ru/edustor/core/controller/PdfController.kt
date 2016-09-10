@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import ru.edustor.core.exceptions.HttpRequestProcessingException
-import ru.edustor.core.models.Lesson
-import ru.edustor.core.utils.BlankPdfGenerator
+import ru.edustor.core.model.Lesson
+import ru.edustor.core.util.BlankPdfGenerator
 import java.io.ByteArrayOutputStream
 
 @Controller

@@ -7,14 +7,14 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import ru.edustor.core.exceptions.HttpRequestProcessingException
-import ru.edustor.core.models.Document
-import ru.edustor.core.models.Lesson
-import ru.edustor.core.models.Subject
-import ru.edustor.core.models.User
+import ru.edustor.core.model.Document
+import ru.edustor.core.model.Lesson
+import ru.edustor.core.model.Subject
+import ru.edustor.core.model.User
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
-import ru.edustor.core.services.FCMService
-import ru.edustor.core.utils.extensions.assertHasAccess
+import ru.edustor.core.service.FCMService
+import ru.edustor.core.util.extensions.assertHasAccess
 import rx.Observable
 import java.time.LocalDate
 

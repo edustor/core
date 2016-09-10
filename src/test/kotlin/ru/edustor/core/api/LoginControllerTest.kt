@@ -8,10 +8,10 @@ import org.junit.Test
 import org.mockito.Mockito
 import ru.edustor.core.api.account.LoginController
 import ru.edustor.core.exceptions.HttpRequestProcessingException
-import ru.edustor.core.models.User
+import ru.edustor.core.model.User
 import ru.edustor.core.repository.SessionRepository
 import ru.edustor.core.repository.UserRepository
-import ru.edustor.core.utils.GoogleTokenVerifier
+import ru.edustor.core.util.GoogleTokenVerifier
 
 class LoginControllerTest {
 

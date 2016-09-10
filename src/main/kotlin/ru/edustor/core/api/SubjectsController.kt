@@ -5,8 +5,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import ru.edustor.core.models.Subject
-import ru.edustor.core.models.User
+import ru.edustor.core.model.Subject
+import ru.edustor.core.model.User
 import ru.edustor.core.repository.SubjectsRepository
 
 @RestController

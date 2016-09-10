@@ -1,4 +1,4 @@
-package ru.edustor.core.services
+package ru.edustor.core.service
 
 import com.mashape.unirest.http.Unirest
 import org.apache.http.client.methods.HttpPost
@@ -7,8 +7,8 @@ import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.impl.client.HttpClients
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import ru.edustor.core.utils.PdfUploadPreferences
-import ru.edustor.core.utils.extensions.getAsByteArray
+import ru.edustor.core.util.PdfUploadPreferences
+import ru.edustor.core.util.extensions.getAsByteArray
 import rx.Observable
 import rx.schedulers.Schedulers
 import java.awt.image.BufferedImage

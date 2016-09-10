@@ -1,4 +1,4 @@
-package ru.edustor.core.models
+package ru.edustor.core.model
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed

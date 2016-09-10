@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import ru.edustor.core.exceptions.HttpRequestProcessingException
-import ru.edustor.core.models.User
-import ru.edustor.core.models.util.sync.SyncTask
+import ru.edustor.core.model.User
+import ru.edustor.core.model.util.sync.SyncTask
 import ru.edustor.core.repository.LessonsRepository
 import ru.edustor.core.repository.SubjectsRepository
-import ru.edustor.core.services.FCMService
+import ru.edustor.core.service.FCMService
 import ru.edustor.core.sync.AccountSyncController
 import ru.edustor.core.sync.DocumentsSyncController
 import ru.edustor.core.sync.LessonsSyncController
