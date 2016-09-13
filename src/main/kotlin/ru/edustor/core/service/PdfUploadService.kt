@@ -1,20 +1,17 @@
 package ru.edustor.core.service
 
-import com.google.zxing.qrcode.QRCodeReader
 import com.itextpdf.text.pdf.PdfCopy
 import com.itextpdf.text.pdf.PdfReader
 import org.ghost4j.document.PDFDocument
 import org.ghost4j.renderer.SimpleRenderer
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.mongodb.core.query.Query
-import org.springframework.data.mongodb.gridfs.GridFsCriteria
-import org.springframework.data.mongodb.gridfs.GridFsOperations
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory
 import org.springframework.stereotype.Service
 import ru.edustor.core.model.Document
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
+import ru.edustor.core.pdf.storage.PdfStorage
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
 import ru.edustor.core.util.extensions.getAsByteArray
@@ -33,16 +30,15 @@ import com.itextpdf.text.Document as PdfDocument
 
 @Service
 class PdfUploadService @Autowired constructor(
-        private val gfs: GridFsOperations,
+        private val pdfStorage: PdfStorage,
         private val documentRepo: DocumentsRepository,
         private val lessonsRepository: LessonsRepository,
         private val telegramService: TelegramService,
         private val fcmService: FCMService
 ) {
     private val logger = LoggerFactory.getLogger(PdfUploadService::class.java)
-    private val renderThreadExecutor = Executors.newSingleThreadExecutor(CustomizableThreadFactory("pdf-render"));
+    private val renderThreadExecutor = Executors.newSingleThreadExecutor(CustomizableThreadFactory("pdf-render"))
     private val renderer = SimpleRenderer().let { it.resolution = 150; it }
-    private val codeReader = QRCodeReader()
 
     data class Page(
             val index: Int,
@@ -106,12 +102,9 @@ class PdfUploadService @Autowired constructor(
         }
 
         document?.let {
-            val existedQuery = Query.query(GridFsCriteria.whereFilename().`is`(document!!.id))
-            gfs.delete(existedQuery)
+            val bytes = getPageAsStream(page, reader)
+            pdfStorage.put(it.id, bytes.inputStream())
 
-            val bytes = getPageAsBytes(page, reader)
-
-            gfs.store(bytes.inputStream(), it.id, "application/pdf")
             it.isUploaded = true
             it.uploadedTimestamp = Instant.now()
             it.contentType = "application/pdf"
@@ -130,7 +123,7 @@ class PdfUploadService @Autowired constructor(
         logger.warn("Not found page ${page.index} in database: ${page.uuid}")
     }
 
-    private fun getPageAsBytes(page: Page, reader: PdfReader): ByteArray {
+    private fun getPageAsStream(page: Page, reader: PdfReader): ByteArray {
         val document = PdfDocument()
         val byteArrayOutputStream = ByteArrayOutputStream()
         val pdfCopy = PdfCopy(document, byteArrayOutputStream)
