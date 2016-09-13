@@ -3,15 +3,15 @@ package ru.edustor.core.sync
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
-import ru.edustor.core.api.LessonsController
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.exceptions.NotFoundException
-import ru.edustor.core.models.Document
-import ru.edustor.core.models.Lesson
-import ru.edustor.core.models.Subject
-import ru.edustor.core.models.util.sync.SyncTask
+import ru.edustor.core.model.Document
+import ru.edustor.core.model.Lesson
+import ru.edustor.core.model.Subject
+import ru.edustor.core.model.internal.sync.SyncTask
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.SubjectsRepository
+import ru.edustor.core.rest.LessonsController
 import java.time.LocalDate
 
 @Component

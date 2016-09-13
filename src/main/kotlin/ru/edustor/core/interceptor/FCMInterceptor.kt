@@ -5,8 +5,8 @@ import org.springframework.http.HttpMethod
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
-import ru.edustor.core.models.User
-import ru.edustor.core.services.FCMService
+import ru.edustor.core.model.User
+import ru.edustor.core.service.FCMService
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
