@@ -2,6 +2,8 @@ package ru.edustor.core.controller
 
 import com.itextpdf.text.pdf.PdfCopy
 import com.itextpdf.text.pdf.PdfReader
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
@@ -21,6 +23,9 @@ import java.io.ByteArrayOutputStream
 
 @Controller
 class PdfController @Autowired constructor(val pdfStorage: PdfStorage, val pdfGenerator: BlankPdfGenerator) {
+
+    val logger: Logger = LoggerFactory.getLogger(PdfController::class.java)
+
     @RequestMapping("/pdf", produces = arrayOf("application/pdf"))
     @ResponseBody
     fun pdf(@RequestParam(required = false) c: Int?): ByteArray {
@@ -80,6 +85,9 @@ class PdfController @Autowired constructor(val pdfStorage: PdfStorage, val pdfGe
                     copy.addDocument(pdfReader)
                 }
         document.close()
+
+        logger.info("Accessing lesson PDF: ${lesson.id}")
+
         return outputStream.toByteArray()
     }
 }
