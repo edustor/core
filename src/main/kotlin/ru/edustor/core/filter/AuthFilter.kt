@@ -29,7 +29,7 @@ open class AuthFilter @Autowired constructor(val repo: SessionRepository) : Gene
             val token = req.getHeader("token")
 
             if (token == null && urlSecured) {
-                httpResp.sendError(HttpStatus.UNAUTHORIZED.value(), "Token was not provided")
+                httpResp.sendError(HttpStatus.UNAUTHORIZED.value(), "Token is not provided")
                 return
             }
 
@@ -37,7 +37,7 @@ open class AuthFilter @Autowired constructor(val repo: SessionRepository) : Gene
                 val session = repo.findByToken(token)
 
                 if (session == null && urlSecured) {
-                    httpResp.sendError(HttpStatus.FORBIDDEN.value(), "Session was not found")
+                    httpResp.sendError(HttpStatus.FORBIDDEN.value(), "Session is not found")
                     return
                 }
 
