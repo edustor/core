@@ -3,9 +3,6 @@ package ru.edustor.core.controller
 import com.itextpdf.text.pdf.PdfCopy
 import com.itextpdf.text.pdf.PdfReader
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.mongodb.core.query.Query
-import org.springframework.data.mongodb.gridfs.GridFsCriteria
-import org.springframework.data.mongodb.gridfs.GridFsOperations
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PathVariable
@@ -13,15 +10,17 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import ru.edustor.core.exceptions.HttpRequestProcessingException
+import ru.edustor.core.exceptions.NotFoundException
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.pdf.gen.BlankPdfGenerator
 import ru.edustor.core.pdf.gen.BlankPdfGenerator.PdfTemplates.BLANK
 import ru.edustor.core.pdf.gen.BlankPdfGenerator.PdfTemplates.GRID
 import ru.edustor.core.pdf.gen.BlankPdfGenerator.QRLocations.*
+import ru.edustor.core.pdf.storage.PdfStorage
 import java.io.ByteArrayOutputStream
 
 @Controller
-class PdfController @Autowired constructor(val gfs: GridFsOperations, val pdfGenerator: BlankPdfGenerator) {
+class PdfController @Autowired constructor(val pdfStorage: PdfStorage, val pdfGenerator: BlankPdfGenerator) {
     @RequestMapping("/pdf", produces = arrayOf("application/pdf"))
     @ResponseBody
     fun pdf(@RequestParam(required = false) c: Int?): ByteArray {
@@ -73,11 +72,11 @@ class PdfController @Autowired constructor(val gfs: GridFsOperations, val pdfGen
                 .filter { it.isUploaded == true }
                 .filter { it.contentType == "application/pdf" }
                 .map {
-                    gfs.findOne(Query.query(GridFsCriteria.whereFilename().`is`(it.id)))
+                    pdfStorage.get(it.id) ?: throw NotFoundException("Cannot find ${it.id} document")
                 }
                 .filterNotNull()
                 .map {
-                    val pdfReader = PdfReader(it.inputStream)
+                    val pdfReader = PdfReader(it)
                     copy.addDocument(pdfReader)
                 }
         document.close()

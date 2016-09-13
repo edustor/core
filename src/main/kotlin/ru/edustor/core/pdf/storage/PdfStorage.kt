@@ -14,4 +14,8 @@ open class PdfStorage(val gfs: GridFsOperations) {
 
         gfs.store(content, id, "application/pdf")
     }
+
+    fun get(id: String): InputStream? {
+        return gfs.findOne(Query.query(GridFsCriteria.whereFilename().`is`(id)))?.inputStream
+    }
 }
