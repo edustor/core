@@ -14,11 +14,14 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Lesson
-import ru.edustor.core.util.BlankPdfGenerator
+import ru.edustor.core.pdf.gen.BlankPdfGenerator
+import ru.edustor.core.pdf.gen.BlankPdfGenerator.PdfTemplates.BLANK
+import ru.edustor.core.pdf.gen.BlankPdfGenerator.PdfTemplates.GRID
+import ru.edustor.core.pdf.gen.BlankPdfGenerator.QRLocations.*
 import java.io.ByteArrayOutputStream
 
 @Controller
-class PdfController @Autowired constructor(val gfs: GridFsOperations) {
+class PdfController @Autowired constructor(val gfs: GridFsOperations, val pdfGenerator: BlankPdfGenerator) {
     @RequestMapping("/pdf", produces = arrayOf("application/pdf"))
     @ResponseBody
     fun pdf(@RequestParam(required = false) c: Int?): ByteArray {
@@ -26,7 +29,7 @@ class PdfController @Autowired constructor(val gfs: GridFsOperations) {
         if (!(count >= 1 && count <= 100)) {
             throw RuntimeException("Too many pages requested")
         }
-        val pdf = BlankPdfGenerator.genPdf(count, BlankPdfGenerator.PdfTemplates.GRID)
+        val pdf = pdfGenerator.genPdf(count, GRID)
         return pdf
     }
 
@@ -42,15 +45,15 @@ class PdfController @Autowired constructor(val gfs: GridFsOperations) {
 
         val qrPositions: List<BlankPdfGenerator.QRLocations> = (qrp ?: "0,1,2,3")!!.split(",").map {
             when (it) {
-                "0" -> BlankPdfGenerator.QRLocations.LEFT_BOTTOM
-                "1" -> BlankPdfGenerator.QRLocations.LEFT_TOP
-                "2" -> BlankPdfGenerator.QRLocations.RIGHT_TOP
-                "3" -> BlankPdfGenerator.QRLocations.RIGHT_BOTTOM
+                "0" -> LEFT_BOTTOM
+                "1" -> LEFT_TOP
+                "2" -> RIGHT_TOP
+                "3" -> RIGHT_BOTTOM
                 else -> throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "Can't found qr location for index $it")
             }
         }
 
-        val pdf = BlankPdfGenerator.genPdf(count, BlankPdfGenerator.PdfTemplates.BLANK, qrPositions)
+        val pdf = pdfGenerator.genPdf(count, BLANK, qrPositions)
         return pdf
     }
 
