@@ -1,5 +1,6 @@
 package ru.edustor.core.pdf.storage
 
+import com.mongodb.gridfs.GridFSDBFile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.query.Query
@@ -24,6 +25,14 @@ open class PdfStorage(val gfs: GridFsOperations) {
 
     fun get(id: String): InputStream? {
         logger.debug("Accessing PDF $id")
-        return gfs.findOne(Query.query(GridFsCriteria.whereFilename().`is`(id)))?.inputStream
+        return findGFSObject(id)?.inputStream
+    }
+
+    fun getMD5(id: String): String? {
+        return findGFSObject(id)?.mD5
+    }
+
+    private fun findGFSObject(id: String): GridFSDBFile? {
+        return gfs.findOne(Query.query(GridFsCriteria.whereFilename().`is`(id)))
     }
 }
