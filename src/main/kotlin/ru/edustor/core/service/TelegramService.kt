@@ -8,6 +8,7 @@ import org.apache.http.impl.client.HttpClients
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
+import ru.edustor.core.pdf.upload.PdfPage
 import ru.edustor.core.util.extensions.getAsByteArray
 import rx.Observable
 import rx.schedulers.Schedulers
@@ -41,7 +42,7 @@ class TelegramService {
         sendText("Processing file...")
     }
 
-    fun onUploadingComplete(uploaded: List<PdfUploadService.Page>, uploadPreferences: PdfUploadPreferences) {
+    fun onUploadingComplete(uploaded: List<PdfPage>, uploadPreferences: PdfUploadPreferences) {
         val total = uploaded.count()
         val noUuid = uploaded.count { it.uuid == null }
         val uuids = uploaded.filter { it.uuid != null }.fold("", {
@@ -56,10 +57,10 @@ class TelegramService {
         sendText(text)
 
         if (uploadPreferences.lesson == null) {
-            uploaded.filter { it.renderedImage != null }
+            uploaded.filter { it.uuid == null }
                     .forEach {
                         val index = uploaded.indexOf(it).toString()
-                        sendImage(it.renderedImage!!, "Img $index")
+                        sendImage(it.preview, "Img $index")
 
                         for (i in 0..it.qrImages.lastIndex) {
                             sendImage(it.qrImages[i], "Img $index place $i")
