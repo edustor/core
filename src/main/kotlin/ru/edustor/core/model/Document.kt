@@ -6,9 +6,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
-import org.springframework.data.mongodb.core.query.Query
-import org.springframework.data.mongodb.gridfs.GridFsCriteria
-import org.springframework.data.mongodb.gridfs.GridFsOperations
+import ru.edustor.core.pdf.storage.PdfStorage
 import java.time.Instant
 import java.util.*
 
@@ -26,15 +24,15 @@ open class Document(
     @DBRef @JsonIgnore lateinit var owner: User
 
     val fileMD5: String?
-        get() = gridFs.findOne(Query.query(GridFsCriteria.whereFilename().`is`(id)))?.mD5
+        get() = ps.getMD5(id)
 
     companion object {
-        lateinit var gridFs: GridFsOperations
+        lateinit private var ps: PdfStorage
     }
 
     @Autowired
-    fun setGridFS(gridFs: GridFsOperations) {
-        Document.gridFs = gridFs
+    fun setPdfStorage(ps: PdfStorage) {
+        Document.ps = ps
     }
 
     init {
