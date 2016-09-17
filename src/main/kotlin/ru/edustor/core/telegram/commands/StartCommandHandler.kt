@@ -5,18 +5,18 @@ import com.pengrad.telegrambot.request.AbstractSendRequest
 import com.pengrad.telegrambot.request.SendMessage
 import org.springframework.stereotype.Component
 import ru.edustor.core.repository.UserRepository
-import ru.edustor.core.telegram.EventsRouter
+import ru.edustor.core.telegram.TelegramEventsRouter
 import ru.edustor.core.telegram.TelegramHandler
 import ru.edustor.core.util.extensions.cid
 import ru.edustor.core.util.extensions.replyText
 
 @Component
-open class StartCommandHandler(eventsRouter: EventsRouter, val userRepository: UserRepository) : TelegramHandler {
+open class StartCommandHandler(telegramEventsRouter: TelegramEventsRouter, val userRepository: UserRepository) : TelegramHandler {
 
     val tokenRegex = "/start ([\\w-]*)".toRegex()
 
     init {
-        eventsRouter.registerCommand("start", this)
+        telegramEventsRouter.registerCommand("start", this)
     }
 
     override fun process(msg: Message): AbstractSendRequest<SendMessage>? {

@@ -5,46 +5,24 @@ import com.pengrad.telegrambot.model.Message
 import com.pengrad.telegrambot.model.Update
 import com.pengrad.telegrambot.request.AbstractSendRequest
 import com.pengrad.telegrambot.request.GetFile
-import com.pengrad.telegrambot.request.GetUpdates
 import com.pengrad.telegrambot.request.SendMessage
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
 import ru.edustor.core.repository.UserRepository
 import ru.edustor.core.service.PdfUploadService
 import ru.edustor.core.util.extensions.cid
 import ru.edustor.core.util.extensions.replyText
-import javax.annotation.PostConstruct
-import kotlin.concurrent.thread
 
 @Service
-open class EventsRouter(val bot: TelegramBot, val pdfUploadService: PdfUploadService, val userRepository: UserRepository) {
+open class TelegramEventsRouter(val bot: TelegramBot, val pdfUploadService: PdfUploadService, val userRepository: UserRepository) {
 
     private val commandRegex = "/(\\w*)".toRegex()
-    val logger = LoggerFactory.getLogger(EventsRouter::class.java)
 
     val handlers = mutableMapOf<String, TelegramHandler>()
 
     fun registerCommand(command: String, handler: TelegramHandler) {
         if (handlers.containsKey(command)) throw IllegalStateException("TelegramHandler $command redeclaration")
         handlers[command] = handler
-    }
-
-    @PostConstruct
-    private fun handleEvents() {
-        thread(isDaemon = true) {
-            var lastUpdateId = 0
-            while (true) {
-                bot.execute(GetUpdates().offset(lastUpdateId).timeout(60)).updates().forEach {
-                    lastUpdateId = it.updateId() + 1
-                    try {
-                        processUpdate(it)
-                    } catch (e: Exception) {
-                        logger.warn("Exception occurred while processing telegram message", e)
-                    }
-                }
-            }
-        }
     }
 
     fun processUpdate(update: Update) {
