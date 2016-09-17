@@ -5,10 +5,9 @@ import com.itextpdf.text.pdf.PdfCopy
 import com.itextpdf.text.pdf.PdfReader
 import org.ghost4j.renderer.SimpleRenderer
 import org.slf4j.LoggerFactory
-import ru.edustor.core.util.extensions.getAsByteArray
+import ru.edustor.core.pdf.qr.QRReader
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.io.InputStream
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
@@ -20,6 +19,7 @@ class PdfProcessor(val inStream: InputStream) {
 
     private val logger = LoggerFactory.getLogger(PdfProcessor::class.java)
 
+    private val qrReader = QRReader()
     private val docReader: PdfReader
     private val g4jdoc = G4JDocument()
     private val renderer = SimpleRenderer()
@@ -93,40 +93,24 @@ class PdfProcessor(val inStream: InputStream) {
                     QR_REGION_SIZE
             )
 
-            val tempFile = File.createTempFile("edustor-qr", ".tmp.png")
-            tempFile.writeBytes(cropped.getAsByteArray())
+            val qrData = qrReader.readQR(cropped)
+            if (qrData != null) {
 
-            val process = Runtime.getRuntime().exec(arrayOf(
-                    "zbarimg", "-q", "--raw", tempFile.absolutePath
-            ))
-
-
-            val result = process.inputStream.reader().readLines()
-
-            tempFile.delete()
-
-            val foundCode = result.getOrNull(0)
-            if (foundCode != null) {
-
-                if (!foundCode.startsWith("edustor://d/")) {
+                if (!qrData.startsWith("edustor://d/")) {
                     try {
-                        uuid = UUID.fromString(foundCode).toString()
-                        logger.info("Found old qr code payload: $foundCode")
+                        uuid = UUID.fromString(qrData).toString()
+                        logger.info("Found old qr code payload: $qrData")
                     } catch (e: IllegalAccessException) {
-                        logger.info("QR code payload is invalid $foundCode, skipping")
+                        logger.info("QR code payload is invalid $qrData, skipping")
                         continue
                     }
                 } else {
-                    uuid = foundCode.split("/").last()
+                    uuid = qrData.split("/").last()
                 }
-
                 break
             }
-
             qrImages.add(cropped)
         }
-
         return uuid to qrImages.toList()
     }
-
 }

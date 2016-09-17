@@ -7,9 +7,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.verify
+import ru.edustor.core.pdf.qr.QRGenerator
 import java.util.*
 
-open class QRGenTest {
+open class QRGeneratorTest {
 
     @Test
     fun makeQR() {
@@ -21,18 +22,18 @@ open class QRGenTest {
      */
     @Test
     fun makePageQR() {
-        val qrGen = Mockito.spy(QRGen::class.java)
-        whenever(qrGen.makePageQR()).thenReturn(null)
+        val qrGen = Mockito.spy(QRGenerator::class.java)
+        whenever(qrGen.makePageUriQR()).thenReturn(null)
 
         val uuid = UUID.randomUUID().toString()
-        qrGen.makePageQR(uuid)
+        qrGen.makePageUriQR(uuid)
         verify(qrGen).makeQR("edustor://d/$uuid")
     }
 
     @Test
     open fun makePageQRDefault() {
-        val qrGen: QRGen = spy()
-        qrGen.makePageQR()
+        val qrGen: QRGenerator = spy()
+        qrGen.makePageUriQR()
         com.nhaarman.mockito_kotlin.verify(qrGen).makeQR(argThat {
             matches("edustor://d/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$".toRegex())
         })
@@ -40,8 +41,8 @@ open class QRGenTest {
 
     @Test
     open fun testQRSize() {
-        val qrGen: QRGen = spy()
-        val qr = qrGen.makePageQR()
+        val qrGen: QRGenerator = spy()
+        val qr = qrGen.makePageUriQR()
 
         assertEquals(qr.width, 300)
         assertEquals(qr.height, 300)

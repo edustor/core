@@ -1,9 +1,7 @@
 package ru.edustor.core.rest
 
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertSame
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.mockito.Mockito
 import ru.edustor.core.exceptions.HttpRequestProcessingException
@@ -26,6 +24,7 @@ class LoginControllerTest {
             "Ivan Petrov",
             "http://example.com/photo.png",
             "ru")
+
     @Before
     fun init() {
         userRepo = Mockito.mock(UserRepository::class.java)
@@ -59,16 +58,15 @@ class LoginControllerTest {
         loginController.login(GOOGLE_BAD_TOKEN)
     }
 
-    @Test
-    @Ignore // TODO: Remove on public release
-    fun checkLoginNew() {
-        prepareLogin()
-        Mockito.`when`(userRepo.findByEmail(GOOGLE_ACCOUNT.email)).thenReturn(null)
-        val result = loginController.login(GOOGLE_TOKEN)
-
-        assertNotNull(result.user)
-
-        Mockito.verify(userRepo).save(result.user)
-
-    }
+//    TODO: Uncomment on public release
+//    @Test
+//    fun checkLoginNew() {
+//        prepareLogin()
+//        Mockito.`when`(userRepo.findByEmail(GOOGLE_ACCOUNT.email)).thenReturn(null)
+//        val result = loginController.login(GOOGLE_TOKEN)
+//
+//        assertNotNull(result.user)
+//
+//        Mockito.verify(userRepo).save(result.user)
+//    }
 }

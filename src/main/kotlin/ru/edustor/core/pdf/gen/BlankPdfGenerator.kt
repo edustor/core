@@ -5,6 +5,7 @@ import com.itextpdf.text.pdf.*
 import com.itextpdf.text.pdf.draw.VerticalPositionMark
 import org.springframework.stereotype.Component
 import ru.edustor.core.EdustorApplication
+import ru.edustor.core.pdf.qr.QRGenerator
 import ru.edustor.core.util.extensions.getAsByteArray
 import java.io.ByteArrayOutputStream
 import java.time.LocalDateTime
@@ -13,7 +14,7 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID.randomUUID
 
 @Component
-open class BlankPdfGenerator(val qrGen: QRGen) {
+open class BlankPdfGenerator(val qrGen: QRGenerator) {
 
     enum class QRLocations(val loc: Pair<Float, Float>) {
         LEFT_BOTTOM(540f to 23.5f),
@@ -85,7 +86,7 @@ open class BlankPdfGenerator(val qrGen: QRGen) {
 
             val qrCoords = requestedCodeLocations.map { it.loc }
 
-            val qr = qrGen.makePageQR(uuid).getAsByteArray()
+            val qr = qrGen.makePageUriQR(uuid).getAsByteArray()
 
             qrCoords.forEach {
                 val image = Image.getInstance(qr)
