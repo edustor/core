@@ -5,16 +5,16 @@ import com.pengrad.telegrambot.request.AbstractSendRequest
 import com.pengrad.telegrambot.request.SendMessage
 import org.springframework.stereotype.Component
 import ru.edustor.core.repository.UserRepository
-import ru.edustor.core.telegram.EventsRouter
+import ru.edustor.core.telegram.TelegramEventsRouter
 import ru.edustor.core.telegram.TelegramHandler
 import ru.edustor.core.util.extensions.cid
 import ru.edustor.core.util.extensions.replyText
 
 @Component
-open class LogoutCommandHandler(eventsRouter: EventsRouter, val userRepository: UserRepository) : TelegramHandler {
+open class LogoutCommandHandler(telegramEventsRouter: TelegramEventsRouter, val userRepository: UserRepository) : TelegramHandler {
 
     init {
-        eventsRouter.registerCommand("logout", this)
+        telegramEventsRouter.registerCommand("logout", this)
     }
 
     override fun process(msg: Message): AbstractSendRequest<SendMessage>? {
