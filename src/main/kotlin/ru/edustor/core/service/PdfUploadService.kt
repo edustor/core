@@ -29,7 +29,7 @@ class PdfUploadService @Autowired constructor(
 
     fun processPdfUpload(fileStream: InputStream, uploadPreferences: PdfUploadPreferences) {
 
-        telegramService.onUploadingStarted()
+        telegramService.onUploadingStarted(uploadPreferences.uploader)
 
         val document = PdfProcessor(fileStream)
 

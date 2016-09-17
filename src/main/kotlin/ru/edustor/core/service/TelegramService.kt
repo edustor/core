@@ -1,46 +1,37 @@
 package ru.edustor.core.service
 
-import com.mashape.unirest.http.Unirest
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.entity.ContentType
-import org.apache.http.entity.mime.MultipartEntityBuilder
-import org.apache.http.impl.client.HttpClients
+import com.pengrad.telegrambot.TelegramBot
+import com.pengrad.telegrambot.request.SendMessage
+import com.pengrad.telegrambot.request.SendPhoto
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.edustor.core.model.User
 import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
 import ru.edustor.core.pdf.upload.PdfPage
 import ru.edustor.core.util.extensions.getAsByteArray
-import rx.Observable
-import rx.schedulers.Schedulers
 import java.awt.image.BufferedImage
 import java.time.format.DateTimeFormatter
-import javax.annotation.PostConstruct
 
 @Service
 class TelegramService {
-    val telegramToken: String? = System.getenv("TELEGRAM_TOKEN")
-    val url: String
-        get() = "https://api.telegram.org/bot$telegramToken/"
+
+    @Autowired
+    lateinit var bot: TelegramBot
 
     private val logger = LoggerFactory.getLogger(TelegramService::class.java)
 
-    @PostConstruct
-    private fun checkTokenProvided() {
-        telegramToken ?: logger.warn("Telegram token was not provided. Please set TELEGRAM_TOKEN environment variable.")
-    }
-
     private fun sendText(user: User, text: String) {
-        telegramToken ?: return
-        Unirest.post(url + "sendMessage")
-                .field("chat_id", user.telegramChatId)
-                .field("text", text)
-                .field("disable_notification", "true")
-                .asStringAsync()
+        bot.execute(SendMessage(user.telegramChatId, text).disableNotification(true))
     }
 
     fun onUploadingStarted(user: User) {
         sendText(user, "Processing file...")
+    }
+
+    fun sendImage(user: User, image: BufferedImage, caption: String) {
+
+        bot.execute(SendPhoto(user.telegramChatId, image.getAsByteArray()).caption(caption))
     }
 
     fun onUploadingComplete(uploaded: List<PdfPage>, uploadPreferences: PdfUploadPreferences) {
@@ -73,18 +64,5 @@ class TelegramService {
             val lesson = uploadPreferences.lesson!!
             sendText(user, "QR read errors has been suppressed due to target lesson was explicitly specified: ${lesson.subject?.name} on ${lesson.date}")
         }
-    }
-
-    fun sendImage(user: User, image: BufferedImage, caption: String) {
-        val entity = MultipartEntityBuilder.create()
-                .addTextBody("chat_id", user.telegramChatId)
-                .addTextBody("caption", caption)
-                .addBinaryBody("photo", image.getAsByteArray(), ContentType.APPLICATION_OCTET_STREAM, "img.png")
-                .build()
-        val httpPost = HttpPost(url + "sendPhoto")
-        httpPost.entity = entity
-        Observable.just(httpPost)
-                .observeOn(Schedulers.io())
-                .subscribe { HttpClients.createDefault().execute(it).close() }
     }
 }
