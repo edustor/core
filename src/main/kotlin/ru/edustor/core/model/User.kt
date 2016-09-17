@@ -10,6 +10,8 @@ import java.util.*
 @Document
 open class User() {
     @Indexed lateinit var email: String
+    @Indexed var telegramChatId: String? = null
+    @Indexed var telegramLinkToken: String? = null
     @Id var id: String = UUID.randomUUID().toString()
 
     @Transient @JsonIgnore var currentSession: Session? = null

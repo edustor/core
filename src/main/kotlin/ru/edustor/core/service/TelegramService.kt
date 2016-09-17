@@ -1,48 +1,42 @@
 package ru.edustor.core.service
 
-import com.mashape.unirest.http.Unirest
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.entity.ContentType
-import org.apache.http.entity.mime.MultipartEntityBuilder
-import org.apache.http.impl.client.HttpClients
+import com.pengrad.telegrambot.TelegramBot
+import com.pengrad.telegrambot.request.SendMessage
+import com.pengrad.telegrambot.request.SendPhoto
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import ru.edustor.core.model.User
 import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
 import ru.edustor.core.pdf.upload.PdfPage
 import ru.edustor.core.util.extensions.getAsByteArray
-import rx.Observable
-import rx.schedulers.Schedulers
 import java.awt.image.BufferedImage
 import java.time.format.DateTimeFormatter
-import javax.annotation.PostConstruct
 
 @Service
 class TelegramService {
-    val telegramToken: String? = System.getenv("TELEGRAM_TOKEN")
-    val url: String
-        get() = "https://api.telegram.org/bot$telegramToken/"
+
+    @Autowired
+    lateinit var bot: TelegramBot
 
     private val logger = LoggerFactory.getLogger(TelegramService::class.java)
 
-    @PostConstruct
-    private fun checkTokenProvided() {
-        telegramToken ?: logger.warn("Telegram token was not provided. Please set TELEGRAM_TOKEN environment variable.")
+    fun sendText(user: User, text: String, disableNotification: Boolean = true) {
+        bot.execute(SendMessage(user.telegramChatId, text).disableNotification(disableNotification))
     }
 
-    private fun sendText(text: String) {
-        telegramToken ?: return
-        Unirest.post(url + "sendMessage")
-                .field("chat_id", "43457173")
-                .field("text", text)
-                .field("disable_notification", "true")
-                .asStringAsync()
+    fun onUploadingStarted(user: User) {
+        sendText(user, "Processing file...")
     }
 
-    fun onUploadingStarted() {
-        sendText("Processing file...")
+    fun sendImage(user: User, image: BufferedImage, caption: String) {
+
+        bot.execute(SendPhoto(user.telegramChatId, image.getAsByteArray()).caption(caption))
     }
 
     fun onUploadingComplete(uploaded: List<PdfPage>, uploadPreferences: PdfUploadPreferences) {
+        val user = uploadPreferences.uploader
+
         val total = uploaded.count()
         val noUuid = uploaded.count { it.uuid == null }
         val uuids = uploaded.filter { it.uuid != null }.fold("", {
@@ -54,34 +48,21 @@ class TelegramService {
 
         val text = "Uploaded: $total. QR read errors: $noUuid \n$uuids"
 
-        sendText(text)
+        sendText(user, text)
 
         if (uploadPreferences.lesson == null) {
             uploaded.filter { it.uuid == null }
                     .forEach {
                         val index = uploaded.indexOf(it).toString()
-                        sendImage(it.preview, "Img $index")
+                        sendImage(user, it.preview, "Img $index")
 
                         for (i in 0..it.qrImages.lastIndex) {
-                            sendImage(it.qrImages[i], "Img $index place $i")
+                            sendImage(user, it.qrImages[i], "Img $index place $i")
                         }
                     }
         } else {
             val lesson = uploadPreferences.lesson!!
-            sendText("QR read errors has been suppressed due to target lesson was explicitly specified: ${lesson.subject?.name} on ${lesson.date}")
+            sendText(user, "QR read errors has been suppressed due to target lesson was explicitly specified: ${lesson.subject?.name} on ${lesson.date}")
         }
-    }
-
-    fun sendImage(image: BufferedImage, caption: String) {
-        val entity = MultipartEntityBuilder.create()
-                .addTextBody("chat_id", "43457173")
-                .addTextBody("caption", caption)
-                .addBinaryBody("photo", image.getAsByteArray(), ContentType.APPLICATION_OCTET_STREAM, "img.png")
-                .build()
-        val httpPost = HttpPost(url + "sendPhoto")
-        httpPost.entity = entity
-        Observable.just(httpPost)
-                .observeOn(Schedulers.io())
-                .subscribe { HttpClients.createDefault().execute(it).close() }
     }
 }

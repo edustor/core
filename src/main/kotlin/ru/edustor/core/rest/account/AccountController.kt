@@ -8,10 +8,13 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import ru.edustor.core.model.User
 import ru.edustor.core.repository.SessionRepository
+import ru.edustor.core.repository.UserRepository
+import java.util.*
 
 @RestController
 @RequestMapping("/api/account")
-class AccountController @Autowired constructor(val sessionRepository: SessionRepository) {
+class AccountController @Autowired constructor(val sessionRepository: SessionRepository,
+                                               val userRepository: UserRepository) {
     @RequestMapping("/getMe")
     fun getMe(@AuthenticationPrincipal user: User): User {
         return user
@@ -22,5 +25,14 @@ class AccountController @Autowired constructor(val sessionRepository: SessionRep
         val session = user.currentSession!!
         session.FCMToken = token
         sessionRepository.save(session)
+    }
+
+    @RequestMapping("/telegram/link")
+    fun getTelegramLink(@AuthenticationPrincipal user: User): String {
+        val token = UUID.randomUUID().toString()
+        user.telegramLinkToken = token
+        userRepository.save(user)
+
+        return "https://telegram.me/edustor_bot?start=$token"
     }
 }
