@@ -21,8 +21,8 @@ class TelegramService {
 
     private val logger = LoggerFactory.getLogger(TelegramService::class.java)
 
-    private fun sendText(user: User, text: String) {
-        bot.execute(SendMessage(user.telegramChatId, text).disableNotification(true))
+    fun sendText(user: User, text: String, disableNotification: Boolean = true) {
+        bot.execute(SendMessage(user.telegramChatId, text).disableNotification(disableNotification))
     }
 
     fun onUploadingStarted(user: User) {

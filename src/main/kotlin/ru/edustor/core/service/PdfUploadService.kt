@@ -1,5 +1,7 @@
 package ru.edustor.core.service
 
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -26,6 +28,17 @@ class PdfUploadService @Autowired constructor(
         private val fcmService: FCMService
 ) {
     private val logger = LoggerFactory.getLogger(PdfUploadService::class.java)
+    private val httpClient = OkHttpClient()
+
+    fun processFromURL(url: String, uploadPreferences: PdfUploadPreferences) {
+        telegramService.sendText(uploadPreferences.uploader, "Downloading file...")
+
+        val request = Request.Builder().url(url).build()
+        val response = httpClient.newCall(request).execute()
+
+        val bodyStream = response.body().byteStream()
+        processPdfUpload(bodyStream, uploadPreferences)
+    }
 
     fun processPdfUpload(fileStream: InputStream, uploadPreferences: PdfUploadPreferences) {
 
