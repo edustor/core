@@ -32,7 +32,7 @@ open class BlankPdfGenerator(val qrGen: QRGenerator) {
 
     fun genPdf(count: Int,
                template: PdfTemplates,
-               requestedCodeLocations: List<QRLocations> = listOf(QRLocations.LEFT_BOTTOM)): ByteArray {
+               requestedCodeLocations: List<QRLocations> = listOf(QRLocations.RIGHT_BOTTOM)): ByteArray {
 
 
         val origPdfReader = PdfReader(template.path)
