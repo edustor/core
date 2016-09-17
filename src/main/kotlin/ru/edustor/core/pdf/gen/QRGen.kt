@@ -11,7 +11,7 @@ import java.util.*
 
 @Component
 open class QRGen {
-    fun makeQR(content: String): BufferedImage {
+    open fun makeQR(content: String): BufferedImage {
         val bitMatrix = MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, 300, 300, mapOf(
                 EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.L,
                 EncodeHintType.MARGIN to 0
@@ -20,7 +20,7 @@ open class QRGen {
         return bufferedImage
     }
 
-    fun makePageQR(uuid: String = UUID.randomUUID().toString()): BufferedImage {
+    open fun makePageQR(uuid: String = UUID.randomUUID().toString()): BufferedImage {
         return makeQR("edustor://d/$uuid")
     }
 }
