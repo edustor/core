@@ -51,6 +51,7 @@ dependencies {
     compile 'io.reactivex:rxkotlin:0.40.1'
     compile 'com.mashape.unirest:unirest-java:1.4.7'
     compile 'com.google.api-client:google-api-client:1.21.0'
+    compile 'com.github.pengrad:java-telegram-bot-api:2.1.1'
 
     compile 'net.java.dev.jna:jna:4.1.0'
 
