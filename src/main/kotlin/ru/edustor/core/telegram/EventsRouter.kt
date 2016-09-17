@@ -12,17 +12,20 @@ import javax.annotation.PostConstruct
 import kotlin.concurrent.thread
 
 @Service
-class EventsRouter(val bot: TelegramBot) {
+open class EventsRouter(val bot: TelegramBot) {
 
     private val commandRegex = "/(\\w*)".toRegex()
     val logger = LoggerFactory.getLogger(EventsRouter::class.java)
 
-    val handlers = mapOf<String, Command>(
-            "start" to StartCommand()
-    )
+    val handlers = mutableMapOf<String, TelegramHandler>()
+
+    fun registerCommand(command: String, handler: TelegramHandler) {
+        if (handlers.containsKey(command)) throw IllegalStateException("TelegramHandler $command redeclaration")
+        handlers[command] = handler
+    }
 
     @PostConstruct
-    fun registerCommands() {
+    private fun handleEvents() {
         thread(isDaemon = true) {
             var lastUpdateId = 0
             while (true) {
@@ -49,7 +52,7 @@ class EventsRouter(val bot: TelegramBot) {
         }
     }
 
-    fun routeTextMessage(msg: Message) {
+    private fun routeTextMessage(msg: Message) {
         val text = msg.text()
         val command = commandRegex.find(text)?.groupValues?.get(1)
 
