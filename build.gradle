@@ -20,12 +20,19 @@ apply plugin: 'spring-boot'
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 //noinspection GroovyAssignabilityCheck
 jar {
     destinationDir = new File(buildDir, "/dist")
     archiveName = "edustor.jar"
+}
+
+test {
+    testLogging {
+        events "PASSED", "FAILED", "SKIPPED"
+    }
 }
 
 dependencies {
@@ -48,5 +55,6 @@ dependencies {
     compile 'net.java.dev.jna:jna:4.1.0'
 
     testCompile group: 'junit', name: 'junit', version: '4.11'
-    testCompile 'org.mockito:mockito-all:1.10.19'
+    testCompile 'org.mockito:mockito-core:2.1.0-RC.1'
+    testCompile 'com.nhaarman:mockito-kotlin:0.6.1'
 }

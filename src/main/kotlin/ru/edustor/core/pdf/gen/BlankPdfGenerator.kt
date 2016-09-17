@@ -5,6 +5,7 @@ import com.itextpdf.text.pdf.*
 import com.itextpdf.text.pdf.draw.VerticalPositionMark
 import org.springframework.stereotype.Component
 import ru.edustor.core.EdustorApplication
+import ru.edustor.core.pdf.qr.QRGenerator
 import ru.edustor.core.util.extensions.getAsByteArray
 import java.io.ByteArrayOutputStream
 import java.time.LocalDateTime
@@ -13,13 +14,13 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID.randomUUID
 
 @Component
-open class BlankPdfGenerator(val qrGen: QRGen) {
+open class BlankPdfGenerator(val qrGen: QRGenerator) {
 
-    enum class QRLocations(val loc: Pair<Float, Float>) {
-        LEFT_BOTTOM(540f to 23.5f),
-        LEFT_TOP(540f to 775.5f),
-        RIGHT_TOP(14.5f to 775.5f),
-        RIGHT_BOTTOM(14.5f to 23.5f)
+    enum class QRLocations(val putLocation: Pair<Float, Float>) {
+        RIGHT_BOTTOM(540f to 23.5f),
+        RIGHT_TOP(540f to 775.5f),
+        LEFT_TOP(14.5f to 775.5f),
+        LEFT_BOTTOM(14.5f to 23.5f)
     }
 
     enum class PdfTemplates(val path: String) {
@@ -83,9 +84,9 @@ open class BlankPdfGenerator(val qrGen: QRGen) {
 
             topTable.writeSelectedRows(0, -1, 0, -1, 12f, page.height - topTable.totalHeight / 2 - 2, content)
 
-            val qrCoords = requestedCodeLocations.map { it.loc }
+            val qrCoords = requestedCodeLocations.map { it.putLocation }
 
-            val qr = qrGen.makePageQR(uuid).getAsByteArray()
+            val qr = qrGen.makePageUriQR(uuid).getAsByteArray()
 
             qrCoords.forEach {
                 val image = Image.getInstance(qr)
