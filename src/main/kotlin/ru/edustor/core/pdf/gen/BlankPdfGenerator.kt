@@ -16,11 +16,11 @@ import java.util.UUID.randomUUID
 @Component
 open class BlankPdfGenerator(val qrGen: QRGenerator) {
 
-    enum class QRLocations(val loc: Pair<Float, Float>) {
-        LEFT_BOTTOM(540f to 23.5f),
-        LEFT_TOP(540f to 775.5f),
-        RIGHT_TOP(14.5f to 775.5f),
-        RIGHT_BOTTOM(14.5f to 23.5f)
+    enum class QRLocations(val putLocation: Pair<Float, Float>) {
+        RIGHT_BOTTOM(540f to 23.5f),
+        RIGHT_TOP(540f to 775.5f),
+        LEFT_TOP(14.5f to 775.5f),
+        LEFT_BOTTOM(14.5f to 23.5f)
     }
 
     enum class PdfTemplates(val path: String) {
@@ -84,7 +84,7 @@ open class BlankPdfGenerator(val qrGen: QRGenerator) {
 
             topTable.writeSelectedRows(0, -1, 0, -1, 12f, page.height - topTable.totalHeight / 2 - 2, content)
 
-            val qrCoords = requestedCodeLocations.map { it.loc }
+            val qrCoords = requestedCodeLocations.map { it.putLocation }
 
             val qr = qrGen.makePageUriQR(uuid).getAsByteArray()
 
