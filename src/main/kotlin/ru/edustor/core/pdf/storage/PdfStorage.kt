@@ -28,6 +28,10 @@ open class PdfStorage(val gfs: GridFsOperations) {
         return findGFSObject(id)?.inputStream
     }
 
+    fun delete(id: String) {
+        gfs.delete(Query.query(GridFsCriteria.whereFilename().`is`(id)))
+    }
+
     fun getMD5(id: String): String? {
         return findGFSObject(id)?.mD5
     }

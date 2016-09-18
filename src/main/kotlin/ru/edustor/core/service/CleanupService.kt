@@ -1,30 +1,90 @@
 package ru.edustor.core.service
 
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.mongodb.core.MongoOperations
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import ru.edustor.core.model.Document
+import ru.edustor.core.model.Lesson
+import ru.edustor.core.model.Subject
+import ru.edustor.core.pdf.storage.PdfStorage
+import ru.edustor.core.repository.DocumentsRepository
+import ru.edustor.core.repository.LessonsRepository
+import ru.edustor.core.repository.SubjectsRepository
+import java.time.Instant
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import javax.annotation.PostConstruct
 
 @Service
-open class CleanupService {
+open class CleanupService(
+        val mongoOperations: MongoOperations,
+        val documentsRepository: DocumentsRepository,
+        val lessonsRepository: LessonsRepository,
+        val subjectsRepository: SubjectsRepository,
+        val pdfStorage: PdfStorage
+) {
 
     val logger = LoggerFactory.getLogger(CleanupService::class.java)
-    @Autowired lateinit var mongoOperations: MongoOperations
 
     @PostConstruct
     @Scheduled(cron = "0 0 4 * * *", zone = "Europe/Moscow")
     fun cleanupUnusedLessons() {
-        logger.info("Lesson's cleanup initiated")
+        logger.info("Empty lessons cleanup initiated")
         val result = mongoOperations.remove(Query.query(Criteria
                 .where("documents").size(0)
                 .and("date").lt(LocalDate.now().minusMonths(1))
         ), "lesson")
 
-        logger.info("Lesson's cleanup completed. Affected: ${result.n}")
+        logger.info("Empty lessons cleanup completed. Affected: ${result.n}")
+    }
+
+    @Scheduled(cron = "0 0 4 * * *", zone = "Europe/Moscow")
+    @PostConstruct
+    fun cleanupRemovedEntities() {
+
+        val cleanupBeforeDate = Instant.now().minus(3, ChronoUnit.SECONDS)
+        logger.info("Cleaning up entities removed before $cleanupBeforeDate")
+
+        subjectsRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteSubject(it) }
+        lessonsRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteLesson(it) }
+        documentsRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteDocument(it) }
+
+        logger.info("Removed entities cleanup finished")
+    }
+
+    fun deleteSubject(subject: Subject) {
+        logger.info("Cleaning up subject: ${subject.id}")
+        lessonsRepository.findBySubject(subject).forEach {
+            deleteLesson(it)
+        }
+        subjectsRepository.delete(subject)
+    }
+
+    fun deleteLesson(lesson: Lesson) {
+        logger.info("Cleaning up lesson: ${lesson.id}")
+        lesson.documents.forEach {
+            deleteDocument(it, false)
+        }
+
+        lessonsRepository.delete(lesson)
+    }
+
+    fun deleteDocument(document: Document, updateLesson: Boolean = true) {
+        logger.info("Cleaning up document: ${document.id}")
+        if (updateLesson) {
+            val lesson = lessonsRepository.findByDocumentsContaining(document)
+
+            if (lesson != null) {
+                lesson.documents.remove(document)
+                lessonsRepository.save(lesson)
+            }
+        }
+        document.isUploaded.let {
+            pdfStorage.delete(document.id)
+        }
+        documentsRepository.delete(document)
     }
 }
