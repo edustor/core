@@ -19,10 +19,11 @@ open class DocumentsSyncController @Autowired constructor(
         val documentsRepository: DocumentsRepository
 ) {
     fun processTask(task: SyncTask): Any {
-        when (task.method) {
-            "uuid/activate" -> return activateUUID(task)
-            "uuid/activate/date" -> return activateUUIDByDate(task)
-            "delete" -> return delete(task)
+        return when (task.method) {
+            "uuid/activate" -> activateUUID(task)
+            "uuid/activate/date" -> activateUUIDByDate(task)
+            "delete" -> delete(task)
+            "restore" -> restore(task)
             else -> throw NoSuchMethodException("DocumentsSyncController cannot resolve ${task.method}")
         }
     }
@@ -46,6 +47,11 @@ open class DocumentsSyncController @Autowired constructor(
         val document = documentsRepository.findOne(task.params["document"]!!) ?:
                 throw NotFoundException("Document is not found")
         documentsController.delete(task.user, document)
+    }
 
+    fun restore(task: SyncTask) {
+        val document = documentsRepository.findOne(task.params["document"]!!) ?:
+                throw NotFoundException("Document is not found")
+        documentsController.restore(task.user, document)
     }
 }

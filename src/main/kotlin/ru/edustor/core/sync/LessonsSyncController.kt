@@ -10,6 +10,7 @@ import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Subject
 import ru.edustor.core.model.internal.sync.SyncTask
 import ru.edustor.core.repository.DocumentsRepository
+import ru.edustor.core.repository.LessonsRepository
 import ru.edustor.core.repository.SubjectsRepository
 import ru.edustor.core.rest.LessonsController
 import java.time.LocalDate
@@ -17,14 +18,17 @@ import java.time.LocalDate
 @Component
 open class LessonsSyncController @Autowired constructor(
         val lessonsController: LessonsController,
+        val lessonsRepository: LessonsRepository,
         val subjectRepo: SubjectsRepository,
         val documentsRepository: DocumentsRepository
 ) {
     fun processTask(task: SyncTask): Any {
-        when (task.method) {
-            "date" -> return getByDate(task)
-            "date/topic/put" -> return setTopicByDate(task)
-            "date/documents/reorder" -> return reorderDocumentsByDate(task)
+        return when (task.method) {
+            "date" -> getByDate(task)
+            "date/topic/put" -> setTopicByDate(task)
+            "date/documents/reorder" -> reorderDocumentsByDate(task)
+            "delete" -> delete(task)
+            "restore" -> restore(task)
             else -> throw NoSuchMethodException("LessonsSyncController cannot resolve ${task.method}")
         }
     }
@@ -59,5 +63,17 @@ open class LessonsSyncController @Autowired constructor(
 
     private fun parseDate(task: SyncTask): LocalDate {
         return LocalDate.ofEpochDay(task.params["date"]!!.toLong())
+    }
+
+    fun delete(task: SyncTask) {
+        val lesson = lessonsRepository.findOne(task.params["lesson"]!!) ?:
+                throw NotFoundException("Lesson is not found")
+        lessonsController.delete(task.user, lesson)
+    }
+
+    fun restore(task: SyncTask) {
+        val lesson = lessonsRepository.findOne(task.params["lesson"]!!) ?:
+                throw NotFoundException("Lesson is not found")
+        lessonsController.restore(task.user, lesson)
     }
 }

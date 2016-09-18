@@ -16,6 +16,7 @@ import ru.edustor.core.service.FCMService
 import ru.edustor.core.sync.AccountSyncController
 import ru.edustor.core.sync.DocumentsSyncController
 import ru.edustor.core.sync.LessonsSyncController
+import ru.edustor.core.sync.SubjectsSyncController
 
 @RestController
 @RequestMapping("/api/sync")
@@ -25,6 +26,7 @@ class SyncController @Autowired constructor(
         val lessonsSyncController: LessonsSyncController,
         val documentsSyncController: DocumentsSyncController,
         val accountSyncController: AccountSyncController,
+        val subjectsSyncController: SubjectsSyncController,
         val mapper: ObjectMapper,
         val fcmService: FCMService
 ) {
@@ -69,6 +71,7 @@ class SyncController @Autowired constructor(
         when (group) {
             "lessons" -> return lessonsSyncController.processTask(localTask)
             "documents" -> return documentsSyncController.processTask(localTask)
+            "subjects" -> return subjectsSyncController.processTask(localTask)
             "account" -> return accountSyncController.processTask(localTask)
             else -> throw NoSuchMethodException("SyncController cannot resolve $group")
         }
