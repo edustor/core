@@ -39,7 +39,11 @@ open class TelegramEventsRouter(val bot: TelegramBot, val pdfUploadService: PdfU
                     return
                 }
 
-                pdfUploadService.processFromURL(url, PdfUploadPreferences(user))
+                try {
+                    pdfUploadService.processFromURL(url, PdfUploadPreferences(user))
+                } catch (e: Exception) {
+                    bot.execute(msg.replyText("Failed to process file: $e"))
+                }
 
             } else if (msg.text() != null) {
                 routeTextMessage(msg)
