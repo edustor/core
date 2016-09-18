@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
+import java.time.Instant
 import java.util.*
 
 @Document
@@ -14,10 +15,23 @@ class Subject() : Comparable<Subject> {
     @Indexed @DBRef @JsonIgnore lateinit var owner: User
     @Id var id: String = UUID.randomUUID().toString()
 
+    @JsonIgnore var removedOn: Instant? = null
+
+    @JsonIgnore var removed: Boolean = false
+        set(value) {
+            field = value
+            if (value) {
+                removedOn = Instant.now()
+            } else {
+                removedOn = null
+            }
+        }
+
     constructor(name: String, owner: User) : this() {
         this.name = name
         this.owner = owner
     }
+
 
     override fun compareTo(other: Subject): Int {
         return name.compareTo(other.name)

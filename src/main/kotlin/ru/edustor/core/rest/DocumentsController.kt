@@ -1,9 +1,6 @@
 package ru.edustor.core.rest
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.mongodb.core.query.Query
-import org.springframework.data.mongodb.gridfs.GridFsCriteria
-import org.springframework.data.mongodb.gridfs.GridFsOperations
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -30,7 +27,6 @@ class DocumentsController @Autowired constructor(
         val lessonsRepo: LessonsRepository,
         val documentsRepository: DocumentsRepository,
         val PdfUploadService: PdfUploadService,
-        val gfs: GridFsOperations,
         val lessonsController: LessonsController
 ) {
     @RequestMapping("upload", method = arrayOf(RequestMethod.POST))
@@ -64,13 +60,23 @@ class DocumentsController @Autowired constructor(
                      @AuthenticationPrincipal user: User,
                      @RequestParam id: String = UUID.randomUUID().toString()
     ) {
-        repo.findByUuid(uuid)?.let {
-            throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This UUID is already activated")
-        }
-
         user.assertHasAccess(lesson)
 
-        val document = Document(uuid = uuid, owner = user, timestamp = instant ?: Instant.now(), id = id)
+        val existingDoc = repo.findByUuid(uuid)
+        if (existingDoc != null) {
+            if (existingDoc.removed == true) {
+                val oldLesson = lessonsRepo.findByDocumentsContaining(existingDoc)
+                oldLesson?.documents?.remove(existingDoc)
+                lessonsRepo.save(oldLesson)
+
+                existingDoc.owner = user
+                existingDoc.timestamp = Instant.now()
+            } else {
+                throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This UUID is already activated")
+            }
+        }
+
+        val document = existingDoc ?: Document(uuid = uuid, owner = user, timestamp = instant ?: Instant.now(), id = id)
         lesson.documents.add(document)
         repo.save(document)
 
@@ -91,12 +97,14 @@ class DocumentsController @Autowired constructor(
     @RequestMapping("/{document}", method = arrayOf(RequestMethod.DELETE))
     fun delete(@AuthenticationPrincipal user: User, @PathVariable document: Document) {
         document.assertIsOwner(user)
-        val lesson = lessonsRepo.findByDocumentsContaining(document)
-        lesson?.documents?.remove(document)
-        lessonsRepo.save(lesson)
-        document.isUploaded.let {
-            gfs.delete(Query.query(GridFsCriteria.whereFilename().`is`(document.id)))
-        }
-        documentsRepository.delete(document)
+        document.removed = true
+        documentsRepository.save(document)
+    }
+
+    @RequestMapping("/{document}/restore")
+    fun restore(@AuthenticationPrincipal user: User, @PathVariable document: Document) {
+        document.assertIsOwner(user)
+        document.removed = false
+        documentsRepository.save(document)
     }
 }

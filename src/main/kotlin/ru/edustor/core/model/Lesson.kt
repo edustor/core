@@ -1,8 +1,10 @@
 package ru.edustor.core.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
+import java.time.Instant
 import java.time.LocalDate
 import java.util.*
 
@@ -14,6 +16,18 @@ data class Lesson(
         @DBRef var documents: MutableList<Document> = mutableListOf(),
         @Id var id: String = UUID.randomUUID().toString()
 ) : Comparable<Lesson> {
+    @JsonIgnore var removedOn: Instant? = null
+
+    @JsonIgnore var removed: Boolean = false
+        set(value) {
+            field = value
+            if (value) {
+                removedOn = Instant.now()
+            } else {
+                removedOn = null
+            }
+        }
+
     override fun compareTo(other: Lesson): Int {
         return date?.compareTo(other.date) ?: 0
     }

@@ -26,6 +26,18 @@ open class Document(
     val fileMD5: String?
         get() = ps.getMD5(id)
 
+    var removedOn: Instant? = null
+
+    var removed: Boolean = false
+        set(value) {
+            field = value
+            if (value) {
+                removedOn = Instant.now()
+            } else {
+                removedOn = null
+            }
+        }
+
     companion object {
         lateinit private var ps: PdfStorage
     }
