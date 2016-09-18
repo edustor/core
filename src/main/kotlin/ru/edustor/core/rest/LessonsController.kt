@@ -29,14 +29,22 @@ open class LessonsController @Autowired constructor(
     @RequestMapping("/subject/{subject}")
     fun subjectLessons(@PathVariable subject: Subject?, @RequestParam(required = false, defaultValue = "0") page: Int): List<Lesson> {
         subject ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        return lessonsRepo.findBySubject(subject, PageRequest(page, 30)).filter { it.documents.isNotEmpty() }.sortedDescending()
+        return lessonsRepo.findBySubject(subject, PageRequest(page, 30)).filter { it.documents.isNotEmpty() && !it.removed }.sortedDescending()
     }
 
     @RequestMapping("/{lesson}")
     fun getLesson(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: User): Lesson {
         user.assertHasAccess(lesson)
+        lesson.documents = lesson.documents.filter { !it.removed }.toMutableList()
         return lesson
     }
+
+    @RequestMapping("/{lesson}/removed")
+    fun getLessonRemovedDocs(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: User): List<Document> {
+        user.assertHasAccess(lesson)
+        return lesson.documents.filter { it.removed }
+    }
+
 
     @RequestMapping("/{lesson}", method = arrayOf(RequestMethod.DELETE))
     fun delete(@AuthenticationPrincipal user: User, @PathVariable lesson: Lesson) {
@@ -59,7 +67,13 @@ open class LessonsController @Autowired constructor(
     ): Lesson {
         var lesson = lessonsRepo.findLessonBySubjectAndDate(subject, date)
 
-        lesson?.let { user.assertHasAccess(it) }
+        if (lesson != null) {
+            user.assertHasAccess(lesson)
+            if (lesson.removed) {
+                lesson.removed = false
+                lessonsRepo.save(lesson)
+            }
+        }
 
         if (lesson == null) {
             user.assertHasAccess(subject)

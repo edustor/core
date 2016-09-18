@@ -14,7 +14,7 @@ class SubjectsController @Autowired constructor(val subjectsRepository: Subjects
 
     @RequestMapping("/list")
     fun listSubjects(@AuthenticationPrincipal user: User): List<Subject> {
-        val result = subjectsRepository.findByOwner(user)
+        val result = subjectsRepository.findByOwner(user).filter { !it.removed }
         return result.sorted()
     }
 

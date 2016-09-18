@@ -15,9 +15,9 @@ class Subject() : Comparable<Subject> {
     @Indexed @DBRef @JsonIgnore lateinit var owner: User
     @Id var id: String = UUID.randomUUID().toString()
 
-    var removedOn: Instant? = null
+    @JsonIgnore var removedOn: Instant? = null
 
-    var removed: Boolean = false
+    @JsonIgnore var removed: Boolean = false
         set(value) {
             field = value
             if (value) {

@@ -1,5 +1,6 @@
 package ru.edustor.core.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
@@ -15,9 +16,9 @@ data class Lesson(
         @DBRef var documents: MutableList<Document> = mutableListOf(),
         @Id var id: String = UUID.randomUUID().toString()
 ) : Comparable<Lesson> {
-    var removedOn: Instant? = null
+    @JsonIgnore var removedOn: Instant? = null
 
-    var removed: Boolean = false
+    @JsonIgnore var removed: Boolean = false
         set(value) {
             field = value
             if (value) {
