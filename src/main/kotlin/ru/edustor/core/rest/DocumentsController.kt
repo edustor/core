@@ -1,8 +1,6 @@
 package ru.edustor.core.rest
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.mongodb.core.query.Query
-import org.springframework.data.mongodb.gridfs.GridFsCriteria
 import org.springframework.data.mongodb.gridfs.GridFsOperations
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -91,12 +89,14 @@ class DocumentsController @Autowired constructor(
     @RequestMapping("/{document}", method = arrayOf(RequestMethod.DELETE))
     fun delete(@AuthenticationPrincipal user: User, @PathVariable document: Document) {
         document.assertIsOwner(user)
-        val lesson = lessonsRepo.findByDocumentsContaining(document)
-        lesson?.documents?.remove(document)
-        lessonsRepo.save(lesson)
-        document.isUploaded.let {
-            gfs.delete(Query.query(GridFsCriteria.whereFilename().`is`(document.id)))
-        }
-        documentsRepository.delete(document)
+        document.removed = true
+        documentsRepository.save(document)
+    }
+
+    @RequestMapping("/{document}/restore")
+    fun restore(@AuthenticationPrincipal user: User, @PathVariable document: Document) {
+        document.assertIsOwner(user)
+        document.removed = false
+        documentsRepository.save(document)
     }
 }

@@ -38,6 +38,20 @@ open class LessonsController @Autowired constructor(
         return lesson
     }
 
+    @RequestMapping("/{lesson}", method = arrayOf(RequestMethod.DELETE))
+    fun delete(@AuthenticationPrincipal user: User, @PathVariable lesson: Lesson) {
+        user.assertHasAccess(lesson)
+        lesson.removed = true
+        lessonsRepo.save(lesson)
+    }
+
+    @RequestMapping("/{lesson}/restore")
+    fun restore(@AuthenticationPrincipal user: User, @PathVariable lesson: Lesson) {
+        user.assertHasAccess(lesson)
+        lesson.removed = false
+        lessonsRepo.save(lesson)
+    }
+
     @RequestMapping("/date/{date}/{subject}")
     fun getLessonByDate(@PathVariable subject: Subject,
                         @PathVariable date: LocalDate,
