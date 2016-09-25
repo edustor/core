@@ -11,7 +11,6 @@ import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
 import ru.edustor.core.pdf.upload.PdfPage
 import ru.edustor.core.util.extensions.getAsByteArray
 import java.awt.image.BufferedImage
-import java.time.format.DateTimeFormatter
 
 @Service
 class TelegramService {
@@ -25,13 +24,12 @@ class TelegramService {
         bot.execute(SendMessage(user.telegramChatId, text).disableNotification(disableNotification))
     }
 
-    fun onUploadingStarted(user: User) {
-        sendText(user, "Processing file...")
-    }
-
-    fun sendImage(user: User, image: BufferedImage, caption: String) {
-
-        bot.execute(SendPhoto(user.telegramChatId, image.getAsByteArray()).caption(caption))
+    fun sendImage(user: User, image: BufferedImage, caption: String, disableNotification: Boolean = true) {
+        bot.execute(
+                SendPhoto(user.telegramChatId, image.getAsByteArray())
+                        .caption(caption)
+                        .disableNotification(disableNotification)
+        )
     }
 
     fun onUploadingComplete(uploaded: List<PdfPage>, uploadPreferences: PdfUploadPreferences) {
@@ -39,30 +37,10 @@ class TelegramService {
 
         val total = uploaded.count()
         val noUuid = uploaded.count { it.uuid == null }
-        val uuids = uploaded.filter { it.uuid != null }.fold("", {
-            str, it ->
-            val uuid = str + it.uuid?.split("-")?.last()
-            val lessonInfo = it.lesson?.let { "${it.subject?.name}. ${it.topic ?: "No topic"}. ${it.date?.format(DateTimeFormatter.ISO_LOCAL_DATE)}" } ?: "Not registered"
-            "$uuid: $lessonInfo\n"
-        })
+        val failed = uploaded.count { it.exception != null }
 
-        val text = "Uploaded: $total. QR read errors: $noUuid \n$uuids"
+        val text = "Processing finished. Total pages: $total. Read errors: $noUuid. Failed: $failed"
 
         sendText(user, text)
-
-        if (uploadPreferences.lesson == null) {
-            uploaded.filter { it.uuid == null }
-                    .forEach {
-                        val index = uploaded.indexOf(it).toString()
-                        sendImage(user, it.preview, "Img $index")
-
-                        for (i in 0..it.qrImages.lastIndex) {
-                            sendImage(user, it.qrImages[i], "Img $index place $i")
-                        }
-                    }
-        } else {
-            val lesson = uploadPreferences.lesson!!
-            sendText(user, "QR read errors has been suppressed due to target lesson was explicitly specified: ${lesson.subject?.name} on ${lesson.date}")
-        }
     }
 }

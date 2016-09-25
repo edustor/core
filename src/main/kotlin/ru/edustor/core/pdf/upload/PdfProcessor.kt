@@ -60,7 +60,7 @@ open class PdfProcessor {
         val preview = renderPage(n)
         val (uuid, qrImages) = readQR(preview)
 
-        return PdfPage(n, pageBin, preview, qrImages, uuid)
+        return PdfPage(n, uuid, pageBin, preview, qrImages)
     }
 
     val pageCount: Int
