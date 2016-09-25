@@ -13,10 +13,10 @@ import ru.edustor.core.pdf.upload.PdfProcessor
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
 import rx.Observable
-import rx.lang.kotlin.onError
 import rx.schedulers.Schedulers
 import java.io.InputStream
 import java.time.Instant
+import java.time.format.DateTimeFormatter
 import com.itextpdf.text.Document as PdfDocument
 
 @Service
@@ -41,26 +41,66 @@ class PdfUploadService @Autowired constructor(
     }
 
     fun processPdfUpload(fileStream: InputStream, uploadPreferences: PdfUploadPreferences) {
-
-        telegramService.onUploadingStarted(uploadPreferences.uploader)
-
         val document = PdfProcessor(fileStream)
+        val pageCount = document.pageCount
 
-        Observable.range(1, document.pageCount)
+        val uploader = uploadPreferences.uploader
+        telegramService.sendText(uploader, "Processing $pageCount pages")
+
+        Observable.range(1, pageCount)
                 .observeOn(Schedulers.computation())
-                .map { document.getPage(it) }
                 .map {
-                    logger.info("Saving ${it.pageNumber}")
-                    savePage(it, uploadPreferences)
-                    logger.info("completed: ${it.pageNumber} ${it.uuid}")
-                    it
+
+                    var page: PdfPage
+
+                    try {
+                        page = document.getPage(it)
+                        logger.info("Saving ${page.pageNumber}")
+                        savePage(page, uploadPreferences)
+                    } catch (e: Exception) {
+                        page = PdfPage(it, null, null, null, null, exception = e)
+                    }
+
+                    page
                 }
-                .onError {
-                    logger.warn("Error occurred while processing page", it)
+                .map { page ->
+                    val pageNumber = page.pageNumber
+
+                    if (page.exception == null) {
+                        val shortUUID = page.uuid?.split("-")?.last()
+                        val lessonInfo = page.lesson?.let { "${it.subject?.name}. ${it.topic ?: "No topic"}. ${it.date?.format(DateTimeFormatter.ISO_LOCAL_DATE)}" } ?: "Not registered"
+                        var resultString = "[OK] Page $pageNumber. UUID $shortUUID: $lessonInfo"
+
+
+                        if (page.uuid == null && page.lesson == null) {
+                            resultString = "[NOT RECOGNISED] Page $pageNumber"
+                            telegramService.sendText(uploader, resultString)
+
+                            telegramService.sendImage(uploader, page.preview!!, "Img $pageNumber")
+
+                            for (i in 0..page.qrImages!!.lastIndex) {
+                                telegramService.sendImage(uploader, page.qrImages!![i], "Img $pageNumber loc $i")
+                            }
+                        } else {
+                            telegramService.sendText(uploader, resultString)
+                        }
+
+                        logger.info(resultString)
+                    } else {
+                        val resultString = "[FAIL] Page $pageNumber. Cause: ${page.exception}"
+                        telegramService.sendText(uploader, resultString)
+                        logger.warn(resultString, page.exception)
+                    }
+
+                    page.preview = null
+                    page.qrImages = null
+                    page.binary = null
+
+                    page
                 }
                 .toList()
                 .subscribe {
-                    fcmService.sendUserSyncNotification(uploadPreferences.uploader)
+                    fcmService.sendUserSyncNotification(uploader)
                     telegramService.onUploadingComplete(it, uploadPreferences)
                 }
     }
@@ -78,7 +118,7 @@ class PdfUploadService @Autowired constructor(
         }
 
         document?.let {
-            pdfStorage.put(it.id, page.binary.inputStream())
+            pdfStorage.put(it.id, page.binary!!.inputStream())
 
             it.isUploaded = true
             it.uploadedTimestamp = Instant.now()

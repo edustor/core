@@ -5,10 +5,13 @@ import java.awt.image.BufferedImage
 
 class PdfPage(
         val pageNumber: Int,
-        val binary: ByteArray,
-        val preview: BufferedImage,
-        val qrImages: List<BufferedImage>,
         val uuid: String?,
 
-        var lesson: Lesson? = null
+        var binary: ByteArray?,
+        var preview: BufferedImage?,
+        var qrImages: List<BufferedImage>?,
+
+        var lesson: Lesson? = null,
+
+        val exception: Exception? = null
 )
