@@ -39,7 +39,7 @@ open class AuthFilter @Autowired constructor(val repo: UserRepository) : Generic
             val urlSecured = checkUrlSecured(req.requestURI)
             val httpResp = res as HttpServletResponse
 
-            val token = req.getHeader("token")
+            val token = req.getHeader("Authorization")
 
             if (token == null) {
                 if (urlSecured) {
