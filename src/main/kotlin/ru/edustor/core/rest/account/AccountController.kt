@@ -6,32 +6,31 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import ru.edustor.core.model.User
-import ru.edustor.core.repository.SessionRepository
-import ru.edustor.core.repository.UserRepository
+import ru.edustor.core.model.Account
+import ru.edustor.core.repository.AccountRepository
 import java.util.*
 
 @RestController
 @RequestMapping("/api/account")
-class AccountController @Autowired constructor(val sessionRepository: SessionRepository,
-                                               val userRepository: UserRepository) {
+class AccountController @Autowired constructor(val accountRepository: AccountRepository) {
     @RequestMapping("/getMe")
-    fun getMe(@AuthenticationPrincipal user: User): User {
+    fun getMe(@AuthenticationPrincipal user: Account): Account {
         return user
     }
 
     @RequestMapping("/FCMToken", method = arrayOf(RequestMethod.PUT))
-    fun setFCMToken(@RequestParam token: String?, @AuthenticationPrincipal user: User) {
-        val session = user.currentSession!!
-        session.FCMToken = token
-        sessionRepository.save(session)
+    fun setFCMToken(@RequestParam token: String?, @AuthenticationPrincipal account: Account) {
+        if (token != null && token !in account.fcmTokens) {
+            account.fcmTokens.add(token)
+            accountRepository.save(account)
+        }
     }
 
     @RequestMapping("/telegram/link")
-    fun getTelegramLink(@AuthenticationPrincipal user: User): String {
+    fun getTelegramLink(@AuthenticationPrincipal user: Account): String {
         val token = UUID.randomUUID().toString()
         user.telegramLinkToken = token
-        userRepository.save(user)
+        accountRepository.save(user)
 
         return "https://telegram.me/edustor_bot?start=$token"
     }

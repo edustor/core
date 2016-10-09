@@ -4,14 +4,14 @@ import com.pengrad.telegrambot.model.Message
 import com.pengrad.telegrambot.request.AbstractSendRequest
 import com.pengrad.telegrambot.request.SendMessage
 import org.springframework.stereotype.Component
-import ru.edustor.core.repository.UserRepository
+import ru.edustor.core.repository.AccountRepository
 import ru.edustor.core.telegram.TelegramEventsRouter
 import ru.edustor.core.telegram.TelegramHandler
 import ru.edustor.core.util.extensions.cid
 import ru.edustor.core.util.extensions.replyText
 
 @Component
-open class MeCommandHandler(telegramEventsRouter: TelegramEventsRouter, val userRepository: UserRepository) : TelegramHandler {
+open class MeCommandHandler(telegramEventsRouter: TelegramEventsRouter, val userRepository: AccountRepository) : TelegramHandler {
 
     init {
         telegramEventsRouter.registerCommand("me", this)

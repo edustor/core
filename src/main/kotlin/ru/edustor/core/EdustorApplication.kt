@@ -3,6 +3,7 @@ package ru.edustor.core
 import com.mongodb.WriteConcern.ACKNOWLEDGED
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.web.filter.CommonsRequestLoggingFilter
@@ -14,10 +15,11 @@ import javax.servlet.Filter
 
 @SpringBootApplication
 @EnableScheduling
+@Configuration
 open class EdustorApplication : WebMvcConfigurerAdapter() {
 
     companion object {
-        val VERSION: String = "0.4.3.9"
+        val VERSION: String = "0.5.0pre1"
     }
 
     @org.springframework.beans.factory.annotation.Autowired lateinit var fcmInterceptor: FCMInterceptor

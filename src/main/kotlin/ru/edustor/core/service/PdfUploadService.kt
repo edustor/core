@@ -67,12 +67,12 @@ class PdfUploadService @Autowired constructor(
                     val pageNumber = page.pageNumber
 
                     if (page.exception == null) {
-                        val shortUUID = page.uuid?.split("-")?.last()
-                        val lessonInfo = page.lesson?.let { "${it.subject?.name}. ${it.topic ?: "No topic"}. ${it.date?.format(DateTimeFormatter.ISO_LOCAL_DATE)}" } ?: "Not registered"
+                        val shortUUID = page.qrData?.split("-")?.last()
+                        val lessonInfo = page.lesson?.let { "${it.subject.name}. ${it.topic ?: "No topic"}. ${it.date.format(DateTimeFormatter.ISO_LOCAL_DATE)}" } ?: "Not registered"
                         var resultString = "[OK] Page $pageNumber. UUID $shortUUID: $lessonInfo"
 
 
-                        if (page.uuid == null && page.lesson == null) {
+                        if (page.qrData == null && page.lesson == null) {
                             resultString = "[NOT RECOGNISED] Page $pageNumber"
                             telegramService.sendText(uploader, resultString)
 
@@ -110,11 +110,11 @@ class PdfUploadService @Autowired constructor(
         var document: Document? = null
 
         if (uploadPreferences.lesson != null) {
-            document = Document(uuid = page.uuid)
-        } else if (page.uuid != null) {
-            document = documentRepo.findByUuid(page.uuid)
+            document = Document(qr = page.qrData)
+        } else if (page.qrData != null) {
+            document = documentRepo.findByQr(page.qrData)
         } else {
-            logger.warn("Page ${page.pageNumber}: No uuid found")
+            logger.warn("Page ${page.pageNumber}: No qr found")
         }
 
         document?.let {
@@ -135,6 +135,6 @@ class PdfUploadService @Autowired constructor(
             return
         }
 
-        logger.warn("Not found page ${page.pageNumber} in database: ${page.uuid}")
+        logger.warn("Not found page ${page.pageNumber} in database: ${page.qrData}")
     }
 }

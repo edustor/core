@@ -1,25 +1,19 @@
-package ru.edustor.core.model
+package ru.edustor.core.model.mongo
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import org.hibernate.annotations.OnDelete
-import org.hibernate.annotations.OnDeleteAction
+import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.index.Indexed
+import org.springframework.data.mongodb.core.mapping.DBRef
+import org.springframework.data.mongodb.core.mapping.Document
+import ru.edustor.core.model.Subject
 import java.time.Instant
 import java.util.*
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.ManyToOne
 
-@Entity
-class Subject() : Comparable<Subject> {
+@Document(collection = "subject")
+class MongoSubject() : Comparable<Subject> {
 
-    @Column(nullable = false)
     lateinit var name: String
-
-    @ManyToOne(optional = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore lateinit var owner: Account
-
+    @Indexed @DBRef @JsonIgnore lateinit var owner: MongoUser
     @Id var id: String = UUID.randomUUID().toString()
 
     @JsonIgnore var removedOn: Instant? = null
@@ -34,7 +28,7 @@ class Subject() : Comparable<Subject> {
             }
         }
 
-    constructor(name: String, owner: Account) : this() {
+    constructor(name: String, owner: MongoUser) : this() {
         this.name = name
         this.owner = owner
     }
@@ -46,7 +40,7 @@ class Subject() : Comparable<Subject> {
 
     override fun equals(other: Any?): Boolean {
         if (other !is Subject) return false
-        return this.id.equals(other.id)
+        return this.id == other.id
     }
 
     override fun hashCode(): Int {

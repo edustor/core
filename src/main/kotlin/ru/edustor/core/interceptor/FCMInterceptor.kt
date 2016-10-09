@@ -5,7 +5,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
-import ru.edustor.core.model.User
+import ru.edustor.core.model.Account
 import ru.edustor.core.service.FCMService
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -14,16 +14,16 @@ import javax.servlet.http.HttpServletResponse
 open class FCMInterceptor : HandlerInterceptorAdapter() {
     @Autowired private lateinit var fcmService: FCMService
 
-    val regex = "^/+api/(?!((sync)|(account/login))([/]|$)).*".toRegex()
+    val regex = "^/+api/(?!(sync)([/]|$)).*".toRegex()
 
     override fun afterCompletion(request: HttpServletRequest, response: HttpServletResponse, handler: Any, ex: Exception?) {
         val principal = SecurityContextHolder.getContext().authentication?.principal
-        if (principal is User && request.method in arrayOf(
+        if (principal is Account
+                && request.method in arrayOf(
                 HttpMethod.POST.name,
                 HttpMethod.PUT.name,
                 HttpMethod.PATCH.name,
-                HttpMethod.DELETE.name
-        ) && request.requestURI.matches(regex)) {
+                HttpMethod.DELETE.name) && request.requestURI.matches(regex)) {
             principal.let { fcmService.sendUserSyncNotification(it) }
         }
     }

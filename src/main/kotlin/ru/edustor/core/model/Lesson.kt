@@ -1,21 +1,31 @@
 package ru.edustor.core.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import org.springframework.data.annotation.Id
-import org.springframework.data.mongodb.core.index.Indexed
-import org.springframework.data.mongodb.core.mapping.DBRef
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
+import javax.persistence.*
 
-@org.springframework.data.mongodb.core.mapping.Document(collection = "lesson")
-data class Lesson(
-        @Indexed @DBRef var subject: Subject? = null,
-        var date: LocalDate? = null,
-        var topic: String? = null,
-        @DBRef var documents: MutableList<Document> = mutableListOf(),
-        @Id var id: String = UUID.randomUUID().toString()
-) : Comparable<Lesson> {
+@Entity
+@EntityListeners()
+open class Lesson() : Comparable<Lesson> {
+    @ManyToOne(optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    lateinit var subject: Subject
+
+    @Column(nullable = false)
+    lateinit var date: LocalDate
+
+    var topic: String? = null
+
+    @OneToMany(mappedBy = "lesson", cascade = arrayOf(CascadeType.REMOVE))
+    @OrderBy("index ASC")
+    var documents: MutableList<Document> = mutableListOf()
+
+    @Id var id: String = UUID.randomUUID().toString()
+
     @JsonIgnore var removedOn: Instant? = null
 
     @JsonIgnore var removed: Boolean = false
@@ -28,7 +38,20 @@ data class Lesson(
             }
         }
 
+    constructor(subject: Subject, date: LocalDate) : this() {
+        this.subject = subject
+        this.date = date
+    }
+
     override fun compareTo(other: Lesson): Int {
-        return date?.compareTo(other.date) ?: 0
+        return date.compareTo(other.date)
+    }
+
+    fun recalculateDocumentsIndexes() {
+        var i = 0
+        documents.forEach {
+            it.index = i++
+            it.lesson = this
+        }
     }
 }

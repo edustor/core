@@ -2,15 +2,14 @@ package ru.edustor.core.rest
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.OptimisticLockingFailureException
-import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import ru.edustor.core.exceptions.HttpRequestProcessingException
+import ru.edustor.core.model.Account
 import ru.edustor.core.model.Document
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Subject
-import ru.edustor.core.model.User
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
 import ru.edustor.core.service.FCMService
@@ -27,34 +26,34 @@ open class LessonsController @Autowired constructor(
 ) {
 
     @RequestMapping("/subject/{subject}")
-    fun subjectLessons(@PathVariable subject: Subject?, @RequestParam(required = false, defaultValue = "0") page: Int): List<Lesson> {
+    fun subjectLessons(@PathVariable subject: Subject?): List<Lesson> {
         subject ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        return lessonsRepo.findBySubject(subject, PageRequest(page, 30)).filter { it.documents.isNotEmpty() && !it.removed }.sortedDescending()
+        return lessonsRepo.findBySubject(subject).filter { it.documents.isNotEmpty() && !it.removed }.sortedDescending()
     }
 
     @RequestMapping("/{lesson}")
-    fun getLesson(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: User): Lesson {
+    fun getLesson(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: Account): Lesson {
         user.assertHasAccess(lesson)
         lesson.documents = lesson.documents.filter { !it.removed }.toMutableList()
         return lesson
     }
 
     @RequestMapping("/{lesson}/removed")
-    fun getLessonRemovedDocs(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: User): List<Document> {
+    fun getLessonRemovedDocs(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: Account): List<Document> {
         user.assertHasAccess(lesson)
         return lesson.documents.filter { it.removed }
     }
 
 
     @RequestMapping("/{lesson}", method = arrayOf(RequestMethod.DELETE))
-    fun delete(@AuthenticationPrincipal user: User, @PathVariable lesson: Lesson) {
+    fun delete(@AuthenticationPrincipal user: Account, @PathVariable lesson: Lesson) {
         user.assertHasAccess(lesson)
         lesson.removed = true
         lessonsRepo.save(lesson)
     }
 
     @RequestMapping("/{lesson}/restore")
-    fun restore(@AuthenticationPrincipal user: User, @PathVariable lesson: Lesson) {
+    fun restore(@AuthenticationPrincipal user: Account, @PathVariable lesson: Lesson) {
         user.assertHasAccess(lesson)
         lesson.removed = false
         lessonsRepo.save(lesson)
@@ -63,7 +62,7 @@ open class LessonsController @Autowired constructor(
     @RequestMapping("/date/{date}/{subject}")
     fun getLessonByDate(@PathVariable subject: Subject,
                         @PathVariable date: LocalDate,
-                        @AuthenticationPrincipal user: User
+                        @AuthenticationPrincipal user: Account
     ): Lesson {
         var lesson = lessonsRepo.findLessonBySubjectAndDate(subject, date)
 
@@ -85,24 +84,23 @@ open class LessonsController @Autowired constructor(
     }
 
     @RequestMapping("/{lesson}/topic", method = arrayOf(RequestMethod.POST))
-    fun setTopic(@PathVariable lesson: Lesson, @RequestParam(required = false) topic: String?, @AuthenticationPrincipal user: User) {
+    fun setTopic(@PathVariable lesson: Lesson, @RequestParam(required = false) topic: String?, @AuthenticationPrincipal user: Account) {
         user.assertHasAccess(lesson)
         lesson.topic = topic
         lessonsRepo.save(lesson)
     }
 
     @RequestMapping("/date/{date}/{subject}/topic", method = arrayOf(RequestMethod.PUT))
-    fun setTopicByDate(@PathVariable subject: Subject, @PathVariable date: LocalDate, @RequestParam(required = false) topic: String?, @AuthenticationPrincipal user: User) {
+    fun setTopicByDate(@PathVariable subject: Subject, @PathVariable date: LocalDate, @RequestParam(required = false) topic: String?, @AuthenticationPrincipal user: Account) {
         val lesson = getLessonByDate(subject, date, user)
         user.assertHasAccess(lesson)
         lesson.topic = topic
         lessonsRepo.save(lesson)
-        fcmService.sendUserSyncNotification(user)
     }
 
-    @RequestMapping("/uuid/{uuid}")
-    fun byDocumentUUID(@AuthenticationPrincipal user: User, @PathVariable uuid: String): Lesson {
-        val document = documentsRepository.findByUuid(uuid) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Document is not found")
+    @RequestMapping("/qr/{qr}")
+    fun byDocumentQR(@AuthenticationPrincipal user: Account, @PathVariable qr: String): Lesson {
+        val document = documentsRepository.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Document is not found")
         val lesson = lessonsRepo.findByDocumentsContaining(document) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Lesson is not found")
 
         user.assertHasAccess(lesson)
@@ -111,7 +109,7 @@ open class LessonsController @Autowired constructor(
     }
 
     @RequestMapping("/{lesson}/documents/reorder")
-    fun reorderDocuments(@AuthenticationPrincipal user: User, @PathVariable lesson: Lesson, @RequestParam document: Document, @RequestParam(required = false) after: Document?) {
+    fun reorderDocuments(@AuthenticationPrincipal user: Account, @PathVariable lesson: Lesson, @RequestParam document: Document, @RequestParam(required = false) after: Document?) {
         Observable.just(lesson)
                 .map { lesson ->
                     user.assertHasAccess(lesson)
@@ -124,6 +122,9 @@ open class LessonsController @Autowired constructor(
 
                     val targetIndex = if (after != null) lesson.documents.indexOf(after) + 1 else 0
                     lesson.documents.add(targetIndex, document)
+
+                    lesson.recalculateDocumentsIndexes()
+                    documentsRepository.save(lesson.documents)
                     lessonsRepo.save(lesson)
                 }
                 // Optimistic locking
@@ -135,7 +136,7 @@ open class LessonsController @Autowired constructor(
     }
 
     @RequestMapping("date/{date}/{subject}/documents/reorder")
-    fun reorderDocumentsByDate(@AuthenticationPrincipal user: User, @PathVariable subject: Subject, @PathVariable date: LocalDate,
+    fun reorderDocumentsByDate(@AuthenticationPrincipal user: Account, @PathVariable subject: Subject, @PathVariable date: LocalDate,
                                @RequestParam document: Document, @RequestParam(required = false) after: Document?) {
         val lesson = getLessonByDate(subject, date, user)
         reorderDocuments(user, lesson, document, after)

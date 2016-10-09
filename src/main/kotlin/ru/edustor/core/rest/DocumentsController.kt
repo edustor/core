@@ -6,10 +6,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import ru.edustor.core.exceptions.HttpRequestProcessingException
+import ru.edustor.core.model.Account
 import ru.edustor.core.model.Document
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Subject
-import ru.edustor.core.model.User
 import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
@@ -31,7 +31,7 @@ class DocumentsController @Autowired constructor(
 ) {
     @RequestMapping("upload", method = arrayOf(RequestMethod.POST))
     fun upload(@RequestParam("file") file: MultipartFile,
-               @AuthenticationPrincipal user: User,
+               @AuthenticationPrincipal user: Account,
                @RequestParam(required = false) lesson: Lesson?
     ): String? {
         val uploadPreferences = PdfUploadPreferences(uploader = user, lesson = lesson)
@@ -46,23 +46,23 @@ class DocumentsController @Autowired constructor(
         return "Successfully uploaded"
     }
 
-    @RequestMapping("/uuid/{uuid}")
-    fun uuidInfo(@PathVariable uuid: String, @AuthenticationPrincipal user: User): Document? {
-        val document = repo.findByUuid(uuid) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
+    @RequestMapping("/qr/{qr}")
+    fun uuidInfo(@PathVariable qr: String, @AuthenticationPrincipal user: Account): Document? {
+        val document = repo.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
         user.assertHasAccess(document, lessonsRepo)
         return document
     }
 
-    @RequestMapping("/uuid/activate")
-    fun activateUuid(@RequestParam uuid: String,
-                     @RequestParam lesson: Lesson,
-                     @RequestParam(required = false) instant: Instant?,
-                     @AuthenticationPrincipal user: User,
-                     @RequestParam id: String = UUID.randomUUID().toString()
+    @RequestMapping("/qr/activate")
+    fun activateQr(@RequestParam qr: String,
+                   @RequestParam lesson: Lesson,
+                   @RequestParam(required = false) instant: Instant?,
+                   @AuthenticationPrincipal user: Account,
+                   @RequestParam id: String = UUID.randomUUID().toString()
     ) {
         user.assertHasAccess(lesson)
 
-        val existingDoc = repo.findByUuid(uuid)
+        val existingDoc = repo.findByQr(qr)
         if (existingDoc != null) {
             if (existingDoc.removed == true) {
                 val oldLesson = lessonsRepo.findByDocumentsContaining(existingDoc)
@@ -72,37 +72,38 @@ class DocumentsController @Autowired constructor(
                 existingDoc.owner = user
                 existingDoc.timestamp = Instant.now()
             } else {
-                throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This UUID is already activated")
+                throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This QR is already activated")
             }
         }
 
-        val document = existingDoc ?: Document(uuid = uuid, owner = user, timestamp = instant ?: Instant.now(), id = id)
+        val document = existingDoc ?: Document(qr = qr, owner = user, timestamp = instant ?: Instant.now(), id = id)
         lesson.documents.add(document)
+        lesson.recalculateDocumentsIndexes()
         repo.save(document)
 
         lessonsRepo.save(lesson)
     }
 
-    @RequestMapping("/uuid/activate/date")
-    fun activateUUidByDate(@RequestParam uuid: String,
-                           @RequestParam subject: Subject,
-                           @RequestParam date: LocalDate,
-                           @RequestParam(required = false) instant: Instant?,
-                           @AuthenticationPrincipal user: User,
-                           @RequestParam id: String = UUID.randomUUID().toString()) {
+    @RequestMapping("/qr/activate/date")
+    fun activateQrByDate(@RequestParam qr: String,
+                         @RequestParam subject: Subject,
+                         @RequestParam date: LocalDate,
+                         @RequestParam(required = false) instant: Instant?,
+                         @AuthenticationPrincipal user: Account,
+                         @RequestParam id: String = UUID.randomUUID().toString()) {
         val lesson = lessonsController.getLessonByDate(subject, date, user)
-        activateUuid(uuid, lesson, instant, user, id)
+        activateQr(qr, lesson, instant, user, id)
     }
 
     @RequestMapping("/{document}", method = arrayOf(RequestMethod.DELETE))
-    fun delete(@AuthenticationPrincipal user: User, @PathVariable document: Document) {
+    fun delete(@AuthenticationPrincipal user: Account, @PathVariable document: Document) {
         document.assertIsOwner(user)
         document.removed = true
         documentsRepository.save(document)
     }
 
     @RequestMapping("/{document}/restore")
-    fun restore(@AuthenticationPrincipal user: User, @PathVariable document: Document) {
+    fun restore(@AuthenticationPrincipal user: Account, @PathVariable document: Document) {
         document.assertIsOwner(user)
         document.removed = false
         documentsRepository.save(document)

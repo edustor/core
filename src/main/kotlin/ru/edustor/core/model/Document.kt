@@ -1,32 +1,48 @@
 package ru.edustor.core.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
-import org.springframework.data.annotation.Id
-import org.springframework.data.mongodb.core.index.Indexed
-import org.springframework.data.mongodb.core.mapping.DBRef
 import ru.edustor.core.pdf.storage.PdfStorage
 import java.time.Instant
 import java.util.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.Id
+import javax.persistence.ManyToOne
 
 @Configuration
-@org.springframework.data.mongodb.core.mapping.Document
-open class Document(
-        owner: User? = null,
-        @Indexed var uuid: String? = null,
-        var isUploaded: Boolean = false,
-        var contentType: String? = null,
-        var timestamp: Instant = Instant.now(),
-        var uploadedTimestamp: Instant? = null,
-        @Id var id: String = UUID.randomUUID().toString()
-) {
-    @DBRef @JsonIgnore lateinit var owner: User
+@Entity
+open class Document() {
+
+    @ManyToOne(optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore lateinit var owner: Account
+
+    @Id var id: String = UUID.randomUUID().toString()
+
+
+    @Column(nullable = false)
+    var isUploaded: Boolean = false
+
+    @JsonIgnore
+    @ManyToOne(optional = false)
+    lateinit var lesson: Lesson
+
+
+    @Column(nullable = false)
+    var timestamp: Instant = Instant.now()
+
+    var qr: String? = null
+    var contentType: String? = null
+    var uploadedTimestamp: Instant? = null
+    var removedOn: Instant? = null
+    var index: Int = 0
 
     val fileMD5: String?
         get() = ps.getMD5(id)
-
-    var removedOn: Instant? = null
 
     var removed: Boolean = false
         set(value) {
@@ -42,15 +58,20 @@ open class Document(
         lateinit private var ps: PdfStorage
     }
 
+    constructor(qr: String?, owner: Account, timestamp: Instant, id: String) : this() {
+        this.qr = qr
+        this.owner = owner
+        this.timestamp = timestamp
+        this.id = id
+    }
+
+    constructor(qr: String?) : this() {
+        this.qr = qr
+    }
+
     @Autowired
     fun setPdfStorage(ps: PdfStorage) {
         Document.ps = ps
-    }
-
-    init {
-        owner?.let {
-            this.owner = it
-        }
     }
 
     override fun equals(other: Any?): Boolean {
