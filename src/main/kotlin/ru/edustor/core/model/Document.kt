@@ -16,7 +16,7 @@ open class Document() {
 
     @OneToOne(cascade = arrayOf(CascadeType.ALL))
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore lateinit var owner: User
+    @JsonIgnore lateinit var owner: Account
 
     @Id var localId: String = UUID.randomUUID().toString()
     var uuid: String = UUID.randomUUID().toString()
@@ -51,7 +51,7 @@ open class Document() {
         lateinit private var ps: PdfStorage
     }
 
-    constructor(qr: String?, owner: User, timestamp: Instant, uuid: String) : this() {
+    constructor(qr: String?, owner: Account, timestamp: Instant, uuid: String) : this() {
         this.qr = qr
         this.owner = owner
         this.timestamp = timestamp

@@ -5,14 +5,14 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
-import ru.edustor.core.model.User
+import ru.edustor.core.model.Account
 import ru.edustor.core.pdf.storage.PdfStorage
 import java.time.Instant
 import java.util.*
 
 @Document
 open class MongoDocument(
-        owner: User? = null,
+        owner: Account? = null,
         @Indexed var uuid: String? = null,
         var isUploaded: Boolean = false,
         var contentType: String? = null,
@@ -20,7 +20,7 @@ open class MongoDocument(
         var uploadedTimestamp: Instant? = null,
         @Id var id: String = UUID.randomUUID().toString()
 ) {
-    @DBRef @JsonIgnore lateinit var owner: User
+    @DBRef @JsonIgnore lateinit var owner: Account
 
     val fileMD5: String?
         get() = ps.getMD5(id)

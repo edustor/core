@@ -6,7 +6,7 @@ import com.pengrad.telegrambot.request.SendPhoto
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import ru.edustor.core.model.User
+import ru.edustor.core.model.Account
 import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
 import ru.edustor.core.pdf.upload.PdfPage
 import ru.edustor.core.util.extensions.getAsByteArray
@@ -20,11 +20,11 @@ class TelegramService {
 
     private val logger = LoggerFactory.getLogger(TelegramService::class.java)
 
-    fun sendText(user: User, text: String, disableNotification: Boolean = true) {
+    fun sendText(user: Account, text: String, disableNotification: Boolean = true) {
         bot.execute(SendMessage(user.telegramChatId, text).disableNotification(disableNotification))
     }
 
-    fun sendImage(user: User, image: BufferedImage, caption: String, disableNotification: Boolean = true) {
+    fun sendImage(user: Account, image: BufferedImage, caption: String, disableNotification: Boolean = true) {
         bot.execute(
                 SendPhoto(user.telegramChatId, image.getAsByteArray())
                         .caption(caption)

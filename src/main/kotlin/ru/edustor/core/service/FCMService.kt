@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.mashape.unirest.http.Unirest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import ru.edustor.core.model.User
+import ru.edustor.core.model.Account
 import ru.edustor.core.model.internal.sync.FCMRequest
 import ru.edustor.core.repository.SessionRepository
 import rx.Observable
@@ -21,7 +21,7 @@ open class FCMService @Autowired constructor(
 
     private val queue = LinkedBlockingQueue<FCMRequest>()
 
-    fun sendUserSyncNotification(user: User) {
+    fun sendUserSyncNotification(user: Account) {
         queue.add(FCMRequest(user, user.currentSession))
     }
 

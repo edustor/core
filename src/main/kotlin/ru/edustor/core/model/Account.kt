@@ -7,7 +7,7 @@ import javax.persistence.Id
 import javax.persistence.Transient
 
 @Entity
-open class User() {
+open class Account() {
     lateinit var email: String
     var telegramChatId: String? = null
     var telegramLinkToken: String? = null
@@ -20,7 +20,7 @@ open class User() {
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is User) return false
+        if (other !is Account) return false
         return id == other.id
     }
 

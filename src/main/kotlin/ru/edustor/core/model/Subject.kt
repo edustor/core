@@ -17,7 +17,7 @@ class Subject() : Comparable<Subject> {
 
     @OneToOne(cascade = arrayOf(CascadeType.ALL))
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore lateinit var owner: User
+    @JsonIgnore lateinit var owner: Account
 
     @Id var id: String = UUID.randomUUID().toString()
 
@@ -33,7 +33,7 @@ class Subject() : Comparable<Subject> {
             }
         }
 
-    constructor(name: String, owner: User) : this() {
+    constructor(name: String, owner: Account) : this() {
         this.name = name
         this.owner = owner
     }

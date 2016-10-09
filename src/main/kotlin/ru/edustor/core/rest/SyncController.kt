@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import ru.edustor.core.exceptions.HttpRequestProcessingException
-import ru.edustor.core.model.User
+import ru.edustor.core.model.Account
 import ru.edustor.core.model.internal.sync.SyncTask
 import ru.edustor.core.repository.mongo.MongoLessonsRepository
 import ru.edustor.core.repository.mongo.MongoSubjectsRepository
@@ -33,7 +33,7 @@ class SyncController @Autowired constructor(
     val delimiterRegex = "/".toRegex()
 
     @RequestMapping("/fetch")
-    fun fetch(@AuthenticationPrincipal user: User): Map<*, *> {
+    fun fetch(@AuthenticationPrincipal user: Account): Map<*, *> {
         val subjects = subjectRepo.findByOwner(user)
         val lessons = lessonRepo.findBySubjectIn(subjects).map { it.documents = it.documents.filter { !it.removed }.toMutableList(); it }
         return mapOf(
@@ -44,7 +44,7 @@ class SyncController @Autowired constructor(
     }
 
     @RequestMapping("/push")
-    fun push(@RequestBody body: String, @AuthenticationPrincipal user: User): MutableList<Any?> {
+    fun push(@RequestBody body: String, @AuthenticationPrincipal user: Account): MutableList<Any?> {
         val tasks = mapper.readValue<List<SyncTask>>(body, object : TypeReference<List<SyncTask>>() {})
         val results = mutableListOf<Any?>()
         tasks.forEach {

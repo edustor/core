@@ -6,10 +6,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import ru.edustor.core.exceptions.HttpRequestProcessingException
+import ru.edustor.core.model.Account
 import ru.edustor.core.model.Document
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Subject
-import ru.edustor.core.model.User
 import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
@@ -31,7 +31,7 @@ class DocumentsController @Autowired constructor(
 ) {
     @RequestMapping("upload", method = arrayOf(RequestMethod.POST))
     fun upload(@RequestParam("file") file: MultipartFile,
-               @AuthenticationPrincipal user: User,
+               @AuthenticationPrincipal user: Account,
                @RequestParam(required = false) lesson: Lesson?
     ): String? {
         val uploadPreferences = PdfUploadPreferences(uploader = user, lesson = lesson)
@@ -47,7 +47,7 @@ class DocumentsController @Autowired constructor(
     }
 
     @RequestMapping("/uuid/{uuid}")
-    fun uuidInfo(@PathVariable uuid: String, @AuthenticationPrincipal user: User): Document? {
+    fun uuidInfo(@PathVariable uuid: String, @AuthenticationPrincipal user: Account): Document? {
         val document = repo.findByUuid(uuid) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
         user.assertHasAccess(document, lessonsRepo)
         return document
@@ -57,7 +57,7 @@ class DocumentsController @Autowired constructor(
     fun activateUuid(@RequestParam qr: String,
                      @RequestParam lesson: Lesson,
                      @RequestParam(required = false) instant: Instant?,
-                     @AuthenticationPrincipal user: User,
+                     @AuthenticationPrincipal user: Account,
                      @RequestParam uuid: String = UUID.randomUUID().toString()
     ) {
         user.assertHasAccess(lesson)
@@ -88,21 +88,21 @@ class DocumentsController @Autowired constructor(
                            @RequestParam subject: Subject,
                            @RequestParam date: LocalDate,
                            @RequestParam(required = false) instant: Instant?,
-                           @AuthenticationPrincipal user: User,
+                           @AuthenticationPrincipal user: Account,
                            @RequestParam id: String = UUID.randomUUID().toString()) {
         val lesson = lessonsController.getLessonByDate(subject, date, user)
         activateUuid(uuid, lesson, instant, user, id)
     }
 
     @RequestMapping("/{document}", method = arrayOf(RequestMethod.DELETE))
-    fun delete(@AuthenticationPrincipal user: User, @PathVariable document: Document) {
+    fun delete(@AuthenticationPrincipal user: Account, @PathVariable document: Document) {
         document.assertIsOwner(user)
         document.removed = true
         documentsRepository.save(document)
     }
 
     @RequestMapping("/{document}/restore")
-    fun restore(@AuthenticationPrincipal user: User, @PathVariable document: Document) {
+    fun restore(@AuthenticationPrincipal user: Account, @PathVariable document: Document) {
         document.assertIsOwner(user)
         document.removed = false
         documentsRepository.save(document)

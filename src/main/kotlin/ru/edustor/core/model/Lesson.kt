@@ -2,29 +2,28 @@ package ru.edustor.core.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.hibernate.annotations.OnDelete
-import org.springframework.data.mongodb.core.mapping.DBRef
+import org.hibernate.annotations.OnDeleteAction
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.OneToMany
-import javax.persistence.OneToOne
+import javax.persistence.*
 
 @Entity
-data class Lesson(
-        @OneToOne(cascade = arrayOf(CascadeType.ALL))
-        @OnDelete(action = OnDeleteAction.CASCADE)
-        var subject: Subject? = null,
+class Lesson() : Comparable<Lesson> {
+    @OneToOne(cascade = arrayOf(CascadeType.ALL))
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    lateinit var subject: Subject
 
-        var date: LocalDate? = null,
-        var topic: String? = null,
+    @Column(nullable = false)
+    lateinit var date: LocalDate
 
-        @OneToMany(cascade = arrayOf(CascadeType.ALL))
-        @DBRef var documents: MutableList<Document> = mutableListOf(),
+    var topic: String? = null
 
-        @Id var id: String = UUID.randomUUID().toString()
-) : Comparable<Lesson> {
+    @OneToMany(cascade = arrayOf(CascadeType.ALL))
+    var documents: MutableList<Document> = mutableListOf()
+
+    @Id var id: String = UUID.randomUUID().toString()
+
     @JsonIgnore var removedOn: Instant? = null
 
     @JsonIgnore var removed: Boolean = false
@@ -37,7 +36,12 @@ data class Lesson(
             }
         }
 
+    constructor(subject: Subject, date: LocalDate) : this() {
+        this.subject = subject
+        this.date = date
+    }
+
     override fun compareTo(other: Lesson): Int {
-        return date?.compareTo(other.date) ?: 0
+        return date.compareTo(other.date)
     }
 }

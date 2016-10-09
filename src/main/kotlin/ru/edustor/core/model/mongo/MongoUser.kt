@@ -5,8 +5,8 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Transient
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
+import ru.edustor.core.model.Account
 import ru.edustor.core.model.Session
-import ru.edustor.core.model.User
 import java.util.*
 
 @Document
@@ -23,7 +23,7 @@ open class MongoUser() {
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is User) return false
+        if (other !is Account) return false
         return id == other.id
     }
 

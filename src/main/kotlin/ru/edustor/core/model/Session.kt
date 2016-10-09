@@ -14,7 +14,7 @@ import javax.persistence.OneToOne
 class Session() {
     @OneToOne(cascade = arrayOf(CascadeType.ALL))
     @OnDelete(action = OnDeleteAction.CASCADE)
-    lateinit var user: User
+    lateinit var user: Account
 
     val token: String = UUID.randomUUID().toString()
 
@@ -22,7 +22,7 @@ class Session() {
     @JsonIgnore var FCMToken: String? = null
     @Id var id: String = UUID.randomUUID().toString()
 
-    constructor(user: User) : this() {
+    constructor(user: Account) : this() {
         this.user = user
     }
 }
