@@ -1,11 +1,11 @@
-package ru.edustor.core.repository.mongo
+package ru.edustor.migration.repository.mongo
 
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.MongoRepository
 import ru.edustor.core.model.Document
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Subject
-import ru.edustor.core.model.mongo.MongoLesson
+import ru.edustor.migration.model.mongo.MongoLesson
 import java.time.Instant
 import java.time.LocalDate
 

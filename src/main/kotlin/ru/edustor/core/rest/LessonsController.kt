@@ -2,7 +2,6 @@ package ru.edustor.core.rest
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.OptimisticLockingFailureException
-import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -27,9 +26,9 @@ open class LessonsController @Autowired constructor(
 ) {
 
     @RequestMapping("/subject/{subject}")
-    fun subjectLessons(@PathVariable subject: Subject?, @RequestParam(required = false, defaultValue = "0") page: Int): List<Lesson> {
+    fun subjectLessons(@PathVariable subject: Subject?): List<Lesson> {
         subject ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        return lessonsRepo.findBySubject(subject, PageRequest(page, 30)).filter { it.documents.isNotEmpty() && !it.removed }.sortedDescending()
+        return lessonsRepo.findBySubject(subject).filter { it.documents.isNotEmpty() && !it.removed }.sortedDescending()
     }
 
     @RequestMapping("/{lesson}")
@@ -124,6 +123,9 @@ open class LessonsController @Autowired constructor(
 
                     val targetIndex = if (after != null) lesson.documents.indexOf(after) + 1 else 0
                     lesson.documents.add(targetIndex, document)
+
+                    lesson.recalculateDocumentsIndexes()
+                    documentsRepository.save(lesson.documents)
                     lessonsRepo.save(lesson)
                 }
                 // Optimistic locking

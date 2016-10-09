@@ -20,8 +20,8 @@ open class DocumentsSyncController @Autowired constructor(
 ) {
     fun processTask(task: SyncTask): Any {
         return when (task.method) {
-            "uuid/activate" -> activateUUID(task)
-            "uuid/activate/date" -> activateUUIDByDate(task)
+            "qr/activate" -> activateUUID(task)
+            "qr/activate/date" -> activateUUIDByDate(task)
             "delete" -> delete(task)
             "restore" -> restore(task)
             else -> throw NoSuchMethodException("DocumentsSyncController cannot resolve ${task.method}")
@@ -31,7 +31,7 @@ open class DocumentsSyncController @Autowired constructor(
     fun activateUUID(task: SyncTask) {
         val instant = Instant.ofEpochSecond(task.params["instant"]!!.toLong())
         val lesson = lessonsRepository.findOne(task.params["lesson"]!!)
-        documentsController.activateUuid(task.params["qr"]!!, lesson,
+        documentsController.activateQr(task.params["qr"]!!, lesson,
                 instant, task.user, task.params["uuid"]!!)
     }
 
@@ -39,7 +39,7 @@ open class DocumentsSyncController @Autowired constructor(
         val instant = Instant.ofEpochSecond(task.params["instant"]!!.toLong())
         val date = LocalDate.ofEpochDay(task.params["date"]!!.toLong())
         val subject = subjectsRepository.findOne(task.params["subject"]!!) ?: throw NotFoundException("Subject is not found")
-        documentsController.activateUUidByDate(task.params["qr"]!!, subject,
+        documentsController.activateQrByDate(task.params["qr"]!!, subject,
                 date, instant, task.user, task.params["uuid"]!!)
     }
 

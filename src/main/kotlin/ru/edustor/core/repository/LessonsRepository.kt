@@ -1,6 +1,5 @@
 package ru.edustor.core.repository
 
-import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import ru.edustor.core.model.Document
 import ru.edustor.core.model.Lesson
@@ -9,7 +8,6 @@ import java.time.Instant
 import java.time.LocalDate
 
 interface LessonsRepository : JpaRepository<Lesson, String> {
-    fun findBySubject(subject: Subject, pageable: Pageable): List<Lesson>
     fun findBySubject(subject: Subject): List<Lesson>
     fun findBySubjectIn(subjects: List<Subject>): List<Lesson>
     fun findByDocumentsContaining(document: Document): Lesson?

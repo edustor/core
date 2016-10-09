@@ -1,9 +1,9 @@
-package ru.edustor.core.repository.mongo
+package ru.edustor.migration.repository.mongo
 
 import org.springframework.data.mongodb.repository.MongoRepository
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.Subject
-import ru.edustor.core.model.mongo.MongoSubject
+import ru.edustor.migration.model.mongo.MongoSubject
 import java.time.Instant
 
 interface MongoSubjectsRepository : MongoRepository<MongoSubject, String> {

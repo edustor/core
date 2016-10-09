@@ -8,13 +8,13 @@ import com.pengrad.telegrambot.request.GetFile
 import com.pengrad.telegrambot.request.SendMessage
 import org.springframework.stereotype.Service
 import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
-import ru.edustor.core.repository.mongo.MongoUserRepository
+import ru.edustor.core.repository.AccountRepository
 import ru.edustor.core.service.PdfUploadService
 import ru.edustor.core.util.extensions.cid
 import ru.edustor.core.util.extensions.replyText
 
 @Service
-open class TelegramEventsRouter(val bot: TelegramBot, val pdfUploadService: PdfUploadService, val userRepository: MongoUserRepository) {
+open class TelegramEventsRouter(val bot: TelegramBot, val pdfUploadService: PdfUploadService, val userRepository: AccountRepository) {
 
     private val commandRegex = "/(\\w*)".toRegex()
 

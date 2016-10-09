@@ -1,4 +1,4 @@
-package ru.edustor.core.model.mongo
+package ru.edustor.migration.model.mongo
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.springframework.data.annotation.Id

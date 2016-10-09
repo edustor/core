@@ -11,7 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.GenericFilterBean
-import ru.edustor.core.repository.mongo.MongoUserRepository
+import ru.edustor.core.repository.AccountRepository
 import java.security.KeyFactory
 import java.security.PublicKey
 import java.security.spec.X509EncodedKeySpec
@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @Component
-open class AuthFilter @Autowired constructor(val repo: MongoUserRepository) : GenericFilterBean() {
+open class AuthFilter @Autowired constructor(val repo: AccountRepository) : GenericFilterBean() {
 
     val regex = "^/+api/(?!account/login([/]|$)).*".toRegex()
     val publicKey: PublicKey

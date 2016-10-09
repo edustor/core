@@ -1,4 +1,4 @@
-package ru.edustor.core.util.migrate
+package ru.edustor.migration
 
 import org.slf4j.LoggerFactory
 import ru.edustor.core.model.Account
@@ -9,9 +9,9 @@ import ru.edustor.core.repository.AccountRepository
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
 import ru.edustor.core.repository.SubjectsRepository
-import ru.edustor.core.repository.mongo.MongoLessonsRepository
-import ru.edustor.core.repository.mongo.MongoSubjectsRepository
-import ru.edustor.core.repository.mongo.MongoUserRepository
+import ru.edustor.migration.repository.mongo.MongoLessonsRepository
+import ru.edustor.migration.repository.mongo.MongoSubjectsRepository
+import ru.edustor.migration.repository.mongo.MongoUserRepository
 import javax.annotation.PostConstruct
 
 //@Configuration

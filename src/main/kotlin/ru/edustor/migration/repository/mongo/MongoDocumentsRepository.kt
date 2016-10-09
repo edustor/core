@@ -1,9 +1,9 @@
-package ru.edustor.core.repository.mongo
+package ru.edustor.migration.repository.mongo
 
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.stereotype.Repository
 import ru.edustor.core.model.Document
-import ru.edustor.core.model.mongo.MongoDocument
+import ru.edustor.migration.model.mongo.MongoDocument
 import java.time.Instant
 
 @Repository

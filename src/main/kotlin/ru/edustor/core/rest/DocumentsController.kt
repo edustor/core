@@ -46,15 +46,15 @@ class DocumentsController @Autowired constructor(
         return "Successfully uploaded"
     }
 
-    @RequestMapping("/uuid/{uuid}")
-    fun uuidInfo(@PathVariable uuid: String, @AuthenticationPrincipal user: Account): Document? {
-        val document = repo.findByUuid(uuid) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
+    @RequestMapping("/qr/{uuid}")
+    fun uuidInfo(@PathVariable qr: String, @AuthenticationPrincipal user: Account): Document? {
+        val document = repo.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
         user.assertHasAccess(document, lessonsRepo)
         return document
     }
 
-    @RequestMapping("/uuid/activate")
-    fun activateUuid(@RequestParam qr: String,
+    @RequestMapping("/qr/activate")
+    fun activateQr(@RequestParam qr: String,
                      @RequestParam lesson: Lesson,
                      @RequestParam(required = false) instant: Instant?,
                      @AuthenticationPrincipal user: Account,
@@ -78,20 +78,21 @@ class DocumentsController @Autowired constructor(
 
         val document = existingDoc ?: Document(qr = qr, owner = user, timestamp = instant ?: Instant.now(), uuid = uuid)
         lesson.documents.add(document)
+        lesson.recalculateDocumentsIndexes()
         repo.save(document)
 
         lessonsRepo.save(lesson)
     }
 
-    @RequestMapping("/uuid/activate/date")
-    fun activateUUidByDate(@RequestParam uuid: String,
-                           @RequestParam subject: Subject,
-                           @RequestParam date: LocalDate,
-                           @RequestParam(required = false) instant: Instant?,
-                           @AuthenticationPrincipal user: Account,
-                           @RequestParam id: String = UUID.randomUUID().toString()) {
+    @RequestMapping("/qr/activate/date")
+    fun activateQrByDate(@RequestParam qr: String,
+                         @RequestParam subject: Subject,
+                         @RequestParam date: LocalDate,
+                         @RequestParam(required = false) instant: Instant?,
+                         @AuthenticationPrincipal user: Account,
+                         @RequestParam uuid: String = UUID.randomUUID().toString()) {
         val lesson = lessonsController.getLessonByDate(subject, date, user)
-        activateUuid(uuid, lesson, instant, user, id)
+        activateQr(qr, lesson, instant, user, uuid)
     }
 
     @RequestMapping("/{document}", method = arrayOf(RequestMethod.DELETE))
