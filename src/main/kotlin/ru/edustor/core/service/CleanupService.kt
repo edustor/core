@@ -45,7 +45,7 @@ open class CleanupService(
     @PostConstruct
     fun cleanupRemovedEntities() {
 
-        val cleanupBeforeDate = Instant.now().minus(3, ChronoUnit.SECONDS)
+        val cleanupBeforeDate = Instant.now().minus(10, ChronoUnit.DAYS)
         logger.info("Cleaning up entities removed before $cleanupBeforeDate")
 
         subjectsRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteSubject(it) }
