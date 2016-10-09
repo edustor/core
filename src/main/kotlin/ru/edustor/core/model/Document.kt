@@ -8,13 +8,16 @@ import org.springframework.context.annotation.Configuration
 import ru.edustor.core.pdf.storage.PdfStorage
 import java.time.Instant
 import java.util.*
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.Id
+import javax.persistence.ManyToOne
 
 @Configuration
 @Entity
 open class Document() {
 
-    @ManyToOne(cascade = arrayOf(CascadeType.ALL), optional = false)
+    @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore lateinit var owner: Account
 
@@ -33,6 +36,7 @@ open class Document() {
     var contentType: String? = null
     var uploadedTimestamp: Instant? = null
     var removedOn: Instant? = null
+    var index: Int = 0
 
     val fileMD5: String?
         get() = ps.getMD5(uuid)

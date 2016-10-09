@@ -40,7 +40,7 @@ class MongoSubject() : Comparable<Subject> {
 
     override fun equals(other: Any?): Boolean {
         if (other !is Subject) return false
-        return this.id.equals(other.id)
+        return this.id == other.id
     }
 
     override fun hashCode(): Int {

@@ -5,7 +5,10 @@ import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import java.time.Instant
 import java.util.*
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.Id
+import javax.persistence.ManyToOne
 
 @Entity
 class Subject() : Comparable<Subject> {
@@ -13,7 +16,7 @@ class Subject() : Comparable<Subject> {
     @Column(nullable = false)
     lateinit var name: String
 
-    @ManyToOne(cascade = arrayOf(CascadeType.ALL), optional = false)
+    @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore lateinit var owner: Account
 

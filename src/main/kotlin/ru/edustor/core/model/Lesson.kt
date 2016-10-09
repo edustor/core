@@ -9,8 +9,9 @@ import java.util.*
 import javax.persistence.*
 
 @Entity
-class Lesson() : Comparable<Lesson> {
-    @ManyToOne(cascade = arrayOf(CascadeType.ALL), optional = false)
+@EntityListeners()
+open class Lesson() : Comparable<Lesson> {
+    @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     lateinit var subject: Subject
 
@@ -19,7 +20,8 @@ class Lesson() : Comparable<Lesson> {
 
     var topic: String? = null
 
-    @OneToMany(cascade = arrayOf(CascadeType.ALL))
+    @OneToMany()
+    @OrderBy("index ASC")
     var documents: MutableList<Document> = mutableListOf()
 
     @Id var id: String = UUID.randomUUID().toString()
@@ -43,5 +45,12 @@ class Lesson() : Comparable<Lesson> {
 
     override fun compareTo(other: Lesson): Int {
         return date.compareTo(other.date)
+    }
+
+    fun recalculateDocumentsIndexes() {
+        val lastIndex = documents.lastIndex
+        for (i in 0..lastIndex) {
+            documents[i].index = i
+        }
     }
 }

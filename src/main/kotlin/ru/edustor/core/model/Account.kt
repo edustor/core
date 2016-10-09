@@ -29,6 +29,6 @@ open class Account() {
     }
 
     override fun toString(): String {
-        return "User<$email>"
+        return "Account<$email>"
     }
 }

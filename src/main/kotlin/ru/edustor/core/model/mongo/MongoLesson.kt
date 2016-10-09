@@ -16,7 +16,7 @@ data class MongoLesson(
         @Indexed @DBRef var subject: Subject? = null,
         var date: LocalDate? = null,
         var topic: String? = null,
-        @DBRef var documents: MutableList<ru.edustor.core.model.Document> = mutableListOf(),
+        @DBRef var documents: MutableList<MongoDocument> = mutableListOf(),
         @Id var id: String = UUID.randomUUID().toString()
 ) : Comparable<Lesson> {
     @JsonIgnore var removedOn: Instant? = null
