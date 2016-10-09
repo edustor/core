@@ -9,7 +9,7 @@ import ru.edustor.core.model.Account
 import java.time.Instant
 import java.util.*
 
-@Document
+@Document(collection = "session")
 class MongoSession() {
     @DBRef @Indexed lateinit var user: Account
     @Indexed val token: String = UUID.randomUUID().toString()

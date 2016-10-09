@@ -9,7 +9,7 @@ import ru.edustor.core.model.Account
 import ru.edustor.core.model.Session
 import java.util.*
 
-@Document
+@Document(collection = "user")
 open class MongoUser() {
     @Indexed lateinit var email: String
     @Indexed var telegramChatId: String? = null

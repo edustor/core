@@ -10,7 +10,7 @@ import ru.edustor.core.pdf.storage.PdfStorage
 import java.time.Instant
 import java.util.*
 
-@Document
+@Document(collection = "document")
 open class MongoDocument(
         owner: Account? = null,
         @Indexed var uuid: String? = null,

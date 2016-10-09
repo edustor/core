@@ -5,16 +5,15 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
-import ru.edustor.core.model.Account
 import ru.edustor.core.model.Subject
 import java.time.Instant
 import java.util.*
 
-@Document
+@Document(collection = "subject")
 class MongoSubject() : Comparable<Subject> {
 
     lateinit var name: String
-    @Indexed @DBRef @JsonIgnore lateinit var owner: Account
+    @Indexed @DBRef @JsonIgnore lateinit var owner: MongoUser
     @Id var id: String = UUID.randomUUID().toString()
 
     @JsonIgnore var removedOn: Instant? = null
@@ -29,7 +28,7 @@ class MongoSubject() : Comparable<Subject> {
             }
         }
 
-    constructor(name: String, owner: Account) : this() {
+    constructor(name: String, owner: MongoUser) : this() {
         this.name = name
         this.owner = owner
     }
