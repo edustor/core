@@ -57,31 +57,16 @@ open class CleanupService(
 
     fun deleteSubject(subject: Subject) {
         logger.info("Cleaning up subject: ${subject.id}")
-        lessonsRepository.findBySubject(subject).forEach {
-            deleteLesson(it)
-        }
         subjectsRepository.delete(subject)
     }
 
     fun deleteLesson(lesson: Lesson) {
         logger.info("Cleaning up lesson: ${lesson.id}")
-        lesson.documents.forEach {
-            deleteDocument(it, false)
-        }
-
         lessonsRepository.delete(lesson)
     }
 
-    fun deleteDocument(document: Document, updateLesson: Boolean = true) {
+    fun deleteDocument(document: Document) {
         logger.info("Cleaning up document: ${document.id}")
-        if (updateLesson) {
-            val lesson = lessonsRepository.findByDocumentsContaining(document)
-
-            if (lesson != null) {
-                lesson.documents.remove(document)
-                lessonsRepository.save(lesson)
-            }
-        }
         document.isUploaded.let {
             pdfStorage.delete(document.id)
         }

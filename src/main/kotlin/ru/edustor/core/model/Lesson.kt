@@ -20,7 +20,7 @@ open class Lesson() : Comparable<Lesson> {
 
     var topic: String? = null
 
-    @OneToMany(mappedBy = "lesson")
+    @OneToMany(mappedBy = "lesson", cascade = arrayOf(CascadeType.REMOVE))
     @OrderBy("index ASC")
     var documents: MutableList<Document> = mutableListOf()
 

@@ -27,9 +27,9 @@ open class Document() {
     @Column(nullable = false)
     var isUploaded: Boolean = false
 
-    @ManyToOne
     @JsonIgnore
-    var lesson: Lesson? = null
+    @ManyToOne(optional = false)
+    lateinit var lesson: Lesson
 
 
     @Column(nullable = false)
