@@ -20,7 +20,7 @@ open class Lesson() : Comparable<Lesson> {
 
     var topic: String? = null
 
-    @OneToMany()
+    @OneToMany
     @OrderBy("index ASC")
     var documents: MutableList<Document> = mutableListOf()
 

@@ -1,7 +1,6 @@
 package ru.edustor.core.util.migrate
 
 import org.slf4j.LoggerFactory
-import org.springframework.context.annotation.Configuration
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.Document
 import ru.edustor.core.model.Lesson
@@ -15,7 +14,7 @@ import ru.edustor.core.repository.mongo.MongoSubjectsRepository
 import ru.edustor.core.repository.mongo.MongoUserRepository
 import javax.annotation.PostConstruct
 
-@Configuration
+//@Configuration
 open class MongoPostgresMigrate(
         val mongoAccountRepository: MongoUserRepository,
         val accountRepository: AccountRepository,
@@ -28,7 +27,6 @@ open class MongoPostgresMigrate(
         val mongoLessonsRepository: MongoLessonsRepository,
         val lessonsRepository: LessonsRepository
 ) {
-
     private val logger = LoggerFactory.getLogger(MongoPostgresMigrate::class.java)
 
     @PostConstruct
