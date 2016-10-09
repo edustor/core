@@ -10,7 +10,7 @@ import javax.persistence.*
 
 @Entity
 class Lesson() : Comparable<Lesson> {
-    @OneToOne(cascade = arrayOf(CascadeType.ALL))
+    @OneToOne(cascade = arrayOf(CascadeType.ALL), optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     lateinit var subject: Subject
 
