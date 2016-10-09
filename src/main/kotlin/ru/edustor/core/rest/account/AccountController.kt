@@ -8,23 +8,22 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import ru.edustor.core.model.Account
 import ru.edustor.core.repository.AccountRepository
-import ru.edustor.core.repository.SessionRepository
 import java.util.*
 
 @RestController
 @RequestMapping("/api/account")
-class AccountController @Autowired constructor(val sessionRepository: SessionRepository,
-                                               val accountRepository: AccountRepository) {
+class AccountController @Autowired constructor(val accountRepository: AccountRepository) {
     @RequestMapping("/getMe")
     fun getMe(@AuthenticationPrincipal user: Account): Account {
         return user
     }
 
     @RequestMapping("/FCMToken", method = arrayOf(RequestMethod.PUT))
-    fun setFCMToken(@RequestParam token: String?, @AuthenticationPrincipal user: Account) {
-        val session = user.currentSession!!
-        session.FCMToken = token
-        sessionRepository.save(session)
+    fun setFCMToken(@RequestParam token: String?, @AuthenticationPrincipal account: Account) {
+        if (token != null && token !in account.fcmTokens) {
+            account.fcmTokens.add(token)
+            accountRepository.save(account)
+        }
     }
 
     @RequestMapping("/telegram/link")

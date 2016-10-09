@@ -96,7 +96,6 @@ open class LessonsController @Autowired constructor(
         user.assertHasAccess(lesson)
         lesson.topic = topic
         lessonsRepo.save(lesson)
-        fcmService.sendUserSyncNotification(user)
     }
 
     @RequestMapping("/qr/{qr}")

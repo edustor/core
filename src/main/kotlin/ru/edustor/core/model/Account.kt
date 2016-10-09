@@ -1,10 +1,10 @@
 package ru.edustor.core.model
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import java.util.*
+import javax.persistence.ElementCollection
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.Id
-import javax.persistence.Transient
 
 @Entity
 open class Account() {
@@ -13,7 +13,8 @@ open class Account() {
     var telegramLinkToken: String? = null
     @Id var id: String = UUID.randomUUID().toString()
 
-    @Transient @JsonIgnore var currentSession: Session? = null
+    @ElementCollection(targetClass = String::class, fetch = FetchType.EAGER)
+    val fcmTokens: MutableList<String> = mutableListOf()
 
     constructor(email: String) : this() {
         this.email = email
