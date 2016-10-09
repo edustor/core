@@ -54,11 +54,11 @@ class DocumentsController @Autowired constructor(
     }
 
     @RequestMapping("/uuid/activate")
-    fun activateUuid(@RequestParam uuid: String,
+    fun activateUuid(@RequestParam qr: String,
                      @RequestParam lesson: Lesson,
                      @RequestParam(required = false) instant: Instant?,
                      @AuthenticationPrincipal user: User,
-                     @RequestParam id: String = UUID.randomUUID().toString()
+                     @RequestParam uuid: String = UUID.randomUUID().toString()
     ) {
         user.assertHasAccess(lesson)
 
@@ -76,7 +76,7 @@ class DocumentsController @Autowired constructor(
             }
         }
 
-        val document = existingDoc ?: Document(uuid = uuid, owner = user, timestamp = instant ?: Instant.now(), id = id)
+        val document = existingDoc ?: Document(qr = qr, owner = user, timestamp = instant ?: Instant.now(), uuid = uuid)
         lesson.documents.add(document)
         repo.save(document)
 

@@ -110,15 +110,15 @@ class PdfUploadService @Autowired constructor(
         var document: Document? = null
 
         if (uploadPreferences.lesson != null) {
-            document = Document(uuid = page.uuid)
+            document = Document(qr = page.uuid)
         } else if (page.uuid != null) {
             document = documentRepo.findByUuid(page.uuid)
         } else {
-            logger.warn("Page ${page.pageNumber}: No uuid found")
+            logger.warn("Page ${page.pageNumber}: No qr found")
         }
 
         document?.let {
-            pdfStorage.put(it.id, page.binary!!.inputStream())
+            pdfStorage.put(it.uuid, page.binary!!.inputStream())
 
             it.isUploaded = true
             it.uploadedTimestamp = Instant.now()

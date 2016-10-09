@@ -1,16 +1,19 @@
-package ru.edustor.core.model
+package ru.edustor.core.model.mongo
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import org.springframework.data.annotation.Id
+import org.springframework.data.annotation.Transient
+import org.springframework.data.mongodb.core.index.Indexed
+import org.springframework.data.mongodb.core.mapping.Document
+import ru.edustor.core.model.Session
+import ru.edustor.core.model.User
 import java.util.*
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.Transient
 
-@Entity
-open class User() {
-    lateinit var email: String
-    var telegramChatId: String? = null
-    var telegramLinkToken: String? = null
+@Document
+open class MongoUser() {
+    @Indexed lateinit var email: String
+    @Indexed var telegramChatId: String? = null
+    @Indexed var telegramLinkToken: String? = null
     @Id var id: String = UUID.randomUUID().toString()
 
     @Transient @JsonIgnore var currentSession: Session? = null

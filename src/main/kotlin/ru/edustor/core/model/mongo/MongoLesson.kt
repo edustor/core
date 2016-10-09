@@ -1,28 +1,22 @@
-package ru.edustor.core.model
+package ru.edustor.core.model.mongo
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import org.hibernate.annotations.OnDelete
+import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
+import org.springframework.data.mongodb.core.mapping.Document
+import ru.edustor.core.model.Lesson
+import ru.edustor.core.model.Subject
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.OneToMany
-import javax.persistence.OneToOne
 
-@Entity
-data class Lesson(
-        @OneToOne(cascade = arrayOf(CascadeType.ALL))
-        @OnDelete(action = OnDeleteAction.CASCADE)
-        var subject: Subject? = null,
-
+@Document(collection = "lesson")
+data class MongoLesson(
+        @Indexed @DBRef var subject: Subject? = null,
         var date: LocalDate? = null,
         var topic: String? = null,
-
-        @OneToMany(cascade = arrayOf(CascadeType.ALL))
-        @DBRef var documents: MutableList<Document> = mutableListOf(),
-
+        @DBRef var documents: MutableList<ru.edustor.core.model.Document> = mutableListOf(),
         @Id var id: String = UUID.randomUUID().toString()
 ) : Comparable<Lesson> {
     @JsonIgnore var removedOn: Instant? = null

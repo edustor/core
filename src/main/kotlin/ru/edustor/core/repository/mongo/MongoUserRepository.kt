@@ -1,11 +1,12 @@
-package ru.edustor.core.repository
+package ru.edustor.core.repository.mongo
 
-import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.stereotype.Repository
 import ru.edustor.core.model.User
+import ru.edustor.core.model.mongo.MongoUser
 
 @Repository
-interface UserRepository : JpaRepository<User, String> {
+interface MongoUserRepository : MongoRepository<MongoUser, String> {
     fun findByEmail(email: String): User?
     fun findByTelegramLinkToken(token: String): User?
     fun findByTelegramChatId(token: String): User?

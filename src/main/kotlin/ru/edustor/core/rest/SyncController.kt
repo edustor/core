@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.User
 import ru.edustor.core.model.internal.sync.SyncTask
-import ru.edustor.core.repository.LessonsRepository
-import ru.edustor.core.repository.SubjectsRepository
+import ru.edustor.core.repository.mongo.MongoLessonsRepository
+import ru.edustor.core.repository.mongo.MongoSubjectsRepository
 import ru.edustor.core.service.FCMService
 import ru.edustor.core.sync.AccountSyncController
 import ru.edustor.core.sync.DocumentsSyncController
@@ -21,8 +21,8 @@ import ru.edustor.core.sync.SubjectsSyncController
 @RestController
 @RequestMapping("/api/sync")
 class SyncController @Autowired constructor(
-        val subjectRepo: SubjectsRepository,
-        val lessonRepo: LessonsRepository,
+        val subjectRepo: MongoSubjectsRepository,
+        val lessonRepo: MongoLessonsRepository,
         val lessonsSyncController: LessonsSyncController,
         val documentsSyncController: DocumentsSyncController,
         val accountSyncController: AccountSyncController,

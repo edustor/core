@@ -31,16 +31,16 @@ open class DocumentsSyncController @Autowired constructor(
     fun activateUUID(task: SyncTask) {
         val instant = Instant.ofEpochSecond(task.params["instant"]!!.toLong())
         val lesson = lessonsRepository.findOne(task.params["lesson"]!!)
-        documentsController.activateUuid(task.params["uuid"]!!, lesson,
-                instant, task.user, task.params["id"]!!)
+        documentsController.activateUuid(task.params["qr"]!!, lesson,
+                instant, task.user, task.params["uuid"]!!)
     }
 
     fun activateUUIDByDate(task: SyncTask) {
         val instant = Instant.ofEpochSecond(task.params["instant"]!!.toLong())
         val date = LocalDate.ofEpochDay(task.params["date"]!!.toLong())
         val subject = subjectsRepository.findOne(task.params["subject"]!!) ?: throw NotFoundException("Subject is not found")
-        documentsController.activateUUidByDate(task.params["uuid"]!!, subject,
-                date, instant, task.user, task.params["id"]!!)
+        documentsController.activateUUidByDate(task.params["qr"]!!, subject,
+                date, instant, task.user, task.params["uuid"]!!)
     }
 
     fun delete(task: SyncTask) {
