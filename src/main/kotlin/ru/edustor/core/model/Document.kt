@@ -21,8 +21,7 @@ open class Document() {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore lateinit var owner: Account
 
-    @Id var localId: String = UUID.randomUUID().toString()
-    var uuid: String = UUID.randomUUID().toString()
+    @Id var id: String = UUID.randomUUID().toString()
 
 
     @Column(nullable = false)
@@ -39,7 +38,7 @@ open class Document() {
     var index: Int = 0
 
     val fileMD5: String?
-        get() = ps.getMD5(uuid)
+        get() = ps.getMD5(id)
 
     var removed: Boolean = false
         set(value) {
@@ -55,11 +54,11 @@ open class Document() {
         lateinit private var ps: PdfStorage
     }
 
-    constructor(qr: String?, owner: Account, timestamp: Instant, uuid: String) : this() {
+    constructor(qr: String?, owner: Account, timestamp: Instant, id: String) : this() {
         this.qr = qr
         this.owner = owner
         this.timestamp = timestamp
-        this.uuid = uuid
+        this.id = id
     }
 
     constructor(qr: String?) : this() {
@@ -73,10 +72,10 @@ open class Document() {
 
     override fun equals(other: Any?): Boolean {
         if (other !is Document) return false
-        return localId == other.localId
+        return id == other.id
     }
 
     override fun hashCode(): Int {
-        return localId.hashCode()
+        return id.hashCode()
     }
 }

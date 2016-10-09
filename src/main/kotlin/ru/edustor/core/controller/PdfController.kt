@@ -77,7 +77,7 @@ class PdfController @Autowired constructor(val pdfStorage: PdfStorage, val pdfGe
                 .filter { it.isUploaded == true }
                 .filter { it.contentType == "application/pdf" }
                 .map {
-                    pdfStorage.get(it.uuid) ?: throw NotFoundException("Cannot find ${it.uuid} document")
+                    pdfStorage.get(it.id) ?: throw NotFoundException("Cannot find ${it.id} document")
                 }
                 .filterNotNull()
                 .map {

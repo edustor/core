@@ -7,8 +7,6 @@ import java.time.Instant
 
 @Repository
 interface DocumentsRepository : JpaRepository<Document, String> {
-    fun findByLocalId(localId: String): Document?
-    fun findByUuid(uuid: String): Document?
     fun findByQr(uuid: String): Document?
     fun findByRemovedOnLessThan(removedOn: Instant): List<Document>
 

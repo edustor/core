@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage
 
 class PdfPage(
         val pageNumber: Int,
-        val uuid: String?,
+        val qrData: String?,
 
         var binary: ByteArray?,
         var preview: BufferedImage?,

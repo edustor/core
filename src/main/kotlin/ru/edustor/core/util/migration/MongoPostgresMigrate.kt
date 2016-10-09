@@ -1,4 +1,4 @@
-package ru.edustor.migration
+package ru.edustor.core.util.migration
 
 import org.slf4j.LoggerFactory
 import ru.edustor.core.model.Account
@@ -9,9 +9,9 @@ import ru.edustor.core.repository.AccountRepository
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
 import ru.edustor.core.repository.SubjectsRepository
-import ru.edustor.migration.repository.mongo.MongoLessonsRepository
-import ru.edustor.migration.repository.mongo.MongoSubjectsRepository
-import ru.edustor.migration.repository.mongo.MongoUserRepository
+import ru.edustor.core.repository.mongo.MongoLessonsRepository
+import ru.edustor.core.repository.mongo.MongoSubjectsRepository
+import ru.edustor.core.repository.mongo.MongoUserRepository
 import javax.annotation.PostConstruct
 
 //@Configuration
@@ -80,8 +80,7 @@ open class MongoPostgresMigrate(
             old.documents.forEach { oldDocument ->
                 val newDoc = Document()
 
-                newDoc.localId = oldDocument.id
-                newDoc.uuid = oldDocument.id
+                newDoc.id = oldDocument.id
                 newDoc.qr = oldDocument.uuid
                 newDoc.contentType = oldDocument.contentType
                 newDoc.isUploaded = oldDocument.isUploaded
@@ -91,7 +90,7 @@ open class MongoPostgresMigrate(
                 newDoc.uploadedTimestamp = oldDocument.uploadedTimestamp
                 newDoc.owner = accountRepository.findOne(oldDocument.owner.id)
 
-                logger.info("Migrate document: ${newDoc.localId}")
+                logger.info("Migrate document: ${newDoc.id}")
 
                 new.documents.add(newDoc)
             }

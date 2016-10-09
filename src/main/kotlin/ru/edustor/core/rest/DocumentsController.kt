@@ -46,7 +46,7 @@ class DocumentsController @Autowired constructor(
         return "Successfully uploaded"
     }
 
-    @RequestMapping("/qr/{uuid}")
+    @RequestMapping("/qr/{qr}")
     fun uuidInfo(@PathVariable qr: String, @AuthenticationPrincipal user: Account): Document? {
         val document = repo.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
         user.assertHasAccess(document, lessonsRepo)
@@ -55,14 +55,14 @@ class DocumentsController @Autowired constructor(
 
     @RequestMapping("/qr/activate")
     fun activateQr(@RequestParam qr: String,
-                     @RequestParam lesson: Lesson,
-                     @RequestParam(required = false) instant: Instant?,
-                     @AuthenticationPrincipal user: Account,
-                     @RequestParam uuid: String = UUID.randomUUID().toString()
+                   @RequestParam lesson: Lesson,
+                   @RequestParam(required = false) instant: Instant?,
+                   @AuthenticationPrincipal user: Account,
+                   @RequestParam id: String = UUID.randomUUID().toString()
     ) {
         user.assertHasAccess(lesson)
 
-        val existingDoc = repo.findByUuid(uuid)
+        val existingDoc = repo.findByQr(qr)
         if (existingDoc != null) {
             if (existingDoc.removed == true) {
                 val oldLesson = lessonsRepo.findByDocumentsContaining(existingDoc)
@@ -72,11 +72,11 @@ class DocumentsController @Autowired constructor(
                 existingDoc.owner = user
                 existingDoc.timestamp = Instant.now()
             } else {
-                throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This UUID is already activated")
+                throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This QR is already activated")
             }
         }
 
-        val document = existingDoc ?: Document(qr = qr, owner = user, timestamp = instant ?: Instant.now(), uuid = uuid)
+        val document = existingDoc ?: Document(qr = qr, owner = user, timestamp = instant ?: Instant.now(), id = id)
         lesson.documents.add(document)
         lesson.recalculateDocumentsIndexes()
         repo.save(document)
@@ -90,9 +90,9 @@ class DocumentsController @Autowired constructor(
                          @RequestParam date: LocalDate,
                          @RequestParam(required = false) instant: Instant?,
                          @AuthenticationPrincipal user: Account,
-                         @RequestParam uuid: String = UUID.randomUUID().toString()) {
+                         @RequestParam id: String = UUID.randomUUID().toString()) {
         val lesson = lessonsController.getLessonByDate(subject, date, user)
-        activateQr(qr, lesson, instant, user, uuid)
+        activateQr(qr, lesson, instant, user, id)
     }
 
     @RequestMapping("/{document}", method = arrayOf(RequestMethod.DELETE))

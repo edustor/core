@@ -1,4 +1,4 @@
-package ru.edustor.migration.model.mongo
+package ru.edustor.core.model.mongo
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.springframework.data.annotation.Id
@@ -49,7 +49,7 @@ open class MongoDocument(
 
     override fun equals(other: Any?): Boolean {
         if (other !is ru.edustor.core.model.Document) return false
-        return id == other.localId
+        return id == other.id
     }
 
     override fun hashCode(): Int {

@@ -99,9 +99,9 @@ open class LessonsController @Autowired constructor(
         fcmService.sendUserSyncNotification(user)
     }
 
-    @RequestMapping("/uuid/{uuid}")
-    fun byDocumentUUID(@AuthenticationPrincipal user: Account, @PathVariable uuid: String): Lesson {
-        val document = documentsRepository.findByUuid(uuid) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Document is not found")
+    @RequestMapping("/qr/{qr}")
+    fun byDocumentQR(@AuthenticationPrincipal user: Account, @PathVariable qr: String): Lesson {
+        val document = documentsRepository.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Document is not found")
         val lesson = lessonsRepo.findByDocumentsContaining(document) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Lesson is not found")
 
         user.assertHasAccess(lesson)

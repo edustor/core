@@ -36,7 +36,7 @@ class TelegramService {
         val user = uploadPreferences.uploader
 
         val total = uploaded.count()
-        val noUuid = uploaded.count { it.uuid == null }
+        val noUuid = uploaded.count { it.qrData == null }
         val failed = uploaded.count { it.exception != null }
 
         val text = "Processing finished. Total pages: $total. Read errors: $noUuid. Failed: $failed"

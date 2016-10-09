@@ -73,7 +73,7 @@ open class CleanupService(
     }
 
     fun deleteDocument(document: Document, updateLesson: Boolean = true) {
-        logger.info("Cleaning up document: ${document.localId}")
+        logger.info("Cleaning up document: ${document.id}")
         if (updateLesson) {
             val lesson = lessonsRepository.findByDocumentsContaining(document)
 
@@ -83,7 +83,7 @@ open class CleanupService(
             }
         }
         document.isUploaded.let {
-            pdfStorage.delete(document.localId)
+            pdfStorage.delete(document.id)
         }
         documentsRepository.delete(document)
     }
