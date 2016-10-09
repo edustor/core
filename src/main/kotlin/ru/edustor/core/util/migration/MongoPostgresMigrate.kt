@@ -76,7 +76,9 @@ open class MongoPostgresMigrate(
             new.topic = old.topic
 
             new.subject = subjectsRepository.findOne(old.subject!!.id)
-            new.documents.clear()
+
+            lessonsRepository.save(new)
+
             old.documents.forEach { oldDocument ->
                 val newDoc = Document()
 
@@ -98,9 +100,7 @@ open class MongoPostgresMigrate(
             new.recalculateDocumentsIndexes()
 
             logger.info("Migrate lesson: ${new.id}")
-
             documentsRepository.save(new.documents)
-            lessonsRepository.save(new)
         }
     }
 }

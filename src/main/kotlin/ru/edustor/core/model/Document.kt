@@ -27,6 +27,10 @@ open class Document() {
     @Column(nullable = false)
     var isUploaded: Boolean = false
 
+    @ManyToOne
+    @JsonIgnore
+    var lesson: Lesson? = null
+
 
     @Column(nullable = false)
     var timestamp: Instant = Instant.now()

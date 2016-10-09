@@ -20,7 +20,7 @@ open class Lesson() : Comparable<Lesson> {
 
     var topic: String? = null
 
-    @OneToMany
+    @OneToMany(mappedBy = "lesson")
     @OrderBy("index ASC")
     var documents: MutableList<Document> = mutableListOf()
 
@@ -48,9 +48,10 @@ open class Lesson() : Comparable<Lesson> {
     }
 
     fun recalculateDocumentsIndexes() {
-        val lastIndex = documents.lastIndex
-        for (i in 0..lastIndex) {
-            documents[i].index = i
+        var i = 0
+        documents.forEach {
+            it.index = i++
+            it.lesson = this
         }
     }
 }
