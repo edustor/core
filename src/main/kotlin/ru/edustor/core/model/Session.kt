@@ -9,7 +9,7 @@ import javax.persistence.*
 
 @Entity
 class Session() {
-    @OneToOne(cascade = arrayOf(CascadeType.ALL), optional = false)
+    @ManyToOne(cascade = arrayOf(CascadeType.ALL), optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     lateinit var user: Account
 

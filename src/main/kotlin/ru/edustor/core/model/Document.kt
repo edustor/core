@@ -14,7 +14,7 @@ import javax.persistence.*
 @Entity
 open class Document() {
 
-    @OneToOne(cascade = arrayOf(CascadeType.ALL), optional = false)
+    @ManyToOne(cascade = arrayOf(CascadeType.ALL), optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore lateinit var owner: Account
 

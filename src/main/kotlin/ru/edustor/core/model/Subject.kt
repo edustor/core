@@ -13,7 +13,7 @@ class Subject() : Comparable<Subject> {
     @Column(nullable = false)
     lateinit var name: String
 
-    @OneToOne(cascade = arrayOf(CascadeType.ALL), optional = false)
+    @ManyToOne(cascade = arrayOf(CascadeType.ALL), optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore lateinit var owner: Account
 
