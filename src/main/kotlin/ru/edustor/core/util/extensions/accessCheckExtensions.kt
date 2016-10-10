@@ -13,7 +13,7 @@ fun Account.hasAccess(subject: Subject): Boolean {
 }
 
 fun Account.hasAccess(lesson: Lesson): Boolean {
-    return this.hasAccess(lesson.subject!!)
+    return this.hasAccess(lesson.subject)
 }
 
 fun Account.hasAccess(document: Document, lessonsRepository: LessonsRepository): Boolean {

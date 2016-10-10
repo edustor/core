@@ -47,7 +47,7 @@ class DocumentsController @Autowired constructor(
     }
 
     @RequestMapping("/qr/{qr}")
-    fun uuidInfo(@PathVariable qr: String, @AuthenticationPrincipal user: Account): Document? {
+    fun documentByQr(@PathVariable qr: String, @AuthenticationPrincipal user: Account): Document? {
         val document = repo.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
         user.assertHasAccess(document, lessonsRepo)
         return document

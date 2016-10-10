@@ -1,16 +1,20 @@
 package ru.edustor.core.rest
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
+import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
+import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Subject
+import ru.edustor.core.repository.LessonsRepository
 import ru.edustor.core.repository.SubjectsRepository
 import ru.edustor.core.util.extensions.assertHasAccess
 
 @RestController
 @RequestMapping("/api/subjects")
-class SubjectsController @Autowired constructor(val subjectsRepository: SubjectsRepository) {
+class SubjectsController @Autowired constructor(val subjectsRepository: SubjectsRepository, val lessonsRepo: LessonsRepository) {
 
     @RequestMapping("/list")
     fun listSubjects(@AuthenticationPrincipal user: Account): List<Subject> {
@@ -25,6 +29,12 @@ class SubjectsController @Autowired constructor(val subjectsRepository: Subjects
         subjectsRepository.save(subject)
 
         return subject
+    }
+
+    @RequestMapping("/{subject}/lessons")
+    fun subjectLessons(@PathVariable subject: Subject?): List<Lesson> {
+        subject ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
+        return lessonsRepo.findBySubject(subject).filter { it.documents.isNotEmpty() && !it.removed }.sortedDescending()
     }
 
     @RequestMapping("/{subject}", method = arrayOf(RequestMethod.DELETE))
