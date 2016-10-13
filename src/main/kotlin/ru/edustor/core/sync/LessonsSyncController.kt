@@ -24,6 +24,7 @@ open class LessonsSyncController @Autowired constructor(
 ) {
     fun processTask(task: SyncTask): Any {
         return when (task.method) {
+            "create" -> create(task)
             "date" -> getByDate(task)
             "date/topic/put" -> setTopicByDate(task)
             "date/documents/reorder" -> reorderDocumentsByDate(task)
@@ -31,6 +32,16 @@ open class LessonsSyncController @Autowired constructor(
             "restore" -> restore(task)
             else -> throw NoSuchMethodException("LessonsSyncController cannot resolve ${task.method}")
         }
+    }
+
+    fun create(task: SyncTask) {
+        val id = task.params["id"]
+        val epochDay = task.params["date"]!!.toLong()
+        val subjectId = task.params["subject"]!!
+
+        val subject = subjectRepo.findOne(subjectId)
+
+        lessonsController.create(id!!, subject, LocalDate.ofEpochDay(epochDay))
     }
 
     fun getByDate(task: SyncTask): Lesson {

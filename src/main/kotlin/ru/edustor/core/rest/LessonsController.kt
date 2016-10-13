@@ -23,6 +23,13 @@ open class LessonsController @Autowired constructor(
         val documentsRepository: DocumentsRepository
 ) {
 
+    @RequestMapping("/{lessonId}", method = arrayOf(RequestMethod.POST))
+    fun create(lessonId: String, subject: Subject, date: LocalDate) {
+        val lesson = Lesson(subject, date)
+        lesson.id = lessonId
+        lessonsRepo.save(lesson)
+    }
+
     @RequestMapping("/{lesson}")
     fun getLesson(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: Account): Lesson {
         user.assertHasAccess(lesson)
