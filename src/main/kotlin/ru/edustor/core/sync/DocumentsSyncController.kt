@@ -6,14 +6,11 @@ import ru.edustor.core.exceptions.NotFoundException
 import ru.edustor.core.model.internal.sync.SyncTask
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
-import ru.edustor.core.repository.SubjectsRepository
 import ru.edustor.core.rest.DocumentsController
 import java.time.Instant
-import java.time.LocalDate
 
 @Component
 open class DocumentsSyncController @Autowired constructor(
-        val subjectsRepository: SubjectsRepository,
         val lessonsRepository: LessonsRepository,
         val documentsController: DocumentsController,
         val documentsRepository: DocumentsRepository
@@ -21,7 +18,6 @@ open class DocumentsSyncController @Autowired constructor(
     fun processTask(task: SyncTask): Any {
         return when (task.method) {
             "qr/activate" -> activateQR(task)
-            "qr/activate/date" -> activateQRByDate(task)
             "delete" -> delete(task)
             "restore" -> restore(task)
             else -> throw NoSuchMethodException("DocumentsSyncController cannot resolve ${task.method}")
@@ -33,14 +29,6 @@ open class DocumentsSyncController @Autowired constructor(
         val lesson = lessonsRepository.findOne(task.params["lesson"]!!)
         documentsController.activateQr(task.params["qr"]!!, lesson,
                 instant, task.user, task.params["id"]!!)
-    }
-
-    fun activateQRByDate(task: SyncTask) {
-        val instant = Instant.ofEpochSecond(task.params["instant"]!!.toLong())
-        val date = LocalDate.ofEpochDay(task.params["date"]!!.toLong())
-        val subject = subjectsRepository.findOne(task.params["subject"]!!) ?: throw NotFoundException("Subject is not found")
-        documentsController.activateQrByDate(task.params["qr"]!!, subject,
-                date, instant, task.user, task.params["id"]!!)
     }
 
     fun delete(task: SyncTask) {
