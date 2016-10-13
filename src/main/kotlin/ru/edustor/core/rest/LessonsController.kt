@@ -95,14 +95,6 @@ open class LessonsController @Autowired constructor(
         lessonsRepo.save(lesson)
     }
 
-    @RequestMapping("/date/{date}/{subject}/topic", method = arrayOf(RequestMethod.PUT))
-    fun setTopicByDate(@PathVariable subject: Subject, @PathVariable date: LocalDate, @RequestParam(required = false) topic: String?, @AuthenticationPrincipal user: Account) {
-        val lesson = getLessonByDate(subject, date, user)
-        user.assertHasAccess(lesson)
-        lesson.topic = topic
-        lessonsRepo.save(lesson)
-    }
-
     @RequestMapping("/qr/{qr}")
     fun byDocumentQR(@AuthenticationPrincipal user: Account, @PathVariable qr: String): Lesson {
         val document = documentsRepository.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Document is not found")
@@ -138,13 +130,5 @@ open class LessonsController @Autowired constructor(
                     return@retry i <= 3
                 }
                 .toBlocking().subscribe()
-    }
-
-    @RequestMapping("date/{date}/{subject}/documents/reorder")
-    fun reorderDocumentsByDate(@AuthenticationPrincipal user: Account, @PathVariable subject: Subject, @PathVariable date: LocalDate,
-                               @RequestParam document: Document, @RequestParam(required = false) after: Document?) {
-        val lesson = getLessonByDate(subject, date, user)
-        reorderDocuments(user, lesson, document, after)
-
     }
 }
