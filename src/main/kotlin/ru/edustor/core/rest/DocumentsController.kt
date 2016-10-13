@@ -23,7 +23,6 @@ import java.util.*
 @RestController
 @RequestMapping("/api/documents")
 class DocumentsController @Autowired constructor(
-        val repo: DocumentsRepository,
         val lessonsRepo: LessonsRepository,
         val documentsRepository: DocumentsRepository,
         val PdfUploadService: PdfUploadService,
@@ -48,7 +47,7 @@ class DocumentsController @Autowired constructor(
 
     @RequestMapping("/qr/{qr}")
     fun documentByQr(@PathVariable qr: String, @AuthenticationPrincipal user: Account): Document? {
-        val document = repo.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
+        val document = documentsRepository.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
         user.assertHasAccess(document, lessonsRepo)
         return document
     }
@@ -62,24 +61,20 @@ class DocumentsController @Autowired constructor(
     ) {
         user.assertHasAccess(lesson)
 
-        val existingDoc = repo.findByQr(qr)
+        val existingDoc = documentsRepository.findByQr(qr)
         if (existingDoc != null) {
             if (existingDoc.removed == true) {
-                val oldLesson = lessonsRepo.findByDocumentsContaining(existingDoc)
-                oldLesson?.documents?.remove(existingDoc)
-                lessonsRepo.save(oldLesson)
-
-                existingDoc.owner = user
-                existingDoc.timestamp = Instant.now()
+                documentsRepository.delete(existingDoc)
+                return
             } else {
                 throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This QR is already activated")
             }
         }
 
-        val document = existingDoc ?: Document(qr = qr, owner = user, timestamp = instant ?: Instant.now(), id = id)
+        val document = Document(qr = qr, owner = user, timestamp = instant ?: Instant.now(), id = id)
         lesson.documents.add(document)
         lesson.recalculateDocumentsIndexes()
-        repo.save(document)
+        documentsRepository.save(document)
 
         lessonsRepo.save(lesson)
     }
