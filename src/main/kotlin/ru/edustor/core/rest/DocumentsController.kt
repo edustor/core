@@ -65,7 +65,6 @@ class DocumentsController @Autowired constructor(
         if (existingDoc != null) {
             if (existingDoc.removed == true) {
                 documentsRepository.delete(existingDoc)
-                return
             } else {
                 throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This QR is already activated")
             }
