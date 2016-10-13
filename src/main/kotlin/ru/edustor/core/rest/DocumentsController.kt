@@ -9,7 +9,6 @@ import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.Document
 import ru.edustor.core.model.Lesson
-import ru.edustor.core.model.Subject
 import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
@@ -17,7 +16,6 @@ import ru.edustor.core.service.PdfUploadService
 import ru.edustor.core.util.extensions.assertHasAccess
 import ru.edustor.core.util.extensions.assertIsOwner
 import java.time.Instant
-import java.time.LocalDate
 import java.util.*
 
 @RestController
@@ -25,8 +23,7 @@ import java.util.*
 class DocumentsController @Autowired constructor(
         val lessonsRepo: LessonsRepository,
         val documentsRepository: DocumentsRepository,
-        val PdfUploadService: PdfUploadService,
-        val lessonsController: LessonsController
+        val PdfUploadService: PdfUploadService
 ) {
     @RequestMapping("upload", method = arrayOf(RequestMethod.POST))
     fun upload(@RequestParam("file") file: MultipartFile,
@@ -76,17 +73,6 @@ class DocumentsController @Autowired constructor(
         documentsRepository.save(document)
 
         lessonsRepo.save(lesson)
-    }
-
-    @RequestMapping("/qr/activate/date")
-    fun activateQrByDate(@RequestParam qr: String,
-                         @RequestParam subject: Subject,
-                         @RequestParam date: LocalDate,
-                         @RequestParam(required = false) instant: Instant?,
-                         @AuthenticationPrincipal user: Account,
-                         @RequestParam id: String = UUID.randomUUID().toString()) {
-        val lesson = lessonsController.getLessonByDate(subject, date, user)
-        activateQr(qr, lesson, instant, user, id)
     }
 
     @RequestMapping("/{document}", method = arrayOf(RequestMethod.DELETE))

@@ -14,7 +14,7 @@ open class Account() {
     @Id var id: String = UUID.randomUUID().toString()
 
     @ElementCollection(targetClass = String::class, fetch = FetchType.EAGER)
-    val fcmTokens: MutableList<String> = mutableListOf()
+    val fcmTokens: MutableSet<String> = mutableSetOf()
 
     constructor(email: String) : this() {
         this.email = email

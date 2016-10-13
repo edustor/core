@@ -20,7 +20,9 @@ class AccountController @Autowired constructor(val accountRepository: AccountRep
 
     @RequestMapping("/FCMToken", method = arrayOf(RequestMethod.PUT))
     fun setFCMToken(@RequestParam token: String?, @AuthenticationPrincipal account: Account) {
-        if (token != null && token !in account.fcmTokens) {
+        if (token != null) {
+//            TODO: Somehow hibernate duplicates tokens. It is not connected with Edustor code, I'm sure.
+//            Temporary solution is to use Set
             account.fcmTokens.add(token)
             accountRepository.save(account)
         }

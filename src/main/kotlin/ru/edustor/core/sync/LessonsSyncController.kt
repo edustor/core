@@ -6,8 +6,6 @@ import org.springframework.stereotype.Component
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.exceptions.NotFoundException
 import ru.edustor.core.model.Document
-import ru.edustor.core.model.Lesson
-import ru.edustor.core.model.Subject
 import ru.edustor.core.model.internal.sync.SyncTask
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
@@ -24,33 +22,36 @@ open class LessonsSyncController @Autowired constructor(
 ) {
     fun processTask(task: SyncTask): Any {
         return when (task.method) {
-            "date" -> getByDate(task)
-            "date/topic/put" -> setTopicByDate(task)
-            "date/documents/reorder" -> reorderDocumentsByDate(task)
+            "create" -> create(task)
+            "topic/put" -> setTopic(task)
+            "documents/reorder" -> reorderDocuments(task)
             "delete" -> delete(task)
             "restore" -> restore(task)
             else -> throw NoSuchMethodException("LessonsSyncController cannot resolve ${task.method}")
         }
     }
 
-    fun getByDate(task: SyncTask): Lesson {
-        val lesson = lessonsController.getLessonByDate(getSubject(task), parseDate(task), task.user)
-        return lesson
+    fun create(task: SyncTask) {
+        val id = task.params["id"]
+        val epochDay = task.params["date"]!!.toLong()
+        val subjectId = task.params["subject"]!!
+
+        val subject = subjectRepo.findOne(subjectId)
+
+        lessonsController.create(id!!, subject, LocalDate.ofEpochDay(epochDay))
     }
 
-    fun setTopicByDate(task: SyncTask) {
-        lessonsController.setTopicByDate(getSubject(task), parseDate(task), task.params["topic"], task.user)
+    fun setTopic(task: SyncTask) {
+        val lesson = lessonsRepository.findOne(task.params["lesson"]!!)
+        lessonsController.setTopic(lesson, task.params["topic"], task.user)
     }
 
-    fun reorderDocumentsByDate(task: SyncTask) {
-        val document = getDocument(task)
+    fun reorderDocuments(task: SyncTask) {
+        val lesson = lessonsRepository.findOne(task.params["lesson"]!!)
+        val document = getDocument(task, required = true)!!
         val after = getDocument(task, "after", false)
 
-        return lessonsController.reorderDocumentsByDate(task.user, getSubject(task), parseDate(task), document!!, after)
-    }
-
-    private fun getSubject(task: SyncTask): Subject {
-        return subjectRepo.findOne(task.params["subject"]!!) ?: throw NotFoundException("Subject is not found")
+        return lessonsController.reorderDocuments(task.user, lesson, document, after)
     }
 
     private fun getDocument(task: SyncTask, field: String = "document", required: Boolean = true): Document? {
@@ -59,10 +60,6 @@ open class LessonsSyncController @Autowired constructor(
 
         return documentsRepository.findOne(key) ?: throw NotFoundException("Document ($field) is not found")
 
-    }
-
-    private fun parseDate(task: SyncTask): LocalDate {
-        return LocalDate.ofEpochDay(task.params["date"]!!.toLong())
     }
 
     fun delete(task: SyncTask) {
