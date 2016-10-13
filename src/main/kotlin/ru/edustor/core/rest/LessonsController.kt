@@ -12,7 +12,6 @@ import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Subject
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
-import ru.edustor.core.service.FCMService
 import ru.edustor.core.util.extensions.assertHasAccess
 import rx.Observable
 import java.time.LocalDate
@@ -21,15 +20,8 @@ import java.time.LocalDate
 @RequestMapping("/api/lessons")
 open class LessonsController @Autowired constructor(
         val lessonsRepo: LessonsRepository,
-        val documentsRepository: DocumentsRepository,
-        val fcmService: FCMService
+        val documentsRepository: DocumentsRepository
 ) {
-
-    @RequestMapping("/subject/{subject}")
-    fun subjectLessons(@PathVariable subject: Subject?): List<Lesson> {
-        subject ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        return lessonsRepo.findBySubject(subject).filter { it.documents.isNotEmpty() && !it.removed }.sortedDescending()
-    }
 
     @RequestMapping("/{lesson}")
     fun getLesson(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: Account): Lesson {
@@ -50,6 +42,12 @@ open class LessonsController @Autowired constructor(
         user.assertHasAccess(lesson)
         lesson.removed = true
         lessonsRepo.save(lesson)
+    }
+
+    @RequestMapping("/{lesson}/documents")
+    fun lessonDocuments(@AuthenticationPrincipal user: Account, @PathVariable lesson: Lesson): MutableList<Document> {
+        user.assertHasAccess(lesson)
+        return lesson.documents
     }
 
     @RequestMapping("/{lesson}/restore")
