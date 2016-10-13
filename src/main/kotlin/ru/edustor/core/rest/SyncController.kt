@@ -68,11 +68,11 @@ class SyncController @Autowired constructor(
         val (group, method) = task.method.split(delimiterRegex, 2)
         val localTask = SyncTask(method, task.params, task.user)
 
-        when (group) {
-            "lessons" -> return lessonsSyncController.processTask(localTask)
-            "documents" -> return documentsSyncController.processTask(localTask)
-            "subjects" -> return subjectsSyncController.processTask(localTask)
-            "account" -> return accountSyncController.processTask(localTask)
+        return when (group) {
+            "lessons" -> lessonsSyncController.processTask(localTask)
+            "documents" -> documentsSyncController.processTask(localTask)
+            "subjects" -> subjectsSyncController.processTask(localTask)
+            "account" -> accountSyncController.processTask(localTask)
             else -> throw NoSuchMethodException("SyncController cannot resolve $group")
         }
     }
