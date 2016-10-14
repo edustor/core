@@ -107,34 +107,28 @@ class PdfUploadService @Autowired constructor(
 
     private fun savePage(page: PdfPage, uploadPreferences: PdfUploadPreferences) {
 
-        var document: Document? = null
-
-        if (uploadPreferences.lesson != null) {
-            document = Document(qr = page.qrData)
-        } else if (page.qrData != null) {
-            document = documentRepo.findByQr(page.qrData)
-        } else {
-            logger.warn("Page ${page.pageNumber}: No qr found")
-        }
-
-        document?.let {
-            pdfStorage.put(it.id, page.binary!!.inputStream())
-
-            it.isUploaded = true
-            it.uploadedTimestamp = Instant.now()
-            it.contentType = "application/pdf"
-            it.owner = uploadPreferences.uploader
-            documentRepo.save(it)
-            uploadPreferences.lesson?.let {
-                uploadPreferences.lesson?.documents?.add(document!!)
-                lessonsRepository.save(it)
+        val document: Document = page.qrData?.let { documentRepo.findByQr(page.qrData) } ?: let {
+            val doc = Document(qr = page.qrData)
+            uploadPreferences.lesson ?: let {
+                logger.warn("Not found page ${page.pageNumber} in database: ${page.qrData} and explicit " +
+                        "lesson was not provided")
+                return
             }
-
-            page.lesson = lessonsRepository.findByDocumentsContaining(it)
-
-            return
+            doc
         }
 
-        logger.warn("Not found page ${page.pageNumber} in database: ${page.qrData}")
+        uploadPreferences.lesson?.let {
+            document.lesson = uploadPreferences.lesson!!
+        }
+
+        pdfStorage.put(document.id, page.binary!!.inputStream())
+
+        document.isUploaded = true
+        document.uploadedTimestamp = Instant.now()
+        document.contentType = "application/pdf"
+        document.owner = uploadPreferences.uploader
+        documentRepo.save(document)
+
+        page.lesson = document.lesson
     }
 }
