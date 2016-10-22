@@ -10,8 +10,8 @@ import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
 import ru.edustor.core.pdf.storage.PdfStorage
 import ru.edustor.core.pdf.upload.PdfPage
 import ru.edustor.core.pdf.upload.PdfProcessor
+import ru.edustor.core.repository.AccountRepository
 import ru.edustor.core.repository.DocumentsRepository
-import ru.edustor.core.repository.LessonsRepository
 import rx.Observable
 import rx.schedulers.Schedulers
 import java.io.InputStream
@@ -23,7 +23,7 @@ import com.itextpdf.text.Document as PdfDocument
 class PdfUploadService @Autowired constructor(
         private val pdfStorage: PdfStorage,
         private val documentRepo: DocumentsRepository,
-        private val lessonsRepository: LessonsRepository,
+        private val accountRepository: AccountRepository,
         private val telegramService: TelegramService,
         private val fcmService: FCMService
 ) {
@@ -46,6 +46,16 @@ class PdfUploadService @Autowired constructor(
 
         val uploader = uploadPreferences.uploader
         telegramService.sendText(uploader, "Processing $pageCount pages")
+
+        if (uploadPreferences.lesson == null) {
+            val pendingUpload = uploader.pendingUpload
+            if (pendingUpload != null && pendingUpload.validUntil > Instant.now()) {
+                telegramService.sendText(uploader, "Found pending upload request. Using ${pendingUpload.lesson.id} as target lesson")
+                uploadPreferences.lesson = pendingUpload.lesson
+                uploader.pendingUpload = null
+                accountRepository.save(uploader)
+            }
+        }
 
         Observable.range(1, pageCount)
                 .observeOn(Schedulers.computation())
@@ -118,7 +128,7 @@ class PdfUploadService @Autowired constructor(
         }
 
         uploadPreferences.lesson?.let {
-            document.lesson = uploadPreferences.lesson!!
+            document.lesson = it
         }
 
         pdfStorage.put(document.id, page.binary!!.inputStream())
