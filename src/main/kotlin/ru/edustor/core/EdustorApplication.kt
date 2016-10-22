@@ -19,7 +19,7 @@ import javax.servlet.Filter
 open class EdustorApplication : WebMvcConfigurerAdapter() {
 
     companion object {
-        val VERSION: String = "0.5.0pre2a"
+        val VERSION: String = "0.5.0pre2b"
     }
 
     @org.springframework.beans.factory.annotation.Autowired lateinit var fcmInterceptor: FCMInterceptor
