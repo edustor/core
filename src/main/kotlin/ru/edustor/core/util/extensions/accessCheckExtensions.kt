@@ -4,16 +4,16 @@ import org.springframework.http.HttpStatus
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.Document
+import ru.edustor.core.model.Folder
 import ru.edustor.core.model.Lesson
-import ru.edustor.core.model.Subject
 import ru.edustor.core.repository.LessonsRepository
 
-fun Account.hasAccess(subject: Subject): Boolean {
-    return subject.owner == this
+fun Account.hasAccess(folder: Folder): Boolean {
+    return folder.owner == this
 }
 
 fun Account.hasAccess(lesson: Lesson): Boolean {
-    return this.hasAccess(lesson.subject)
+    return this.hasAccess(lesson.folder)
 }
 
 fun Account.hasAccess(document: Document, lessonsRepository: LessonsRepository): Boolean {
@@ -21,8 +21,8 @@ fun Account.hasAccess(document: Document, lessonsRepository: LessonsRepository):
     return this.hasAccess(lesson)
 }
 
-fun Account.assertHasAccess(subject: Subject) {
-    if (!this.hasAccess(subject)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "Subject access forbidden")
+fun Account.assertHasAccess(folder: Folder) {
+    if (!this.hasAccess(folder)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "Subject access forbidden")
 }
 
 fun Account.assertHasAccess(lesson: Lesson) {

@@ -13,7 +13,7 @@ import javax.persistence.*
 open class Lesson() : Comparable<Lesson> {
     @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    lateinit var subject: Subject
+    lateinit var folder: Folder
 
     @Column(nullable = false)
     lateinit var date: LocalDate
@@ -38,8 +38,8 @@ open class Lesson() : Comparable<Lesson> {
             }
         }
 
-    constructor(subject: Subject, date: LocalDate) : this() {
-        this.subject = subject
+    constructor(folder: Folder, date: LocalDate) : this() {
+        this.folder = folder
         this.date = date
     }
 

@@ -78,7 +78,7 @@ class PdfUploadService @Autowired constructor(
 
                     if (page.exception == null) {
                         val shortUUID = page.qrData?.split("-")?.last()
-                        val lessonInfo = page.lesson?.let { "${it.subject.name}. ${it.topic ?: "No topic"}. ${it.date.format(DateTimeFormatter.ISO_LOCAL_DATE)}" } ?: "Not registered"
+                        val lessonInfo = page.lesson?.let { "${it.folder.name}. ${it.topic ?: "No topic"}. ${it.date.format(DateTimeFormatter.ISO_LOCAL_DATE)}" } ?: "Not registered"
                         var resultString = "[OK] Page $pageNumber. UUID $shortUUID: $lessonInfo"
 
 

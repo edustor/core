@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.*
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.Document
+import ru.edustor.core.model.Folder
 import ru.edustor.core.model.Lesson
-import ru.edustor.core.model.Subject
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
 import ru.edustor.core.util.extensions.assertHasAccess
@@ -24,8 +24,8 @@ open class LessonsController @Autowired constructor(
 ) {
 
     @RequestMapping("/{lessonId}", method = arrayOf(RequestMethod.POST))
-    fun create(lessonId: String, subject: Subject, date: LocalDate) {
-        val lesson = Lesson(subject, date)
+    fun create(lessonId: String, folder: Folder, date: LocalDate) {
+        val lesson = Lesson(folder, date)
         lesson.id = lessonId
         lessonsRepo.save(lesson)
     }
@@ -65,11 +65,11 @@ open class LessonsController @Autowired constructor(
     }
 
     @RequestMapping("/date/{date}/{subject}")
-    fun getLessonByDate(@PathVariable subject: Subject,
+    fun getLessonByDate(@PathVariable folder: Folder,
                         @PathVariable date: LocalDate,
                         @AuthenticationPrincipal user: Account
     ): Lesson {
-        var lesson = lessonsRepo.findLessonBySubjectAndDate(subject, date)
+        var lesson = lessonsRepo.findLessonByFolderAndDate(folder, date)
 
         if (lesson != null) {
             user.assertHasAccess(lesson)
@@ -80,8 +80,8 @@ open class LessonsController @Autowired constructor(
         }
 
         if (lesson == null) {
-            user.assertHasAccess(subject)
-            lesson = Lesson(subject, date)
+            user.assertHasAccess(folder)
+            lesson = Lesson(folder, date)
             lessonsRepo.save(lesson)
         }
 

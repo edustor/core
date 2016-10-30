@@ -11,7 +11,7 @@ import javax.persistence.Id
 import javax.persistence.ManyToOne
 
 @Entity
-class Subject() : Comparable<Subject> {
+class Folder() : Comparable<Folder> {
 
     @Column(nullable = false)
     lateinit var name: String
@@ -40,12 +40,12 @@ class Subject() : Comparable<Subject> {
     }
 
 
-    override fun compareTo(other: Subject): Int {
+    override fun compareTo(other: Folder): Int {
         return name.compareTo(other.name)
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is Subject) return false
+        if (other !is Folder) return false
         return this.id.equals(other.id)
     }
 

@@ -7,8 +7,8 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import ru.edustor.core.model.Document
+import ru.edustor.core.model.Folder
 import ru.edustor.core.model.Lesson
-import ru.edustor.core.model.Subject
 import ru.edustor.core.pdf.storage.PdfStorage
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
@@ -55,9 +55,9 @@ open class CleanupService(
         logger.info("Removed entities cleanup finished")
     }
 
-    fun deleteSubject(subject: Subject) {
-        logger.info("Cleaning up subject: ${subject.id}")
-        subjectsRepository.delete(subject)
+    fun deleteSubject(folder: Folder) {
+        logger.info("Cleaning up subject: ${folder.id}")
+        subjectsRepository.delete(folder)
     }
 
     fun deleteLesson(lesson: Lesson) {

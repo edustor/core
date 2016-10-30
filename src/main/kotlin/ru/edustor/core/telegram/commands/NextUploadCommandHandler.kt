@@ -41,6 +41,6 @@ open class NextUploadCommandHandler(telegramEventsRouter: TelegramEventsRouter,
         user.pendingUpload = Account.PendingUploadRequest(lesson, Instant.now().plus(10, ChronoUnit.MINUTES))
         userRepository.save(user)
 
-        return msg.replyText("Done. First uploaded file within next 10 minutes will be saved to ${lesson.subject.name} ${lesson.date}")
+        return msg.replyText("Done. First uploaded file within next 10 minutes will be saved to ${lesson.folder.name} ${lesson.date}")
     }
 }
