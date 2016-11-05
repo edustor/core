@@ -15,6 +15,7 @@ import ru.edustor.core.repository.LessonsRepository
 import ru.edustor.core.service.PdfUploadService
 import ru.edustor.core.util.extensions.assertHasAccess
 import ru.edustor.core.util.extensions.assertIsOwner
+import ru.edustor.core.util.extensions.recalculateIndexes
 import java.time.Instant
 import java.util.*
 
@@ -68,8 +69,7 @@ class DocumentsController @Autowired constructor(
         }
 
         val document = Document(qr = qr, owner = user, timestamp = instant ?: Instant.now(), id = id)
-        lesson.documents.add(document)
-        lesson.recalculateDocumentsIndexes()
+        lesson.documents.toMutableList().let { it.add(document); it }.recalculateIndexes(lesson)
         documentsRepository.save(document)
 
         lessonsRepo.save(lesson)

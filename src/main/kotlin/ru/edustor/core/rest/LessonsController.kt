@@ -13,6 +13,7 @@ import ru.edustor.core.model.Lesson
 import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
 import ru.edustor.core.util.extensions.assertHasAccess
+import ru.edustor.core.util.extensions.recalculateIndexes
 import rx.Observable
 import java.time.LocalDate
 
@@ -33,7 +34,7 @@ open class LessonsController @Autowired constructor(
     @RequestMapping("/{lesson}")
     fun getLesson(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: Account): Lesson {
         user.assertHasAccess(lesson)
-        lesson.documents = lesson.documents.filter { !it.removed }.toMutableList()
+        lesson.documents = lesson.documents.filter { !it.removed }
         return lesson
     }
 
@@ -52,7 +53,7 @@ open class LessonsController @Autowired constructor(
     }
 
     @RequestMapping("/{lesson}/documents")
-    fun lessonDocuments(@AuthenticationPrincipal user: Account, @PathVariable lesson: Lesson): MutableList<Document> {
+    fun lessonDocuments(@AuthenticationPrincipal user: Account, @PathVariable lesson: Lesson): List<Document> {
         user.assertHasAccess(lesson)
         return lesson.documents
     }
@@ -90,15 +91,16 @@ open class LessonsController @Autowired constructor(
                     val documentsCheckList = mutableListOf(document)
                     after?.let { documentsCheckList.add(after) }
 
+                    val documentsList = lesson.documents.toMutableList()
+
                     if (!lesson.documents.containsAll(documentsCheckList)) throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Specified lesson must contain both documents")
-                    lesson.documents.remove(document)
+                    documentsList.remove(document)
 
                     val targetIndex = if (after != null) lesson.documents.indexOf(after) + 1 else 0
-                    lesson.documents.add(targetIndex, document)
+                    documentsList.add(targetIndex, document)
 
-                    lesson.recalculateDocumentsIndexes()
-                    documentsRepository.save(lesson.documents)
-                    lessonsRepo.save(lesson)
+                    documentsList.recalculateIndexes(lesson)
+                    documentsRepository.save(documentsList)
                 }
                 // Optimistic locking
                 .retry { i, throwable ->

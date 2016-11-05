@@ -22,7 +22,7 @@ open class Lesson() : Comparable<Lesson> {
 
     @OneToMany(mappedBy = "lesson", cascade = arrayOf(CascadeType.REMOVE))
     @OrderBy("index ASC")
-    var documents: MutableList<Document> = mutableListOf()
+    var documents: List<Document> = listOf()
 
     @Id var id: String = UUID.randomUUID().toString()
 
@@ -45,13 +45,5 @@ open class Lesson() : Comparable<Lesson> {
 
     override fun compareTo(other: Lesson): Int {
         return date.compareTo(other.date)
-    }
-
-    fun recalculateDocumentsIndexes() {
-        var i = 0
-        documents.forEach {
-            it.index = i++
-            it.lesson = this
-        }
     }
 }
