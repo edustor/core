@@ -12,6 +12,7 @@ import javax.persistence.*
 open class Lesson() : Comparable<Lesson> {
     @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
     lateinit var folder: Folder
 
     @Column(nullable = false)

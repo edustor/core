@@ -24,6 +24,9 @@ open class Folder() : Comparable<Folder> {
     @OneToMany(mappedBy = "parent", cascade = arrayOf(CascadeType.REMOVE))
     var childFolders: MutableList<Folder> = mutableListOf()
 
+    @OneToMany(mappedBy = "folder", cascade = arrayOf(CascadeType.REMOVE))
+    var lessons: MutableList<Lesson> = mutableListOf()
+
     @Id var id: String = UUID.randomUUID().toString()
 
     @JsonIgnore var removedOn: Instant? = null

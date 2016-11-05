@@ -39,8 +39,7 @@ class SyncController @Autowired constructor(
         val lessons = lessonRepo.findByFolderIn(folders).map { it.pages = it.pages.filter { !it.removed }.toMutableList(); it }
         return mapOf(
                 "user" to user,
-                "folders" to folders,
-                "lessons" to lessons
+                "folders" to folders
         )
     }
 
