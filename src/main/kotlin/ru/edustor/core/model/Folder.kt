@@ -5,10 +5,7 @@ import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import java.time.Instant
 import java.util.*
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.ManyToOne
+import javax.persistence.*
 
 @Entity
 class Folder() : Comparable<Folder> {
@@ -19,6 +16,13 @@ class Folder() : Comparable<Folder> {
     @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore lateinit var owner: Account
+
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ManyToOne
+    lateinit var parent: Folder
+
+    @OneToMany(mappedBy = "parent", cascade = arrayOf(CascadeType.REMOVE))
+    var childFolders: List<Folder> = listOf()
 
     @Id var id: String = UUID.randomUUID().toString()
 
