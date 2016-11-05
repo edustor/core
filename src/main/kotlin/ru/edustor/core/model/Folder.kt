@@ -51,10 +51,20 @@ class Folder() : Comparable<Folder> {
 
     override fun equals(other: Any?): Boolean {
         if (other !is Folder) return false
-        return this.id.equals(other.id)
+        return this.id == other.id
     }
 
     override fun hashCode(): Int {
         return id.hashCode()
+    }
+
+    override fun toString(): String {
+        val breadcrumbs = mutableListOf(this)
+
+        while (breadcrumbs.last().parent != null) {
+            breadcrumbs.add(breadcrumbs.last().parent!!)
+        }
+
+        return breadcrumbs.reversed().joinToString("/", "/")
     }
 }
