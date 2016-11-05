@@ -5,12 +5,12 @@ import org.springframework.stereotype.Component
 import ru.edustor.core.exceptions.NotFoundException
 import ru.edustor.core.model.internal.sync.SyncTask
 import ru.edustor.core.repository.FoldersRepository
-import ru.edustor.core.rest.SubjectsController
+import ru.edustor.core.rest.FoldersController
 
 @Component
 open class SubjectsSyncController @Autowired constructor(
         val subjectRepo: FoldersRepository,
-        val subjectsController: SubjectsController
+        val foldersController: FoldersController
 ) {
     fun processTask(task: SyncTask): Any {
         return when (task.method) {
@@ -23,12 +23,12 @@ open class SubjectsSyncController @Autowired constructor(
     fun delete(task: SyncTask) {
         val subject = subjectRepo.findOne(task.params["subject"]!!) ?:
                 throw NotFoundException("Subject is not found")
-        subjectsController.delete(task.user, subject)
+        foldersController.delete(task.user, subject)
     }
 
     fun restore(task: SyncTask) {
         val subject = subjectRepo.findOne(task.params["subject"]!!) ?:
                 throw NotFoundException("Subject is not found")
-        subjectsController.restore(task.user, subject)
+        foldersController.restore(task.user, subject)
     }
 }

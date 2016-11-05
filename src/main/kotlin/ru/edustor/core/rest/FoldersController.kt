@@ -14,37 +14,39 @@ import ru.edustor.core.util.extensions.assertHasAccess
 
 @RestController
 @RequestMapping("/api/subjects")
-class SubjectsController @Autowired constructor(val foldersRepository: FoldersRepository, val lessonsRepo: LessonsRepository) {
+class FoldersController @Autowired constructor(val foldersRepository: FoldersRepository, val lessonsRepo: LessonsRepository) {
 
     @RequestMapping("/list")
-    fun listSubjects(@AuthenticationPrincipal user: Account): List<Folder> {
-        val result = foldersRepository.findByOwner(user).filter { !it.removed }
+    fun listRootFolders(@AuthenticationPrincipal user: Account): List<Folder> {
+        val result = foldersRepository.findByOwner(user).filter { !it.removed && it.parent == null }
         return result.sorted()
     }
 
     @RequestMapping("/create")
-    fun createSubject(@AuthenticationPrincipal user: Account, @RequestParam name: String): Folder {
+    fun createFolder(@AuthenticationPrincipal user: Account,
+                     @RequestParam name: String,
+                     @RequestParam(required = false) parent: Folder? = null
+    ): Folder {
+        val folder = Folder(name, user, parent)
+        foldersRepository.save(folder)
 
-        val subject = Folder(name, user)
-        foldersRepository.save(subject)
-
-        return subject
+        return folder
     }
 
-    @RequestMapping("/{subject}/lessons")
+    @RequestMapping("/{folder}/lessons")
     fun subjectLessons(@PathVariable folder: Folder?): List<Lesson> {
         folder ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
         return lessonsRepo.findByFolder(folder).filter { it.documents.isNotEmpty() && !it.removed }.sortedDescending()
     }
 
-    @RequestMapping("/{subject}", method = arrayOf(RequestMethod.DELETE))
+    @RequestMapping("/{folder}", method = arrayOf(RequestMethod.DELETE))
     fun delete(@AuthenticationPrincipal user: Account, @PathVariable folder: Folder) {
         user.assertHasAccess(folder)
         folder.removed = true
         foldersRepository.save(folder)
     }
 
-    @RequestMapping("/{subject}/restore")
+    @RequestMapping("/{folder}/restore")
     fun restore(@AuthenticationPrincipal user: Account, @PathVariable folder: Folder) {
         user.assertHasAccess(folder)
         folder.removed = false

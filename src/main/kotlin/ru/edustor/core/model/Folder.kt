@@ -19,7 +19,7 @@ class Folder() : Comparable<Folder> {
 
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne
-    lateinit var parent: Folder
+    var parent: Folder? = null
 
     @OneToMany(mappedBy = "parent", cascade = arrayOf(CascadeType.REMOVE))
     var childFolders: List<Folder> = listOf()
@@ -38,9 +38,10 @@ class Folder() : Comparable<Folder> {
             }
         }
 
-    constructor(name: String, owner: Account) : this() {
+    constructor(name: String, owner: Account, parent: Folder? = null) : this() {
         this.name = name
         this.owner = owner
+        this.parent = parent
     }
 
 
