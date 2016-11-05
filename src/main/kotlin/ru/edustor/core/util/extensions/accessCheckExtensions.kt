@@ -21,7 +21,7 @@ fun Account.hasAccess(page: Page, lessonsRepository: LessonsRepository): Boolean
 }
 
 fun Account.assertHasAccess(folder: Folder) {
-    if (!this.hasAccess(folder)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "Subject access forbidden")
+    if (!this.hasAccess(folder)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "Folder access forbidden")
 }
 
 fun Account.assertHasAccess(lesson: Lesson) {

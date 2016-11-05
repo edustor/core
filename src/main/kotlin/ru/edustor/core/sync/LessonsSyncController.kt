@@ -17,7 +17,7 @@ import java.time.LocalDate
 open class LessonsSyncController @Autowired constructor(
         val lessonsController: LessonsController,
         val lessonsRepository: LessonsRepository,
-        val subjectRepo: FoldersRepository,
+        val folcersRepo: FoldersRepository,
         val pagesRepository: PagesRepository
 ) {
     fun processTask(task: SyncTask): Any {
@@ -34,11 +34,11 @@ open class LessonsSyncController @Autowired constructor(
     fun create(task: SyncTask) {
         val id = task.params["id"]
         val epochDay = task.params["date"]!!.toLong()
-        val subjectId = task.params["subject"]!!
+        val folderId = task.params["folder"]!!
 
-        val subject = subjectRepo.findOne(subjectId)
+        val folder = folcersRepo.findOne(folderId)
 
-        lessonsController.create(id!!, subject, LocalDate.ofEpochDay(epochDay))
+        lessonsController.create(id!!, folder, LocalDate.ofEpochDay(epochDay))
     }
 
     fun setTopic(task: SyncTask) {

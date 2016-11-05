@@ -31,15 +31,15 @@ open class CleanupService(
         val cleanupBeforeDate = Instant.now().minus(10, ChronoUnit.DAYS)
         logger.info("Cleaning up entities removed before $cleanupBeforeDate")
 
-        foldersRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteSubject(it) }
+        foldersRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteFolder(it) }
         lessonsRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteLesson(it) }
         pagesRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deletePage(it) }
 
         logger.info("Removed entities cleanup finished")
     }
 
-    fun deleteSubject(folder: Folder) {
-        logger.info("Cleaning up subject: ${folder.id}")
+    fun deleteFolder(folder: Folder) {
+        logger.info("Cleaning up folder: ${folder.id}")
         foldersRepository.delete(folder)
     }
 

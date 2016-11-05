@@ -8,27 +8,27 @@ import ru.edustor.core.repository.FoldersRepository
 import ru.edustor.core.rest.FoldersController
 
 @Component
-open class SubjectsSyncController @Autowired constructor(
-        val subjectRepo: FoldersRepository,
+open class FoldersSyncController @Autowired constructor(
+        val foldersRepo: FoldersRepository,
         val foldersController: FoldersController
 ) {
     fun processTask(task: SyncTask): Any {
         return when (task.method) {
             "delete" -> delete(task)
             "restore" -> restore(task)
-            else -> throw NoSuchMethodException("SubjectsSyncController cannot resolve ${task.method}")
+            else -> throw NoSuchMethodException("FoldersSyncController cannot resolve ${task.method}")
         }
     }
 
     fun delete(task: SyncTask) {
-        val subject = subjectRepo.findOne(task.params["subject"]!!) ?:
-                throw NotFoundException("Subject is not found")
-        foldersController.delete(task.user, subject)
+        val folder = foldersRepo.findOne(task.params["folder"]!!) ?:
+                throw NotFoundException("Folder is not found")
+        foldersController.delete(task.user, folder)
     }
 
     fun restore(task: SyncTask) {
-        val subject = subjectRepo.findOne(task.params["subject"]!!) ?:
-                throw NotFoundException("Subject is not found")
-        foldersController.restore(task.user, subject)
+        val folder = foldersRepo.findOne(task.params["folder"]!!) ?:
+                throw NotFoundException("Folder is not found")
+        foldersController.restore(task.user, folder)
     }
 }
