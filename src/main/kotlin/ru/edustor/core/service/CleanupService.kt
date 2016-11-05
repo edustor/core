@@ -1,9 +1,6 @@
 package ru.edustor.core.service
 
 import org.slf4j.LoggerFactory
-import org.springframework.data.mongodb.core.MongoOperations
-import org.springframework.data.mongodb.core.query.Criteria
-import org.springframework.data.mongodb.core.query.Query
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import ru.edustor.core.model.Folder
@@ -14,13 +11,11 @@ import ru.edustor.core.repository.FoldersRepository
 import ru.edustor.core.repository.LessonsRepository
 import ru.edustor.core.repository.PagesRepository
 import java.time.Instant
-import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import javax.annotation.PostConstruct
 
 @Service
 open class CleanupService(
-        val mongoOperations: MongoOperations,
         val pagesRepository: PagesRepository,
         val lessonsRepository: LessonsRepository,
         val foldersRepository: FoldersRepository,
@@ -28,19 +23,6 @@ open class CleanupService(
 ) {
 
     val logger = LoggerFactory.getLogger(CleanupService::class.java)
-
-    //TODO: Remove since mongodb is not longer used to store metadata
-    @PostConstruct
-    @Scheduled(cron = "0 0 4 * * *", zone = "Europe/Moscow")
-    fun cleanupUnusedLessons() {
-        logger.info("Empty lessons cleanup initiated")
-        val result = mongoOperations.remove(Query.query(Criteria
-                .where("documents").size(0)
-                .and("date").lt(LocalDate.now().minusMonths(1))
-        ), "lesson")
-
-        logger.info("Empty lessons cleanup completed. Affected: ${result.n}")
-    }
 
     @Scheduled(cron = "0 0 4 * * *", zone = "Europe/Moscow")
     @PostConstruct
