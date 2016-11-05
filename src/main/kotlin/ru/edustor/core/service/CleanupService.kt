@@ -11,8 +11,8 @@ import ru.edustor.core.model.Folder
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.pdf.storage.PdfStorage
 import ru.edustor.core.repository.DocumentsRepository
+import ru.edustor.core.repository.FoldersRepository
 import ru.edustor.core.repository.LessonsRepository
-import ru.edustor.core.repository.SubjectsRepository
 import java.time.Instant
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -23,7 +23,7 @@ open class CleanupService(
         val mongoOperations: MongoOperations,
         val documentsRepository: DocumentsRepository,
         val lessonsRepository: LessonsRepository,
-        val subjectsRepository: SubjectsRepository,
+        val foldersRepository: FoldersRepository,
         val pdfStorage: PdfStorage
 ) {
 
@@ -48,7 +48,7 @@ open class CleanupService(
         val cleanupBeforeDate = Instant.now().minus(10, ChronoUnit.DAYS)
         logger.info("Cleaning up entities removed before $cleanupBeforeDate")
 
-        subjectsRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteSubject(it) }
+        foldersRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteSubject(it) }
         lessonsRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteLesson(it) }
         documentsRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteDocument(it) }
 
@@ -57,7 +57,7 @@ open class CleanupService(
 
     fun deleteSubject(folder: Folder) {
         logger.info("Cleaning up subject: ${folder.id}")
-        subjectsRepository.delete(folder)
+        foldersRepository.delete(folder)
     }
 
     fun deleteLesson(lesson: Lesson) {

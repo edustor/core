@@ -8,17 +8,17 @@ import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.Folder
 import ru.edustor.core.model.Lesson
+import ru.edustor.core.repository.FoldersRepository
 import ru.edustor.core.repository.LessonsRepository
-import ru.edustor.core.repository.SubjectsRepository
 import ru.edustor.core.util.extensions.assertHasAccess
 
 @RestController
 @RequestMapping("/api/subjects")
-class SubjectsController @Autowired constructor(val subjectsRepository: SubjectsRepository, val lessonsRepo: LessonsRepository) {
+class SubjectsController @Autowired constructor(val foldersRepository: FoldersRepository, val lessonsRepo: LessonsRepository) {
 
     @RequestMapping("/list")
     fun listSubjects(@AuthenticationPrincipal user: Account): List<Folder> {
-        val result = subjectsRepository.findByOwner(user).filter { !it.removed }
+        val result = foldersRepository.findByOwner(user).filter { !it.removed }
         return result.sorted()
     }
 
@@ -26,7 +26,7 @@ class SubjectsController @Autowired constructor(val subjectsRepository: Subjects
     fun createSubject(@AuthenticationPrincipal user: Account, @RequestParam name: String): Folder {
 
         val subject = Folder(name, user)
-        subjectsRepository.save(subject)
+        foldersRepository.save(subject)
 
         return subject
     }
@@ -41,13 +41,13 @@ class SubjectsController @Autowired constructor(val subjectsRepository: Subjects
     fun delete(@AuthenticationPrincipal user: Account, @PathVariable folder: Folder) {
         user.assertHasAccess(folder)
         folder.removed = true
-        subjectsRepository.save(folder)
+        foldersRepository.save(folder)
     }
 
     @RequestMapping("/{subject}/restore")
     fun restore(@AuthenticationPrincipal user: Account, @PathVariable folder: Folder) {
         user.assertHasAccess(folder)
         folder.removed = false
-        subjectsRepository.save(folder)
+        foldersRepository.save(folder)
     }
 }
