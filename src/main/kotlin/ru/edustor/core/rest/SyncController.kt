@@ -32,11 +32,10 @@ class SyncController @Autowired constructor(
 ) {
     val delimiterRegex = "/".toRegex()
 
-    // TODO: Inline documents to folders
     @RequestMapping("/fetch")
     fun fetch(@AuthenticationPrincipal user: Account): Map<*, *> {
         val folders = foldersRepo.findByOwner(user)
-        val lessons = lessonRepo.findByFolderIn(folders).map { it.pages = it.pages.filter { !it.removed }.toMutableList(); it }
+        // TODO: Removed entities filtration
         return mapOf(
                 "user" to user,
                 "folders" to folders
