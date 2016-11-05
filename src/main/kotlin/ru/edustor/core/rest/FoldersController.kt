@@ -13,7 +13,7 @@ import ru.edustor.core.repository.LessonsRepository
 import ru.edustor.core.util.extensions.assertHasAccess
 
 @RestController
-@RequestMapping("/api/subjects")
+@RequestMapping("/api/folders")
 class FoldersController @Autowired constructor(val foldersRepository: FoldersRepository, val lessonsRepo: LessonsRepository) {
 
     @RequestMapping("/list")
@@ -34,7 +34,7 @@ class FoldersController @Autowired constructor(val foldersRepository: FoldersRep
     }
 
     @RequestMapping("/{folder}/lessons")
-    fun subjectLessons(@PathVariable folder: Folder?): List<Lesson> {
+    fun folderLessons(@PathVariable folder: Folder?): List<Lesson> {
         folder ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
         return lessonsRepo.findByFolder(folder).filter { it.documents.isNotEmpty() && !it.removed }.sortedDescending()
     }
