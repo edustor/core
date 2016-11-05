@@ -64,30 +64,6 @@ open class LessonsController @Autowired constructor(
         lessonsRepo.save(lesson)
     }
 
-    @RequestMapping("/date/{date}/{subject}")
-    fun getLessonByDate(@PathVariable folder: Folder,
-                        @PathVariable date: LocalDate,
-                        @AuthenticationPrincipal user: Account
-    ): Lesson {
-        var lesson = lessonsRepo.findLessonByFolderAndDate(folder, date)
-
-        if (lesson != null) {
-            user.assertHasAccess(lesson)
-            if (lesson.removed) {
-                lesson.removed = false
-                lessonsRepo.save(lesson)
-            }
-        }
-
-        if (lesson == null) {
-            user.assertHasAccess(folder)
-            lesson = Lesson(folder, date)
-            lessonsRepo.save(lesson)
-        }
-
-        return lesson
-    }
-
     @RequestMapping("/{lesson}/topic", method = arrayOf(RequestMethod.POST))
     fun setTopic(@PathVariable lesson: Lesson, @RequestParam(required = false) topic: String?, @AuthenticationPrincipal user: Account) {
         user.assertHasAccess(lesson)
