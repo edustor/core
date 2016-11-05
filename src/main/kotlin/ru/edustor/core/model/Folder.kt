@@ -61,10 +61,10 @@ open class Folder() : Comparable<Folder> {
     override fun toString(): String {
         val breadcrumbs = mutableListOf(this)
 
-        while (breadcrumbs.last().parent != null) {
+        while (breadcrumbs.lastOrNull()?.parent != null) {
             breadcrumbs.add(breadcrumbs.last().parent!!)
         }
 
-        return breadcrumbs.reversed().joinToString("/", "/")
+        return breadcrumbs.reversed().map { it.name }.joinToString("/", "/")
     }
 }

@@ -45,4 +45,8 @@ open class Lesson() : Comparable<Lesson> {
     override fun compareTo(other: Lesson): Int {
         return date.compareTo(other.date)
     }
+
+    override fun toString(): String {
+        return "$folder/[${topic ?: "No topic"}] on $date"
+    }
 }
