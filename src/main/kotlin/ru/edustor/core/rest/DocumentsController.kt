@@ -69,7 +69,8 @@ class DocumentsController @Autowired constructor(
         }
 
         val document = Document(qr = qr, owner = user, timestamp = instant ?: Instant.now(), id = id)
-        lesson.documents.toMutableList().let { it.add(document); it }.recalculateIndexes(lesson)
+        lesson.documents.add(document)
+        lesson.documents.recalculateIndexes(lesson)
         documentsRepository.save(document)
 
         lessonsRepo.save(lesson)

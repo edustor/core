@@ -35,7 +35,7 @@ class SyncController @Autowired constructor(
     @RequestMapping("/fetch")
     fun fetch(@AuthenticationPrincipal user: Account): Map<*, *> {
         val subjects = subjectRepo.findByOwner(user)
-        val lessons = lessonRepo.findByFolderIn(subjects).map { it.documents = it.documents.filter { !it.removed }; it }
+        val lessons = lessonRepo.findByFolderIn(subjects).map { it.documents = it.documents.filter { !it.removed }.toMutableList(); it }
         return mapOf(
                 "user" to user,
                 "subjects" to subjects,

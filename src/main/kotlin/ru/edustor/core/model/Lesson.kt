@@ -9,7 +9,6 @@ import java.util.*
 import javax.persistence.*
 
 @Entity
-@EntityListeners()
 open class Lesson() : Comparable<Lesson> {
     @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -22,7 +21,7 @@ open class Lesson() : Comparable<Lesson> {
 
     @OneToMany(mappedBy = "lesson", cascade = arrayOf(CascadeType.REMOVE))
     @OrderBy("index ASC")
-    var documents: List<Document> = listOf()
+    var documents: MutableList<Document> = mutableListOf()
 
     @Id var id: String = UUID.randomUUID().toString()
 

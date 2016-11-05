@@ -8,7 +8,7 @@ import java.util.*
 import javax.persistence.*
 
 @Entity
-class Folder() : Comparable<Folder> {
+open class Folder() : Comparable<Folder> {
 
     @Column(nullable = false)
     lateinit var name: String
@@ -22,7 +22,7 @@ class Folder() : Comparable<Folder> {
     var parent: Folder? = null
 
     @OneToMany(mappedBy = "parent", cascade = arrayOf(CascadeType.REMOVE))
-    var childFolders: List<Folder> = listOf()
+    var childFolders: MutableList<Folder> = mutableListOf()
 
     @Id var id: String = UUID.randomUUID().toString()
 

@@ -34,7 +34,7 @@ open class LessonsController @Autowired constructor(
     @RequestMapping("/{lesson}")
     fun getLesson(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: Account): Lesson {
         user.assertHasAccess(lesson)
-        lesson.documents = lesson.documents.filter { !it.removed }
+        lesson.documents = lesson.documents.filter { !it.removed }.toMutableList()
         return lesson
     }
 
@@ -91,7 +91,7 @@ open class LessonsController @Autowired constructor(
                     val documentsCheckList = mutableListOf(document)
                     after?.let { documentsCheckList.add(after) }
 
-                    val documentsList = lesson.documents.toMutableList()
+                    val documentsList = lesson.documents
 
                     if (!lesson.documents.containsAll(documentsCheckList)) throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Specified lesson must contain both documents")
                     documentsList.remove(document)
