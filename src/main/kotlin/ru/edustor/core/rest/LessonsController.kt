@@ -7,11 +7,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
-import ru.edustor.core.model.Document
 import ru.edustor.core.model.Folder
 import ru.edustor.core.model.Lesson
-import ru.edustor.core.repository.DocumentsRepository
+import ru.edustor.core.model.Page
 import ru.edustor.core.repository.LessonsRepository
+import ru.edustor.core.repository.PagesRepository
 import ru.edustor.core.util.extensions.assertHasAccess
 import ru.edustor.core.util.extensions.recalculateIndexes
 import rx.Observable
@@ -21,7 +21,7 @@ import java.time.LocalDate
 @RequestMapping("/api/lessons")
 open class LessonsController @Autowired constructor(
         val lessonsRepo: LessonsRepository,
-        val documentsRepository: DocumentsRepository
+        val pagesRepository: PagesRepository
 ) {
 
     @RequestMapping("/{lessonId}", method = arrayOf(RequestMethod.POST))
@@ -34,14 +34,14 @@ open class LessonsController @Autowired constructor(
     @RequestMapping("/{lesson}")
     fun getLesson(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: Account): Lesson {
         user.assertHasAccess(lesson)
-        lesson.documents = lesson.documents.filter { !it.removed }.toMutableList()
+        lesson.pages = lesson.pages.filter { !it.removed }.toMutableList()
         return lesson
     }
 
     @RequestMapping("/{lesson}/removed")
-    fun getLessonRemovedDocs(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: Account): List<Document> {
+    fun getLessonRemovedDocs(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: Account): List<Page> {
         user.assertHasAccess(lesson)
-        return lesson.documents.filter { it.removed }
+        return lesson.pages.filter { it.removed }
     }
 
 
@@ -52,10 +52,10 @@ open class LessonsController @Autowired constructor(
         lessonsRepo.save(lesson)
     }
 
-    @RequestMapping("/{lesson}/documents")
-    fun lessonDocuments(@AuthenticationPrincipal user: Account, @PathVariable lesson: Lesson): List<Document> {
+    @RequestMapping("/{lesson}/pages")
+    fun lessonPages(@AuthenticationPrincipal user: Account, @PathVariable lesson: Lesson): List<Page> {
         user.assertHasAccess(lesson)
-        return lesson.documents
+        return lesson.pages
     }
 
     @RequestMapping("/{lesson}/restore")
@@ -73,34 +73,32 @@ open class LessonsController @Autowired constructor(
     }
 
     @RequestMapping("/qr/{qr}")
-    fun byDocumentQR(@AuthenticationPrincipal user: Account, @PathVariable qr: String): Lesson {
-        val document = documentsRepository.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Document is not found")
-        val lesson = lessonsRepo.findByDocumentsContaining(document) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Lesson is not found")
+    fun byPageQR(@AuthenticationPrincipal user: Account, @PathVariable qr: String): Lesson {
+        val page = pagesRepository.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Page is not found")
+        user.assertHasAccess(page.lesson)
 
-        user.assertHasAccess(lesson)
-
-        return lesson
+        return page.lesson
     }
 
-    @RequestMapping("/{lesson}/documents/reorder")
-    fun reorderDocuments(@AuthenticationPrincipal user: Account, @PathVariable lesson: Lesson, @RequestParam document: Document, @RequestParam(required = false) after: Document?) {
+    @RequestMapping("/{lesson}/pages/reorder")
+    fun reorderPages(@AuthenticationPrincipal user: Account, @PathVariable lesson: Lesson, @RequestParam page: Page, @RequestParam(required = false) after: Page?) {
         Observable.just(lesson)
                 .map { lesson ->
                     user.assertHasAccess(lesson)
 
-                    val documentsCheckList = mutableListOf(document)
-                    after?.let { documentsCheckList.add(after) }
+                    val pagesCheckList = mutableListOf(page)
+                    after?.let { pagesCheckList.add(after) }
 
-                    val documentsList = lesson.documents
+                    val pagesList = lesson.pages
 
-                    if (!lesson.documents.containsAll(documentsCheckList)) throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Specified lesson must contain both documents")
-                    documentsList.remove(document)
+                    if (!lesson.pages.containsAll(pagesCheckList)) throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Specified lesson must contain both pages")
+                    pagesList.remove(page)
 
-                    val targetIndex = if (after != null) lesson.documents.indexOf(after) + 1 else 0
-                    documentsList.add(targetIndex, document)
+                    val targetIndex = if (after != null) lesson.pages.indexOf(after) + 1 else 0
+                    pagesList.add(targetIndex, page)
 
-                    documentsList.recalculateIndexes(lesson)
-                    documentsRepository.save(documentsList)
+                    pagesList.recalculateIndexes(lesson)
+                    pagesRepository.save(pagesList)
                 }
                 // Optimistic locking
                 .retry { i, throwable ->

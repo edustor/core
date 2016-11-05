@@ -21,7 +21,7 @@ open class Lesson() : Comparable<Lesson> {
 
     @OneToMany(mappedBy = "lesson", cascade = arrayOf(CascadeType.REMOVE))
     @OrderBy("index ASC")
-    var documents: MutableList<Document> = mutableListOf()
+    var pages: MutableList<Page> = mutableListOf()
 
     @Id var id: String = UUID.randomUUID().toString()
 

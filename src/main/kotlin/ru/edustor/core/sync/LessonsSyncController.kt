@@ -5,11 +5,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.exceptions.NotFoundException
-import ru.edustor.core.model.Document
+import ru.edustor.core.model.Page
 import ru.edustor.core.model.internal.sync.SyncTask
-import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.FoldersRepository
 import ru.edustor.core.repository.LessonsRepository
+import ru.edustor.core.repository.PagesRepository
 import ru.edustor.core.rest.LessonsController
 import java.time.LocalDate
 
@@ -18,13 +18,13 @@ open class LessonsSyncController @Autowired constructor(
         val lessonsController: LessonsController,
         val lessonsRepository: LessonsRepository,
         val subjectRepo: FoldersRepository,
-        val documentsRepository: DocumentsRepository
+        val pagesRepository: PagesRepository
 ) {
     fun processTask(task: SyncTask): Any {
         return when (task.method) {
             "create" -> create(task)
             "topic/put" -> setTopic(task)
-            "documents/reorder" -> reorderDocuments(task)
+            "pages/reorder" -> reorderPages(task)
             "delete" -> delete(task)
             "restore" -> restore(task)
             else -> throw NoSuchMethodException("LessonsSyncController cannot resolve ${task.method}")
@@ -46,19 +46,19 @@ open class LessonsSyncController @Autowired constructor(
         lessonsController.setTopic(lesson, task.params["topic"], task.user)
     }
 
-    fun reorderDocuments(task: SyncTask) {
+    fun reorderPages(task: SyncTask) {
         val lesson = lessonsRepository.findOne(task.params["lesson"]!!)
-        val document = getDocument(task, required = true)!!
-        val after = getDocument(task, "after", false)
+        val page = getPage(task, required = true)!!
+        val after = getPage(task, "after", false)
 
-        return lessonsController.reorderDocuments(task.user, lesson, document, after)
+        return lessonsController.reorderPages(task.user, lesson, page, after)
     }
 
-    private fun getDocument(task: SyncTask, field: String = "document", required: Boolean = true): Document? {
+    private fun getPage(task: SyncTask, field: String = "page", required: Boolean = true): Page? {
         val key = task.params[field] ?: if (required)
             throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "$field field is not provided") else return null
 
-        return documentsRepository.findOne(key) ?: throw NotFoundException("Document ($field) is not found")
+        return pagesRepository.findOne(key) ?: throw NotFoundException("Page ($field) is not found")
 
     }
 

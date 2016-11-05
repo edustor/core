@@ -14,8 +14,8 @@ import ru.edustor.core.repository.FoldersRepository
 import ru.edustor.core.repository.LessonsRepository
 import ru.edustor.core.service.FCMService
 import ru.edustor.core.sync.AccountSyncController
-import ru.edustor.core.sync.DocumentsSyncController
 import ru.edustor.core.sync.LessonsSyncController
+import ru.edustor.core.sync.PagesSyncController
 import ru.edustor.core.sync.SubjectsSyncController
 
 @RestController
@@ -24,7 +24,7 @@ class SyncController @Autowired constructor(
         val subjectRepo: FoldersRepository,
         val lessonRepo: LessonsRepository,
         val lessonsSyncController: LessonsSyncController,
-        val documentsSyncController: DocumentsSyncController,
+        val pagesSyncController: PagesSyncController,
         val accountSyncController: AccountSyncController,
         val subjectsSyncController: SubjectsSyncController,
         val mapper: ObjectMapper,
@@ -35,7 +35,7 @@ class SyncController @Autowired constructor(
     @RequestMapping("/fetch")
     fun fetch(@AuthenticationPrincipal user: Account): Map<*, *> {
         val subjects = subjectRepo.findByOwner(user)
-        val lessons = lessonRepo.findByFolderIn(subjects).map { it.documents = it.documents.filter { !it.removed }.toMutableList(); it }
+        val lessons = lessonRepo.findByFolderIn(subjects).map { it.pages = it.pages.filter { !it.removed }.toMutableList(); it }
         return mapOf(
                 "user" to user,
                 "subjects" to subjects,
@@ -70,7 +70,7 @@ class SyncController @Autowired constructor(
 
         return when (group) {
             "lessons" -> lessonsSyncController.processTask(localTask)
-            "documents" -> documentsSyncController.processTask(localTask)
+            "pages" -> pagesSyncController.processTask(localTask)
             "subjects" -> subjectsSyncController.processTask(localTask)
             "account" -> accountSyncController.processTask(localTask)
             else -> throw NoSuchMethodException("SyncController cannot resolve $group")

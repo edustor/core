@@ -5,13 +5,13 @@ import okhttp3.Request
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import ru.edustor.core.model.Document
+import ru.edustor.core.model.Page
 import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
 import ru.edustor.core.pdf.storage.PdfStorage
 import ru.edustor.core.pdf.upload.PdfPage
 import ru.edustor.core.pdf.upload.PdfProcessor
 import ru.edustor.core.repository.AccountRepository
-import ru.edustor.core.repository.DocumentsRepository
+import ru.edustor.core.repository.PagesRepository
 import rx.Observable
 import rx.schedulers.Schedulers
 import java.io.InputStream
@@ -22,7 +22,7 @@ import com.itextpdf.text.Document as PdfDocument
 @Service
 class PdfUploadService @Autowired constructor(
         private val pdfStorage: PdfStorage,
-        private val documentRepo: DocumentsRepository,
+        private val pagesRepo: PagesRepository,
         private val accountRepository: AccountRepository,
         private val telegramService: TelegramService,
         private val fcmService: FCMService
@@ -61,35 +61,35 @@ class PdfUploadService @Autowired constructor(
                 .observeOn(Schedulers.computation())
                 .map {
 
-                    var page: PdfPage
+                    var pdfPage: PdfPage
 
                     try {
-                        page = document.getPage(it)
-                        logger.info("Saving ${page.pageNumber}")
-                        savePage(page, uploadPreferences)
+                        pdfPage = document.getPage(it)
+                        logger.info("Saving ${pdfPage.pageNumber}")
+                        savePage(pdfPage, uploadPreferences)
                     } catch (e: Exception) {
-                        page = PdfPage(it, null, null, null, null, exception = e)
+                        pdfPage = PdfPage(it, null, null, null, null, exception = e)
                     }
 
-                    page
+                    pdfPage
                 }
-                .map { page ->
-                    val pageNumber = page.pageNumber
+                .map { pdfPage ->
+                    val pageNumber = pdfPage.pageNumber
 
-                    if (page.exception == null) {
-                        val shortUUID = page.qrData?.split("-")?.last()
-                        val lessonInfo = page.lesson?.let { "${it.folder.name}. ${it.topic ?: "No topic"}. ${it.date.format(DateTimeFormatter.ISO_LOCAL_DATE)}" } ?: "Not registered"
+                    if (pdfPage.exception == null) {
+                        val shortUUID = pdfPage.qrData?.split("-")?.last()
+                        val lessonInfo = pdfPage.lesson?.let { "${it.folder.name}. ${it.topic ?: "No topic"}. ${it.date.format(DateTimeFormatter.ISO_LOCAL_DATE)}" } ?: "Not registered"
                         var resultString = "[OK] Page $pageNumber. UUID $shortUUID: $lessonInfo"
 
 
-                        if (page.qrData == null && page.lesson == null) {
+                        if (pdfPage.qrData == null && pdfPage.lesson == null) {
                             resultString = "[NOT RECOGNISED] Page $pageNumber"
                             telegramService.sendText(uploader, resultString)
 
-                            telegramService.sendImage(uploader, page.preview!!, "Img $pageNumber")
+                            telegramService.sendImage(uploader, pdfPage.preview!!, "Img $pageNumber")
 
-                            for (i in 0..page.qrImages!!.lastIndex) {
-                                telegramService.sendImage(uploader, page.qrImages!![i], "Img $pageNumber loc $i")
+                            for (i in 0..pdfPage.qrImages!!.lastIndex) {
+                                telegramService.sendImage(uploader, pdfPage.qrImages!![i], "Img $pageNumber loc $i")
                             }
                         } else {
                             telegramService.sendText(uploader, resultString)
@@ -97,16 +97,16 @@ class PdfUploadService @Autowired constructor(
 
                         logger.info(resultString)
                     } else {
-                        val resultString = "[FAIL] Page $pageNumber. Cause: ${page.exception}"
+                        val resultString = "[FAIL] Page $pageNumber. Cause: ${pdfPage.exception}"
                         telegramService.sendText(uploader, resultString)
-                        logger.warn(resultString, page.exception)
+                        logger.warn(resultString, pdfPage.exception)
                     }
 
-                    page.preview = null
-                    page.qrImages = null
-                    page.binary = null
+                    pdfPage.preview = null
+                    pdfPage.qrImages = null
+                    pdfPage.binary = null
 
-                    page
+                    pdfPage
                 }
                 .toList()
                 .subscribe {
@@ -115,12 +115,12 @@ class PdfUploadService @Autowired constructor(
                 }
     }
 
-    private fun savePage(page: PdfPage, uploadPreferences: PdfUploadPreferences) {
+    private fun savePage(pdfPage: PdfPage, uploadPreferences: PdfUploadPreferences) {
 
-        val document: Document = page.qrData?.let { documentRepo.findByQr(page.qrData) } ?: let {
-            val doc = Document(qr = page.qrData)
+        val page: Page = pdfPage.qrData?.let { pagesRepo.findByQr(pdfPage.qrData) } ?: let {
+            val doc = Page(qr = pdfPage.qrData)
             uploadPreferences.lesson ?: let {
-                logger.warn("Not found page ${page.pageNumber} in database: ${page.qrData} and explicit " +
+                logger.warn("Not found page ${pdfPage.pageNumber} in database: ${pdfPage.qrData} and explicit " +
                         "lesson was not provided")
                 return
             }
@@ -128,17 +128,17 @@ class PdfUploadService @Autowired constructor(
         }
 
         uploadPreferences.lesson?.let {
-            document.lesson = it
+            page.lesson = it
         }
 
-        pdfStorage.put(document.id, page.binary!!.inputStream())
+        pdfStorage.put(page.id, pdfPage.binary!!.inputStream())
 
-        document.isUploaded = true
-        document.uploadedTimestamp = Instant.now()
-        document.contentType = "application/pdf"
-        document.owner = uploadPreferences.uploader
-        documentRepo.save(document)
+        page.isUploaded = true
+        page.uploadedTimestamp = Instant.now()
+        page.contentType = "application/pdf"
+        page.owner = uploadPreferences.uploader
+        pagesRepo.save(page)
 
-        page.lesson = document.lesson
+        page.lesson = page.lesson
     }
 }

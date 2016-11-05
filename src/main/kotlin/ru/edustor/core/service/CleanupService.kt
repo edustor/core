@@ -6,13 +6,13 @@ import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
-import ru.edustor.core.model.Document
 import ru.edustor.core.model.Folder
 import ru.edustor.core.model.Lesson
+import ru.edustor.core.model.Page
 import ru.edustor.core.pdf.storage.PdfStorage
-import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.FoldersRepository
 import ru.edustor.core.repository.LessonsRepository
+import ru.edustor.core.repository.PagesRepository
 import java.time.Instant
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -21,7 +21,7 @@ import javax.annotation.PostConstruct
 @Service
 open class CleanupService(
         val mongoOperations: MongoOperations,
-        val documentsRepository: DocumentsRepository,
+        val pagesRepository: PagesRepository,
         val lessonsRepository: LessonsRepository,
         val foldersRepository: FoldersRepository,
         val pdfStorage: PdfStorage
@@ -29,6 +29,7 @@ open class CleanupService(
 
     val logger = LoggerFactory.getLogger(CleanupService::class.java)
 
+    //TODO: Remove since mongodb is not longer used to store metadata
     @PostConstruct
     @Scheduled(cron = "0 0 4 * * *", zone = "Europe/Moscow")
     fun cleanupUnusedLessons() {
@@ -50,7 +51,7 @@ open class CleanupService(
 
         foldersRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteSubject(it) }
         lessonsRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteLesson(it) }
-        documentsRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteDocument(it) }
+        pagesRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deletePage(it) }
 
         logger.info("Removed entities cleanup finished")
     }
@@ -65,11 +66,11 @@ open class CleanupService(
         lessonsRepository.delete(lesson)
     }
 
-    fun deleteDocument(document: Document) {
-        logger.info("Cleaning up document: ${document.id}")
-        document.isUploaded.let {
-            pdfStorage.delete(document.id)
+    fun deletePage(page: Page) {
+        logger.info("Cleaning up page: ${page.id}")
+        page.isUploaded.let {
+            pdfStorage.delete(page.id)
         }
-        documentsRepository.delete(document)
+        pagesRepository.delete(page)
     }
 }

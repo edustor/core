@@ -36,7 +36,7 @@ class FoldersController @Autowired constructor(val foldersRepository: FoldersRep
     @RequestMapping("/{folder}/lessons")
     fun folderLessons(@PathVariable folder: Folder?): List<Lesson> {
         folder ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        return lessonsRepo.findByFolder(folder).filter { it.documents.isNotEmpty() && !it.removed }.sortedDescending()
+        return lessonsRepo.findByFolder(folder).filter { it.pages.isNotEmpty() && !it.removed }.sortedDescending()
     }
 
     @RequestMapping("/{folder}", method = arrayOf(RequestMethod.DELETE))

@@ -4,42 +4,42 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import ru.edustor.core.exceptions.NotFoundException
 import ru.edustor.core.model.internal.sync.SyncTask
-import ru.edustor.core.repository.DocumentsRepository
 import ru.edustor.core.repository.LessonsRepository
-import ru.edustor.core.rest.DocumentsController
+import ru.edustor.core.repository.PagesRepository
+import ru.edustor.core.rest.PagesController
 import java.time.Instant
 
 @Component
-open class DocumentsSyncController @Autowired constructor(
+open class PagesSyncController @Autowired constructor(
         val lessonsRepository: LessonsRepository,
-        val documentsController: DocumentsController,
-        val documentsRepository: DocumentsRepository
+        val pagesController: PagesController,
+        val pagesRepository: PagesRepository
 ) {
     fun processTask(task: SyncTask): Any {
         return when (task.method) {
             "qr/activate" -> activateQR(task)
             "delete" -> delete(task)
             "restore" -> restore(task)
-            else -> throw NoSuchMethodException("DocumentsSyncController cannot resolve ${task.method}")
+            else -> throw NoSuchMethodException("PagesSyncController cannot resolve ${task.method}")
         }
     }
 
     fun activateQR(task: SyncTask) {
         val instant = Instant.ofEpochSecond(task.params["instant"]!!.toLong())
         val lesson = lessonsRepository.findOne(task.params["lesson"]!!)
-        documentsController.activateQr(task.params["qr"]!!, lesson,
+        pagesController.activateQr(task.params["qr"]!!, lesson,
                 instant, task.user, task.params["id"]!!)
     }
 
     fun delete(task: SyncTask) {
-        val document = documentsRepository.findOne(task.params["document"]!!) ?:
-                throw NotFoundException("Document is not found")
-        documentsController.delete(task.user, document)
+        val page = pagesRepository.findOne(task.params["page"]!!) ?:
+                throw NotFoundException("Page is not found")
+        pagesController.delete(task.user, page)
     }
 
     fun restore(task: SyncTask) {
-        val document = documentsRepository.findOne(task.params["document"]!!) ?:
-                throw NotFoundException("Document is not found")
-        documentsController.restore(task.user, document)
+        val page = pagesRepository.findOne(task.params["page"]!!) ?:
+                throw NotFoundException("Page is not found")
+        pagesController.restore(task.user, page)
     }
 }
