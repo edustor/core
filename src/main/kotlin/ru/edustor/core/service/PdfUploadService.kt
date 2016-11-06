@@ -16,7 +16,6 @@ import rx.Observable
 import rx.schedulers.Schedulers
 import java.io.InputStream
 import java.time.Instant
-import java.time.format.DateTimeFormatter
 import com.itextpdf.text.Document as PdfDocument
 
 @Service
@@ -50,7 +49,7 @@ class PdfUploadService @Autowired constructor(
         if (uploadPreferences.lesson == null) {
             val pendingUpload = uploader.pendingUpload
             if (pendingUpload != null && pendingUpload.validUntil > Instant.now()) {
-                telegramService.sendText(uploader, "Found pending upload request. Using ${pendingUpload.lesson.id} as target lesson")
+                telegramService.sendText(uploader, "Found pending upload request. Using ${pendingUpload.lesson} (${pendingUpload.lesson.id}) as target lesson")
                 uploadPreferences.lesson = pendingUpload.lesson
                 uploader.pendingUpload = null
                 accountRepository.save(uploader)
@@ -78,7 +77,7 @@ class PdfUploadService @Autowired constructor(
 
                     if (pdfPage.exception == null) {
                         val shortUUID = pdfPage.qrData?.split("-")?.last()
-                        val lessonInfo = pdfPage.lesson?.let { "${it.folder.name}. ${it.topic ?: "No topic"}. ${it.date.format(DateTimeFormatter.ISO_LOCAL_DATE)}" } ?: "Not registered"
+                        val lessonInfo = pdfPage.lesson?.let { "$it" } ?: "Not registered"
                         var resultString = "[OK] Page $pageNumber. UUID $shortUUID: $lessonInfo"
 
 

@@ -5,6 +5,7 @@ import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import java.time.Instant
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.persistence.*
 
@@ -48,6 +49,6 @@ open class Lesson() : Comparable<Lesson> {
     }
 
     override fun toString(): String {
-        return "$folder/[${topic ?: "No topic"}] on $date"
+        return "$folder ${topic ?: "No topic"} on ${date.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
     }
 }

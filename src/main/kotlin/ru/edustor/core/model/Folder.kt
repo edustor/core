@@ -68,6 +68,6 @@ open class Folder() : Comparable<Folder> {
             breadcrumbs.add(breadcrumbs.last().parent!!)
         }
 
-        return breadcrumbs.reversed().map { it.name }.joinToString("/", "/")
+        return breadcrumbs.reversed().map { it.name }.joinToString("/", "[", "]")
     }
 }
