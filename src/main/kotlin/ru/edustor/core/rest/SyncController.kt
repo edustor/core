@@ -20,7 +20,7 @@ import ru.edustor.core.sync.PagesSyncController
 
 @RestController
 @RequestMapping("/api/sync")
-class SyncController @Autowired constructor(
+open class SyncController @Autowired constructor(
         val foldersRepo: FoldersRepository,
         val lessonRepo: LessonsRepository,
         val lessonsSyncController: LessonsSyncController,
@@ -35,7 +35,8 @@ class SyncController @Autowired constructor(
     @RequestMapping("/fetch")
     fun fetch(@AuthenticationPrincipal user: Account): Map<*, *> {
         val folders = foldersRepo.findByOwner(user)
-        // TODO: Removed entities filtration
+        // TODO: Filter removed entities
+        // TODO: Fix lazy load
         return mapOf(
                 "user" to user,
                 "folders" to folders
