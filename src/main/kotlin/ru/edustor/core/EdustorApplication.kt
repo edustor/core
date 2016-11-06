@@ -1,10 +1,8 @@
 package ru.edustor.core
 
-import com.mongodb.WriteConcern.ACKNOWLEDGED
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.web.filter.CommonsRequestLoggingFilter
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
@@ -26,11 +24,6 @@ open class EdustorApplication : WebMvcConfigurerAdapter() {
 
     init {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
-    }
-
-    @org.springframework.beans.factory.annotation.Autowired
-    fun configureMongoTemplate(mongoTemplate: MongoTemplate) {
-        mongoTemplate.setWriteConcern(ACKNOWLEDGED)
     }
 
     override fun addInterceptors(registry: InterceptorRegistry) {
