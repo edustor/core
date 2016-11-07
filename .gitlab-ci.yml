@@ -29,8 +29,9 @@ build_homeserver_image:
     - master
 
 deploy:
+  image: codecasts/rancher-deployer
   stage: deploy
   script:
-    - curl -X POST -F token=$EDUSTOR_DEPLOY_TRIGGER_TOKEN -F ref=edustor -F "variables[CHANGED_SERVICES]=edustor" https://gitlab.com/api/v3/projects/1237981/trigger/builds
+    - /root/upgrade.sh
   only:
     - master
