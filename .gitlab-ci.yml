@@ -29,7 +29,7 @@ build_homeserver_image:
     - master
 
 deploy:
-  image: codecasts/rancher-deployer
+  image: wutiarn/rancher-deployer
   stage: deploy
   script:
     - /root/upgrade.sh
