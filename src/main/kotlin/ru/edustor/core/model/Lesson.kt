@@ -21,7 +21,7 @@ open class Lesson() : Comparable<Lesson> {
 
     var topic: String? = null
 
-    @OneToMany(mappedBy = "lesson", cascade = arrayOf(CascadeType.REMOVE))
+    @OneToMany(mappedBy = "lesson", cascade = arrayOf(CascadeType.REMOVE), fetch = FetchType.EAGER)
     @OrderBy("index ASC")
     var pages: MutableList<Page> = mutableListOf()
 
