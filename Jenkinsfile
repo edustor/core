@@ -14,7 +14,7 @@ node {
     }
 
     stage("Build") {
-        image = docker.build("edustor/core:$env.BUILD_NUMBER")
+        image = docker.build("edustor/core:ci-$env.BUILD_NUMBER")
     }
 
     if (env.BRANCH_NAME == "master") {
