@@ -14,13 +14,13 @@ node {
     }
 
     stage("Build") {
-        image = docker.build("edustor/core")
+        image = docker.build("edustor/core:$env.BUILD_NUMBER")
     }
 
     if (env.BRANCH_NAME == "master") {
         stage("Push"){
             docker.withRegistry(env.REGISTRY_URL, env.REGISTRY_CREDENTIALS) {
-                image.push()
+                image.push("latest")
             }
         }
 
