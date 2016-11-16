@@ -13,18 +13,36 @@ node {
         checkout scm
     }
 
-    stage("Build") {
-        image = docker.build("edustor/core:ci-$env.BUILD_NUMBER")
+    stage("Prepare")
+    baseImage = docker.build("edustor/core-base", "-f Dockerfile.base .")
+
+    dir = pwd().replace("/var/lib/jenkins/workspace", "/mnt/media/jenkins/workspace")
+    buildImage = baseImage.inside("-v $dir:/code -v /mnt/media/jenkins/cache/.gradle:/root/.gradle") {
+        sh "./gradlew clean"
+
+        stage "Test"
+        sh "./gradlew test"
+        junit allowEmptyResults: true, testResults: 'build/test-results/test/*.xml'
+
+        stage "Assemble"
+        sh "./gradlew assemble"
+        sh "mv build/dist/edustor.jar ."
+        archiveArtifacts "edustor.jar"
     }
 
     if (env.BRANCH_NAME == "master") {
-        stage("Push"){
+
+        stage("Build image") {
+            image = docker.build("edustor/core:ci-$env.BUILD_NUMBER")
+        }
+
+        stage("Push") {
             docker.withRegistry(REGISTRY_URL, REGISTRY_CREDENTIALS) {
                 image.push("latest")
             }
         }
 
-        stage("Deploy"){
+        stage("Deploy") {
             docker.image("wutiarn/rancher-deployer").inside {
                 withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: RANCHER_API_CREDENTIALS,
                                   usernameVariable: 'ACCESS_KEY', passwordVariable: 'SECRET_KEY']]) {
