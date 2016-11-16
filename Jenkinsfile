@@ -24,7 +24,7 @@ node {
             sh "ls -lah .gradle"
         }
 
-        sh "mv build/dist/edustor.jar."
+        sh "mv build/dist/edustor.jar ."
         junit allowEmptyResults: true, testResults: 'build/test-results/test/*.xml'
         archiveArtifacts "edustor.jar"
     }
