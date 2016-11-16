@@ -18,7 +18,7 @@ node {
     }
 
     stage("Build") {
-        buildImage = baseImage.inside("-v ${pwd()}:/code") {
+        buildImage = baseImage.inside("-v ${pwd()}:/root") {
             sh "./gradlew build"
         }
 
