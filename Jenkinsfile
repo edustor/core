@@ -20,11 +20,11 @@ node {
     stage("Build JAR") {
         dir = pwd().replace("/var/lib/jenkins/workspace", "/mnt/media/jenkins/workspace")
         buildImage = baseImage.inside("-v $dir:/code -v /mnt/media/jenkins/cache/.gradle:/root/.gradle") {
-            sh "./gradlew build"
+            sh "./gradlew clean build"
             sh "ls -lah .gradle"
         }
 
-        sh "mv build/dist/edustor.jar ."
+        sh "mv build/dist/edustor.jar."
         junit allowEmptyResults: true, testResults: 'build/test-results/test/*.xml'
         archiveArtifacts "edustor.jar"
     }
