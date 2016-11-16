@@ -5,9 +5,9 @@ node {
     RANCHER_URL = "https://rancher.wutiarn.ru/v1/projects/1a5"
     RANCHER_API_CREDENTIALS = "api.rancher.wutiarn.ru"
 
-    RANCHER_STACK_NAME = "edustor"
-    RANCHER_SERVICE_NAME = "edustor"
-    RANCHER_STACK_ID = "1e4"
+    env.RANCHER_STACK_NAME = "edustor"
+    env.RANCHER_SERVICE_NAME = "edustor"
+    env.RANCHER_STACK_ID = "1e4"
 
     stage("Checkout") {
         checkout scm
@@ -19,14 +19,14 @@ node {
 
     if (env.BRANCH_NAME == "master") {
         stage("Push"){
-            docker.withRegistry(env.REGISTRY_URL, env.REGISTRY_CREDENTIALS) {
+            docker.withRegistry(REGISTRY_URL, REGISTRY_CREDENTIALS) {
                 image.push("latest")
             }
         }
 
         stage("Deploy"){
             docker.image("wutiarn/rancher-deployer").inside {
-                withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: env.RANCHER_API_CREDENTIALS,
+                withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: RANCHER_API_CREDENTIALS,
                                   usernameVariable: 'ACCESS_KEY', passwordVariable: 'SECRET_KEY']]) {
                     env.RANCHER_ACCESS_KEY = ACCESS_KEY
                     env.RANCHER_SECRET_KEY = SECRET_KEY
