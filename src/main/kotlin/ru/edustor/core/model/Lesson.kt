@@ -16,6 +16,10 @@ open class Lesson() : Comparable<Lesson> {
     @JsonIgnore
     lateinit var folder: Folder
 
+    @ManyToOne(optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore lateinit var owner: Account
+
     @Column(nullable = false)
     lateinit var date: LocalDate
 
