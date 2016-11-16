@@ -20,6 +20,7 @@ node {
     stage("Build") {
         buildImage = baseImage.inside("-v ${pwd()}:/root") {
             sh "./gradlew build"
+            sh "ls -lah .gradle"
         }
 
         sh "mv build/dist/edustor.jar ."
