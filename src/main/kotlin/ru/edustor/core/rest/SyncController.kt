@@ -35,9 +35,11 @@ open class SyncController @Autowired constructor(
     @RequestMapping("/fetch")
     fun fetch(@AuthenticationPrincipal user: Account): Map<*, *> {
         val folders = foldersRepo.findByOwner(user)
+        val lessons = lessonRepo.findByOwner(user)
         return mapOf(
                 "user" to user,
-                "folders" to folders
+                "folders" to folders,
+                "lessons" to lessons
         )
     }
 

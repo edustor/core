@@ -1,6 +1,8 @@
 package ru.edustor.core.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import org.hibernate.annotations.Fetch
+import org.hibernate.annotations.FetchMode
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import java.time.Instant
@@ -25,8 +27,9 @@ open class Lesson() : Comparable<Lesson> {
 
     var topic: String? = null
 
-    @OneToMany(mappedBy = "lesson", cascade = arrayOf(CascadeType.REMOVE), fetch = FetchType.EAGER)
     @OrderBy("index ASC")
+    @OneToMany(mappedBy = "lesson", cascade = arrayOf(CascadeType.REMOVE), fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
     var pages: MutableList<Page> = mutableListOf()
 
     @Id var id: String = UUID.randomUUID().toString()

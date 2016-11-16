@@ -24,6 +24,7 @@ open class Folder() : Comparable<Folder> {
     @OneToMany(mappedBy = "parent", cascade = arrayOf(CascadeType.REMOVE))
     var childFolders: MutableList<Folder> = mutableListOf()
 
+    @JsonIgnore
     @OneToMany(mappedBy = "folder", cascade = arrayOf(CascadeType.REMOVE), fetch = FetchType.LAZY)
     var lessons: MutableList<Lesson> = mutableListOf()
 
