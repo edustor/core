@@ -16,10 +16,10 @@ node {
     stage("Prepare base") {
         baseImage = docker.build("edustor/core-base", "-f Dockerfile.base .")
     }
-    11
+
     stage("Build JAR") {
         dir = pwd().replace("/var/lib/jenkins/workspace", "/mnt/media/jenkins/workspace")
-        buildImage = baseImage.inside("-v $dir:/root") {
+        buildImage = baseImage.inside("-v $dir:/code -v /mnt/media/jenkins/cache/.gradle:/root/.gradle") {
             sh "./gradlew build"
             sh "ls -lah .gradle"
         }
