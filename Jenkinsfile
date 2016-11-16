@@ -14,7 +14,14 @@ node {
     }
 
     stage("Build") {
-        image = docker.build("edustor/core:ci-$env.BUILD_NUMBER")
+        buildImage = docker.image("frekele/gradle:3-jdk8").inside("-v ${pwd()}:/root") {
+            sh "./gradlew build"
+        }
+
+        sh "mv build/dist/edustor.jar ."
+        archiveArtifacts "edustor.jar"
+
+//        image = docker.build("edustor/core:ci-$env.BUILD_NUMBER")
     }
 
     if (env.BRANCH_NAME == "master") {
