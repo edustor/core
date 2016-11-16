@@ -13,19 +13,20 @@ node {
         checkout scm
     }
 
-    stage("Prepare base") {
-        baseImage = docker.build("edustor/core-base", "-f Dockerfile.base .")
-    }
+    stage("Prepare")
+    baseImage = docker.build("edustor/core-base", "-f Dockerfile.base .")
 
-    stage("Build JAR") {
-        dir = pwd().replace("/var/lib/jenkins/workspace", "/mnt/media/jenkins/workspace")
-        buildImage = baseImage.inside("-v $dir:/code -v /mnt/media/jenkins/cache/.gradle:/root/.gradle") {
-            sh "./gradlew clean build"
-            sh "ls -lah .gradle"
-        }
+    dir = pwd().replace("/var/lib/jenkins/workspace", "/mnt/media/jenkins/workspace")
+    buildImage = baseImage.inside("-v $dir:/code -v /mnt/media/jenkins/cache/.gradle:/root/.gradle") {
+        sh "./gradlew clean"
 
-        sh "mv build/dist/edustor.jar ."
+        stage "Test"
+        sh "./gradlew test"
         junit allowEmptyResults: true, testResults: 'build/test-results/test/*.xml'
+
+        stage "Assemble"
+        sh "./gradlew assemble"
+        sh "mv build/dist/edustor.jar ."
         archiveArtifacts "edustor.jar"
     }
 
