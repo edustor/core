@@ -14,7 +14,7 @@ node {
     }
 
     stage ("Prepare base") {
-        baseImage = docker.build("edustor/core-base", "-f base.Dockerfile")
+        baseImage = docker.build("edustor/core-base", "-f Dockerfile.base .")
     }
 
     stage("Build") {
