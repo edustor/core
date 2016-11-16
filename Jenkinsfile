@@ -18,7 +18,8 @@ node {
     }
 
     stage("Build") {
-        buildImage = baseImage.inside("-v ${pwd()}:/root") {
+        dir = pwd().replace("/var/lib/jenkins/workspace", "/mnt/media/jenkins/workspace")
+        buildImage = baseImage.inside("-v $dir:/root") {
             sh "./gradlew build"
             sh "ls -lah .gradle"
         }
