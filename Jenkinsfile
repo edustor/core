@@ -2,7 +2,7 @@ node {
 
     REGISTRY_CREDENTIALS = "registry.wutiarn.ru"
     REGISTRY_URL = "https://registry.wutiarn.ru"
-    RANCHER_URL = "https://rancher.wutiarn.ru/v1/projects/1a5"
+    env.RANCHER_URL = "https://rancher.wutiarn.ru/v1/projects/1a5"
     RANCHER_API_CREDENTIALS = "api.rancher.wutiarn.ru"
 
     env.RANCHER_STACK_NAME = "edustor"
