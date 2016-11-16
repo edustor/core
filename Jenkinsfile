@@ -1,13 +1,13 @@
 node {
-    properties([parameters([
-            string(defaultValue: 'https://registry.wutiarn.ru', description: '', name: 'REGISTRY_URL'),
-            [$class: 'CredentialsParameterDefinition', credentialType: 'com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl', defaultValue: 'registry.wutiarn.ru', description: '', name: 'REGISTRY_CREDENTIALS', required: true],
-            [$class: 'CredentialsParameterDefinition', credentialType: 'com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl', defaultValue: 'api.rancher.wutiarn.ru', description: '', name: 'RANCHER_API_CREDENTIALS', required: true],
-            string(defaultValue: '1e4', description: '', name: 'RANCHER_STACK_ID'),
-            string(defaultValue: 'edustor', description: '', name: 'RANCHER_SERVICE_NAME'),
-            string(defaultValue: 'edustor', description: '', name: 'RANCHER_STACK_NAME'),
-            string(defaultValue: 'https://rancher.wutiarn.ru/v1/projects/1a5', description: '', name: 'RANCHER_URL')
-    ]), pipelineTriggers([])])
+
+    REGISTRY_CREDENTIALS = "registry.wutiarn.ru"
+    REGISTRY_URL = "https://registry.wutiarn.ru"
+    RANCHER_URL = "https://rancher.wutiarn.ru/v1/projects/1a5"
+    RANCHER_API_CREDENTIALS = "api.rancher.wutiarn.ru"
+
+    RANCHER_STACK_NAME = "edustor"
+    RANCHER_SERVICE_NAME = "edustor"
+    RANCHER_STACK_ID = "1e4"
 
     stage("Checkout") {
         checkout scm
