@@ -13,8 +13,12 @@ node {
         checkout scm
     }
 
+    stage ("Prepare base") {
+        baseImage = docker.build("edustor/core-base", "-f base.Dockerfile")
+    }
+
     stage("Build") {
-        buildImage = docker.image("frekele/gradle:3-jdk8").inside("-v ${pwd()}:/root") {
+        buildImage = baseImage.inside("-v ${pwd()}:/root") {
             sh "./gradlew build"
         }
 
