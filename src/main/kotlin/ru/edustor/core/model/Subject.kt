@@ -5,13 +5,10 @@ import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import java.time.Instant
 import java.util.*
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.ManyToOne
+import javax.persistence.*
 
 @Entity
-class Subject() : Comparable<Subject> {
+open class Subject() : Comparable<Subject> {
 
     @Column(nullable = false)
     lateinit var name: String
@@ -19,6 +16,10 @@ class Subject() : Comparable<Subject> {
     @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore lateinit var owner: Account
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "subject", cascade = arrayOf(CascadeType.REMOVE), fetch = FetchType.LAZY)
+    var lessons: MutableList<Lesson> = mutableListOf()
 
     @Id var id: String = UUID.randomUUID().toString()
 
@@ -46,10 +47,14 @@ class Subject() : Comparable<Subject> {
 
     override fun equals(other: Any?): Boolean {
         if (other !is Subject) return false
-        return this.id.equals(other.id)
+        return this.id == other.id
     }
 
     override fun hashCode(): Int {
         return id.hashCode()
+    }
+
+    override fun toString(): String {
+        return "[$name]"
     }
 }

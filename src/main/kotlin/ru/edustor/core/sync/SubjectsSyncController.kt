@@ -4,12 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import ru.edustor.core.exceptions.NotFoundException
 import ru.edustor.core.model.internal.sync.SyncTask
-import ru.edustor.core.repository.SubjectsRepository
+import ru.edustor.core.repository.SubjectRepository
 import ru.edustor.core.rest.SubjectsController
 
 @Component
 open class SubjectsSyncController @Autowired constructor(
-        val subjectRepo: SubjectsRepository,
+        val subjectRepo: SubjectRepository,
         val subjectsController: SubjectsController
 ) {
     fun processTask(task: SyncTask): Any {

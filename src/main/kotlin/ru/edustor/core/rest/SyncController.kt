@@ -10,22 +10,22 @@ import org.springframework.web.bind.annotation.RestController
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.internal.sync.SyncTask
-import ru.edustor.core.repository.LessonsRepository
-import ru.edustor.core.repository.SubjectsRepository
+import ru.edustor.core.repository.LessonRepository
+import ru.edustor.core.repository.SubjectRepository
 import ru.edustor.core.service.FCMService
-import ru.edustor.core.sync.AccountSyncController
-import ru.edustor.core.sync.DocumentsSyncController
+import ru.edustor.core.sync.AccountsSyncController
 import ru.edustor.core.sync.LessonsSyncController
+import ru.edustor.core.sync.PagesSyncController
 import ru.edustor.core.sync.SubjectsSyncController
 
 @RestController
 @RequestMapping("/api/sync")
-class SyncController @Autowired constructor(
-        val subjectRepo: SubjectsRepository,
-        val lessonRepo: LessonsRepository,
+open class SyncController @Autowired constructor(
+        val subjectRepo: SubjectRepository,
+        val lessonRepo: LessonRepository,
         val lessonsSyncController: LessonsSyncController,
-        val documentsSyncController: DocumentsSyncController,
-        val accountSyncController: AccountSyncController,
+        val pagesSyncController: PagesSyncController,
+        val accountsSyncController: AccountsSyncController,
         val subjectsSyncController: SubjectsSyncController,
         val mapper: ObjectMapper,
         val fcmService: FCMService
@@ -35,7 +35,7 @@ class SyncController @Autowired constructor(
     @RequestMapping("/fetch")
     fun fetch(@AuthenticationPrincipal user: Account): Map<*, *> {
         val subjects = subjectRepo.findByOwner(user)
-        val lessons = lessonRepo.findBySubjectIn(subjects).map { it.documents = it.documents.filter { !it.removed }.toMutableList(); it }
+        val lessons = lessonRepo.findByOwner(user)
         return mapOf(
                 "user" to user,
                 "subjects" to subjects,
@@ -70,9 +70,9 @@ class SyncController @Autowired constructor(
 
         return when (group) {
             "lessons" -> lessonsSyncController.processTask(localTask)
-            "documents" -> documentsSyncController.processTask(localTask)
+            "pages" -> pagesSyncController.processTask(localTask)
             "subjects" -> subjectsSyncController.processTask(localTask)
-            "account" -> accountSyncController.processTask(localTask)
+            "account" -> accountsSyncController.processTask(localTask)
             else -> throw NoSuchMethodException("SyncController cannot resolve $group")
         }
     }

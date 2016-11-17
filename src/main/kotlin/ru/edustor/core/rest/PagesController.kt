@@ -7,22 +7,23 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
-import ru.edustor.core.model.Document
 import ru.edustor.core.model.Lesson
+import ru.edustor.core.model.Page
 import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
-import ru.edustor.core.repository.DocumentsRepository
-import ru.edustor.core.repository.LessonsRepository
+import ru.edustor.core.repository.LessonRepository
+import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.service.PdfUploadService
 import ru.edustor.core.util.extensions.assertHasAccess
 import ru.edustor.core.util.extensions.assertIsOwner
+import ru.edustor.core.util.extensions.recalculateIndexes
 import java.time.Instant
 import java.util.*
 
 @RestController
-@RequestMapping("/api/documents")
-class DocumentsController @Autowired constructor(
-        val lessonsRepo: LessonsRepository,
-        val documentsRepository: DocumentsRepository,
+@RequestMapping("/api/pages")
+class PagesController @Autowired constructor(
+        val lessonRepo: LessonRepository,
+        val pageRepository: PageRepository,
         val PdfUploadService: PdfUploadService
 ) {
     @RequestMapping("upload", method = arrayOf(RequestMethod.POST))
@@ -43,10 +44,10 @@ class DocumentsController @Autowired constructor(
     }
 
     @RequestMapping("/qr/{qr}")
-    fun documentByQr(@PathVariable qr: String, @AuthenticationPrincipal user: Account): Document? {
-        val document = documentsRepository.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        user.assertHasAccess(document, lessonsRepo)
-        return document
+    fun pageByQr(@PathVariable qr: String, @AuthenticationPrincipal user: Account): Page? {
+        val page = pageRepository.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
+        user.assertHasAccess(page, lessonRepo)
+        return page
     }
 
     @RequestMapping("/qr/activate")
@@ -58,34 +59,34 @@ class DocumentsController @Autowired constructor(
     ) {
         user.assertHasAccess(lesson)
 
-        val existingDoc = documentsRepository.findByQr(qr)
+        val existingDoc = pageRepository.findByQr(qr)
         if (existingDoc != null) {
             if (existingDoc.removed == true) {
-                documentsRepository.delete(existingDoc)
+                pageRepository.delete(existingDoc)
             } else {
                 throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This QR is already activated")
             }
         }
 
-        val document = Document(qr = qr, owner = user, timestamp = instant ?: Instant.now(), id = id)
-        lesson.documents.add(document)
-        lesson.recalculateDocumentsIndexes()
-        documentsRepository.save(document)
+        val page = Page(qr = qr, owner = user, timestamp = instant ?: Instant.now(), id = id)
+        lesson.pages.add(page)
+        lesson.pages.recalculateIndexes(lesson)
+        pageRepository.save(page)
 
-        lessonsRepo.save(lesson)
+        lessonRepo.save(lesson)
     }
 
-    @RequestMapping("/{document}", method = arrayOf(RequestMethod.DELETE))
-    fun delete(@AuthenticationPrincipal user: Account, @PathVariable document: Document) {
-        document.assertIsOwner(user)
-        document.removed = true
-        documentsRepository.save(document)
+    @RequestMapping("/{page}", method = arrayOf(RequestMethod.DELETE))
+    fun delete(@AuthenticationPrincipal user: Account, @PathVariable page: Page) {
+        page.assertIsOwner(user)
+        page.removed = true
+        pageRepository.save(page)
     }
 
-    @RequestMapping("/{document}/restore")
-    fun restore(@AuthenticationPrincipal user: Account, @PathVariable document: Document) {
-        document.assertIsOwner(user)
-        document.removed = false
-        documentsRepository.save(document)
+    @RequestMapping("/{page}/restore")
+    fun restore(@AuthenticationPrincipal user: Account, @PathVariable page: Page) {
+        page.assertIsOwner(user)
+        page.removed = false
+        pageRepository.save(page)
     }
 }

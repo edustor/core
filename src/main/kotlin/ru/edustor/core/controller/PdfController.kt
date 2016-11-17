@@ -66,19 +66,19 @@ class PdfController @Autowired constructor(val pdfStorage: PdfStorage, val pdfGe
     fun getPdf(@PathVariable lesson: Lesson?): ByteArray {
         lesson ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
 
-        if (!lesson.documents.any { it.contentType == "application/pdf" }) throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "No pages found")
+        if (!lesson.pages.any { it.contentType == "application/pdf" }) throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "No pages found")
         val document = com.itextpdf.text.Document()
 
         val outputStream = ByteArrayOutputStream()
         val copy = PdfCopy(document, outputStream)
         document.open()
 
-        lesson.documents
+        lesson.pages
                 .filter { it.isUploaded == true }
                 .filter { it.removed == false }
                 .filter { it.contentType == "application/pdf" }
                 .map {
-                    pdfStorage.get(it.id) ?: throw NotFoundException("Cannot find ${it.id} document")
+                    pdfStorage.get(it.id) ?: throw NotFoundException("Cannot find page file: ${it.id}")
                 }
                 .filterNotNull()
                 .map {

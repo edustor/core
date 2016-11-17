@@ -16,3 +16,5 @@ spring:
       hibernate:
         ddl-auto: update
       generate-ddl: true
+flyway:
+  validate-on-migrate: false

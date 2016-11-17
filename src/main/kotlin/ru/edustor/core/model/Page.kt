@@ -15,7 +15,7 @@ import javax.persistence.ManyToOne
 
 @Configuration
 @Entity
-open class Document() {
+open class Page() {
 
     @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -71,11 +71,11 @@ open class Document() {
 
     @Autowired
     fun setPdfStorage(ps: PdfStorage) {
-        Document.ps = ps
+        Page.ps = ps
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is Document) return false
+        if (other !is Page) return false
         return id == other.id
     }
 

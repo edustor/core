@@ -1,28 +1,35 @@
 package ru.edustor.core.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import org.hibernate.annotations.Fetch
+import org.hibernate.annotations.FetchMode
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import java.time.Instant
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.persistence.*
 
 @Entity
-@EntityListeners()
 open class Lesson() : Comparable<Lesson> {
     @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     lateinit var subject: Subject
+
+    @ManyToOne(optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore lateinit var owner: Account
 
     @Column(nullable = false)
     lateinit var date: LocalDate
 
     var topic: String? = null
 
-    @OneToMany(mappedBy = "lesson", cascade = arrayOf(CascadeType.REMOVE))
     @OrderBy("index ASC")
-    var documents: MutableList<Document> = mutableListOf()
+    @OneToMany(mappedBy = "lesson", cascade = arrayOf(CascadeType.REMOVE), fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
+    var pages: MutableList<Page> = mutableListOf()
 
     @Id var id: String = UUID.randomUUID().toString()
 
@@ -47,11 +54,7 @@ open class Lesson() : Comparable<Lesson> {
         return date.compareTo(other.date)
     }
 
-    fun recalculateDocumentsIndexes() {
-        var i = 0
-        documents.forEach {
-            it.index = i++
-            it.lesson = this
-        }
+    override fun toString(): String {
+        return "$subject ${topic ?: "No topic"} on ${date.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
     }
 }
