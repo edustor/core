@@ -10,8 +10,8 @@ import ru.edustor.core.model.Account
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
 import ru.edustor.core.model.Subject
-import ru.edustor.core.repository.LessonsRepository
-import ru.edustor.core.repository.PagesRepository
+import ru.edustor.core.repository.LessonRepository
+import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.util.extensions.assertHasAccess
 import ru.edustor.core.util.extensions.recalculateIndexes
 import rx.Observable
@@ -20,15 +20,15 @@ import java.time.LocalDate
 @RestController
 @RequestMapping("/api/lessons")
 open class LessonsController @Autowired constructor(
-        val lessonsRepo: LessonsRepository,
-        val pagesRepository: PagesRepository
+        val lessonRepo: LessonRepository,
+        val pageRepository: PageRepository
 ) {
 
     @RequestMapping("/{lessonId}", method = arrayOf(RequestMethod.POST))
     fun create(lessonId: String, subject: Subject, date: LocalDate) {
         val lesson = Lesson(subject, date)
         lesson.id = lessonId
-        lessonsRepo.save(lesson)
+        lessonRepo.save(lesson)
     }
 
     @RequestMapping("/{lesson}")
@@ -49,7 +49,7 @@ open class LessonsController @Autowired constructor(
     fun delete(@AuthenticationPrincipal user: Account, @PathVariable lesson: Lesson) {
         user.assertHasAccess(lesson)
         lesson.removed = true
-        lessonsRepo.save(lesson)
+        lessonRepo.save(lesson)
     }
 
     @RequestMapping("/{lesson}/pages")
@@ -62,19 +62,19 @@ open class LessonsController @Autowired constructor(
     fun restore(@AuthenticationPrincipal user: Account, @PathVariable lesson: Lesson) {
         user.assertHasAccess(lesson)
         lesson.removed = false
-        lessonsRepo.save(lesson)
+        lessonRepo.save(lesson)
     }
 
     @RequestMapping("/{lesson}/topic", method = arrayOf(RequestMethod.POST))
     fun setTopic(@PathVariable lesson: Lesson, @RequestParam(required = false) topic: String?, @AuthenticationPrincipal user: Account) {
         user.assertHasAccess(lesson)
         lesson.topic = topic
-        lessonsRepo.save(lesson)
+        lessonRepo.save(lesson)
     }
 
     @RequestMapping("/qr/{qr}")
     fun byPageQR(@AuthenticationPrincipal user: Account, @PathVariable qr: String): Lesson {
-        val page = pagesRepository.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Page is not found")
+        val page = pageRepository.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Page is not found")
         user.assertHasAccess(page.lesson)
 
         return page.lesson
@@ -98,7 +98,7 @@ open class LessonsController @Autowired constructor(
                     pagesList.add(targetIndex, page)
 
                     pagesList.recalculateIndexes(lesson)
-                    pagesRepository.save(pagesList)
+                    pageRepository.save(pagesList)
                 }
                 // Optimistic locking
                 .retry { i, throwable ->

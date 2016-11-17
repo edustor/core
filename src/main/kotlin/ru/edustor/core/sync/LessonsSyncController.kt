@@ -7,8 +7,8 @@ import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.exceptions.NotFoundException
 import ru.edustor.core.model.Page
 import ru.edustor.core.model.internal.sync.SyncTask
-import ru.edustor.core.repository.LessonsRepository
-import ru.edustor.core.repository.PagesRepository
+import ru.edustor.core.repository.LessonRepository
+import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.repository.SubjectRepository
 import ru.edustor.core.rest.LessonsController
 import java.time.LocalDate
@@ -16,9 +16,9 @@ import java.time.LocalDate
 @Component
 open class LessonsSyncController @Autowired constructor(
         val lessonsController: LessonsController,
-        val lessonsRepository: LessonsRepository,
+        val lessonRepository: LessonRepository,
         val folcersRepo: SubjectRepository,
-        val pagesRepository: PagesRepository
+        val pageRepository: PageRepository
 ) {
     fun processTask(task: SyncTask): Any {
         return when (task.method) {
@@ -42,12 +42,12 @@ open class LessonsSyncController @Autowired constructor(
     }
 
     fun setTopic(task: SyncTask) {
-        val lesson = lessonsRepository.findOne(task.params["lesson"]!!)
+        val lesson = lessonRepository.findOne(task.params["lesson"]!!)
         lessonsController.setTopic(lesson, task.params["topic"], task.user)
     }
 
     fun reorderPages(task: SyncTask) {
-        val lesson = lessonsRepository.findOne(task.params["lesson"]!!)
+        val lesson = lessonRepository.findOne(task.params["lesson"]!!)
         val page = getPage(task, required = true)!!
         val after = getPage(task, "after", false)
 
@@ -58,18 +58,18 @@ open class LessonsSyncController @Autowired constructor(
         val key = task.params[field] ?: if (required)
             throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "$field field is not provided") else return null
 
-        return pagesRepository.findOne(key) ?: throw NotFoundException("Page ($field) is not found")
+        return pageRepository.findOne(key) ?: throw NotFoundException("Page ($field) is not found")
 
     }
 
     fun delete(task: SyncTask) {
-        val lesson = lessonsRepository.findOne(task.params["lesson"]!!) ?:
+        val lesson = lessonRepository.findOne(task.params["lesson"]!!) ?:
                 throw NotFoundException("Lesson is not found")
         lessonsController.delete(task.user, lesson)
     }
 
     fun restore(task: SyncTask) {
-        val lesson = lessonsRepository.findOne(task.params["lesson"]!!) ?:
+        val lesson = lessonRepository.findOne(task.params["lesson"]!!) ?:
                 throw NotFoundException("Lesson is not found")
         lessonsController.restore(task.user, lesson)
     }

@@ -6,7 +6,7 @@ import ru.edustor.core.model.Account
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
 import ru.edustor.core.model.Subject
-import ru.edustor.core.repository.LessonsRepository
+import ru.edustor.core.repository.LessonRepository
 
 fun Account.hasAccess(subject: Subject): Boolean {
     return subject.owner == this
@@ -16,7 +16,7 @@ fun Account.hasAccess(lesson: Lesson): Boolean {
     return this.hasAccess(lesson.subject)
 }
 
-fun Account.hasAccess(page: Page, lessonsRepository: LessonsRepository): Boolean {
+fun Account.hasAccess(page: Page, lessonRepository: LessonRepository): Boolean {
     return this.hasAccess(page.lesson)
 }
 
@@ -28,8 +28,8 @@ fun Account.assertHasAccess(lesson: Lesson) {
     if (!this.hasAccess(lesson)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "Lesson access forbidden")
 }
 
-fun Account.assertHasAccess(page: Page, lessonsRepository: LessonsRepository) {
-    if (!this.hasAccess(page, lessonsRepository)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "Page access forbidden")
+fun Account.assertHasAccess(page: Page, lessonRepository: LessonRepository) {
+    if (!this.hasAccess(page, lessonRepository)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "Page access forbidden")
 }
 
 fun Page.assertIsOwner(user: Account) {

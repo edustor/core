@@ -7,8 +7,8 @@ import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
 import ru.edustor.core.model.Subject
 import ru.edustor.core.pdf.storage.PdfStorage
-import ru.edustor.core.repository.LessonsRepository
-import ru.edustor.core.repository.PagesRepository
+import ru.edustor.core.repository.LessonRepository
+import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.repository.SubjectRepository
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -16,8 +16,8 @@ import javax.annotation.PostConstruct
 
 @Service
 open class CleanupService(
-        val pagesRepository: PagesRepository,
-        val lessonsRepository: LessonsRepository,
+        val pageRepository: PageRepository,
+        val lessonRepository: LessonRepository,
         val subjectRepository: SubjectRepository,
         val pdfStorage: PdfStorage
 ) {
@@ -32,8 +32,8 @@ open class CleanupService(
         logger.info("Cleaning up entities removed before $cleanupBeforeDate")
 
         subjectRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteSubject(it) }
-        lessonsRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteLesson(it) }
-        pagesRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deletePage(it) }
+        lessonRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteLesson(it) }
+        pageRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deletePage(it) }
 
         logger.info("Removed entities cleanup finished")
     }
@@ -45,7 +45,7 @@ open class CleanupService(
 
     fun deleteLesson(lesson: Lesson) {
         logger.info("Cleaning up lesson: ${lesson.id}")
-        lessonsRepository.delete(lesson)
+        lessonRepository.delete(lesson)
     }
 
     fun deletePage(page: Page) {
@@ -53,6 +53,6 @@ open class CleanupService(
         page.isUploaded.let {
             pdfStorage.delete(page.id)
         }
-        pagesRepository.delete(page)
+        pageRepository.delete(page)
     }
 }

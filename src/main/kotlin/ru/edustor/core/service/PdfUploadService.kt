@@ -11,7 +11,7 @@ import ru.edustor.core.pdf.storage.PdfStorage
 import ru.edustor.core.pdf.upload.PdfPage
 import ru.edustor.core.pdf.upload.PdfProcessor
 import ru.edustor.core.repository.AccountRepository
-import ru.edustor.core.repository.PagesRepository
+import ru.edustor.core.repository.PageRepository
 import rx.Observable
 import rx.schedulers.Schedulers
 import java.io.InputStream
@@ -21,7 +21,7 @@ import com.itextpdf.text.Document as PdfDocument
 @Service
 class PdfUploadService @Autowired constructor(
         private val pdfStorage: PdfStorage,
-        private val pagesRepo: PagesRepository,
+        private val pageRepo: PageRepository,
         private val accountRepository: AccountRepository,
         private val telegramService: TelegramService,
         private val fcmService: FCMService
@@ -116,7 +116,7 @@ class PdfUploadService @Autowired constructor(
 
     private fun savePage(pdfPage: PdfPage, uploadPreferences: PdfUploadPreferences) {
 
-        val page: Page = pdfPage.qrData?.let { pagesRepo.findByQr(pdfPage.qrData) } ?: let {
+        val page: Page = pdfPage.qrData?.let { pageRepo.findByQr(pdfPage.qrData) } ?: let {
             val doc = Page(qr = pdfPage.qrData)
             uploadPreferences.lesson ?: let {
                 logger.warn("Not found page ${pdfPage.pageNumber} in database: ${pdfPage.qrData} and explicit " +
@@ -136,7 +136,7 @@ class PdfUploadService @Autowired constructor(
         page.uploadedTimestamp = Instant.now()
         page.contentType = "application/pdf"
         page.owner = uploadPreferences.uploader
-        pagesRepo.save(page)
+        pageRepo.save(page)
 
         page.lesson = page.lesson
     }

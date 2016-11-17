@@ -10,8 +10,8 @@ import ru.edustor.core.model.Account
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
 import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
-import ru.edustor.core.repository.LessonsRepository
-import ru.edustor.core.repository.PagesRepository
+import ru.edustor.core.repository.LessonRepository
+import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.service.PdfUploadService
 import ru.edustor.core.util.extensions.assertHasAccess
 import ru.edustor.core.util.extensions.assertIsOwner
@@ -22,8 +22,8 @@ import java.util.*
 @RestController
 @RequestMapping("/api/pages")
 class PagesController @Autowired constructor(
-        val lessonsRepo: LessonsRepository,
-        val pagesRepository: PagesRepository,
+        val lessonRepo: LessonRepository,
+        val pageRepository: PageRepository,
         val PdfUploadService: PdfUploadService
 ) {
     @RequestMapping("upload", method = arrayOf(RequestMethod.POST))
@@ -45,8 +45,8 @@ class PagesController @Autowired constructor(
 
     @RequestMapping("/qr/{qr}")
     fun pageByQr(@PathVariable qr: String, @AuthenticationPrincipal user: Account): Page? {
-        val page = pagesRepository.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        user.assertHasAccess(page, lessonsRepo)
+        val page = pageRepository.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
+        user.assertHasAccess(page, lessonRepo)
         return page
     }
 
@@ -59,10 +59,10 @@ class PagesController @Autowired constructor(
     ) {
         user.assertHasAccess(lesson)
 
-        val existingDoc = pagesRepository.findByQr(qr)
+        val existingDoc = pageRepository.findByQr(qr)
         if (existingDoc != null) {
             if (existingDoc.removed == true) {
-                pagesRepository.delete(existingDoc)
+                pageRepository.delete(existingDoc)
             } else {
                 throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This QR is already activated")
             }
@@ -71,22 +71,22 @@ class PagesController @Autowired constructor(
         val page = Page(qr = qr, owner = user, timestamp = instant ?: Instant.now(), id = id)
         lesson.pages.add(page)
         lesson.pages.recalculateIndexes(lesson)
-        pagesRepository.save(page)
+        pageRepository.save(page)
 
-        lessonsRepo.save(lesson)
+        lessonRepo.save(lesson)
     }
 
     @RequestMapping("/{page}", method = arrayOf(RequestMethod.DELETE))
     fun delete(@AuthenticationPrincipal user: Account, @PathVariable page: Page) {
         page.assertIsOwner(user)
         page.removed = true
-        pagesRepository.save(page)
+        pageRepository.save(page)
     }
 
     @RequestMapping("/{page}/restore")
     fun restore(@AuthenticationPrincipal user: Account, @PathVariable page: Page) {
         page.assertIsOwner(user)
         page.removed = false
-        pagesRepository.save(page)
+        pageRepository.save(page)
     }
 }

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.internal.sync.SyncTask
-import ru.edustor.core.repository.LessonsRepository
+import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.repository.SubjectRepository
 import ru.edustor.core.service.FCMService
 import ru.edustor.core.sync.AccountSyncController
@@ -22,7 +22,7 @@ import ru.edustor.core.sync.SubjectsSyncController
 @RequestMapping("/api/sync")
 open class SyncController @Autowired constructor(
         val subjectRepo: SubjectRepository,
-        val lessonRepo: LessonsRepository,
+        val lessonRepo: LessonRepository,
         val lessonsSyncController: LessonsSyncController,
         val pagesSyncController: PagesSyncController,
         val accountSyncController: AccountSyncController,

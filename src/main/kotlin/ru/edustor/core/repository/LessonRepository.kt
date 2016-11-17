@@ -6,7 +6,7 @@ import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Subject
 import java.time.Instant
 
-interface LessonsRepository : JpaRepository<Lesson, String> {
+interface LessonRepository : JpaRepository<Lesson, String> {
     fun findBySubject(subject: Subject): List<Lesson>
     fun findByOwner(account: Account): List<Lesson>
     fun findByRemovedOnLessThan(removedOn: Instant): List<Lesson>

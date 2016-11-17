@@ -8,13 +8,13 @@ import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Subject
-import ru.edustor.core.repository.LessonsRepository
+import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.repository.SubjectRepository
 import ru.edustor.core.util.extensions.assertHasAccess
 
 @RestController
 @RequestMapping("/api/subjects")
-class SubjectsController @Autowired constructor(val subjectRepository: SubjectRepository, val lessonsRepo: LessonsRepository) {
+class SubjectsController @Autowired constructor(val subjectRepository: SubjectRepository, val lessonRepo: LessonRepository) {
 
     @RequestMapping("/list")
     fun listSubjects(@AuthenticationPrincipal user: Account): List<Subject> {
@@ -35,7 +35,7 @@ class SubjectsController @Autowired constructor(val subjectRepository: SubjectRe
     @RequestMapping("/{subject}/lessons")
     fun subjectLessons(@PathVariable subject: Subject?): List<Lesson> {
         subject ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        return lessonsRepo.findBySubject(subject).filter { it.pages.isNotEmpty() && !it.removed }.sortedDescending()
+        return lessonRepo.findBySubject(subject).filter { it.pages.isNotEmpty() && !it.removed }.sortedDescending()
     }
 
     @RequestMapping("/{subject}", method = arrayOf(RequestMethod.DELETE))
