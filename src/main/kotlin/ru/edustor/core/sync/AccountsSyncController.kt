@@ -6,7 +6,7 @@ import ru.edustor.core.model.internal.sync.SyncTask
 import ru.edustor.core.rest.account.AccountController
 
 @Component
-open class AccountSyncController @Autowired constructor(val accountController: AccountController) {
+open class AccountsSyncController @Autowired constructor(val accountController: AccountController) {
     fun processTask(task: SyncTask): Any {
         when (task.method) {
             "FCMToken/put" -> return setFCMToken(task)
