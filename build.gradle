@@ -1,5 +1,5 @@
 group 'ru.edustor'
-version '0.5.0pre2b'
+version '0.5.0'
 
 buildscript {
     ext.kotlin_version = '1.0.4'
