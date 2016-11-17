@@ -15,7 +15,6 @@ import javax.persistence.*
 open class Lesson() : Comparable<Lesson> {
     @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore
     lateinit var subject: Subject
 
     @ManyToOne(optional = false)
