@@ -138,6 +138,6 @@ class PdfUploadService @Autowired constructor(
         page.owner = uploadPreferences.uploader
         pageRepo.save(page)
 
-        page.lesson = page.lesson
+        pdfPage.lesson = page.lesson
     }
 }
