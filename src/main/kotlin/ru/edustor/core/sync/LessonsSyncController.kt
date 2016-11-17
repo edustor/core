@@ -38,7 +38,7 @@ open class LessonsSyncController @Autowired constructor(
 
         val subject = folcersRepo.findOne(subjectId)
 
-        lessonsController.create(id!!, subject, LocalDate.ofEpochDay(epochDay))
+        lessonsController.create(id!!, subject, LocalDate.ofEpochDay(epochDay), task.user)
     }
 
     fun setTopic(task: SyncTask) {
