@@ -10,23 +10,23 @@ import org.springframework.web.bind.annotation.RestController
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.internal.sync.SyncTask
-import ru.edustor.core.repository.FoldersRepository
 import ru.edustor.core.repository.LessonsRepository
+import ru.edustor.core.repository.SubjectRepository
 import ru.edustor.core.service.FCMService
 import ru.edustor.core.sync.AccountSyncController
-import ru.edustor.core.sync.FoldersSyncController
 import ru.edustor.core.sync.LessonsSyncController
 import ru.edustor.core.sync.PagesSyncController
+import ru.edustor.core.sync.SubjectsSyncController
 
 @RestController
 @RequestMapping("/api/sync")
 open class SyncController @Autowired constructor(
-        val foldersRepo: FoldersRepository,
+        val subjectRepo: SubjectRepository,
         val lessonRepo: LessonsRepository,
         val lessonsSyncController: LessonsSyncController,
         val pagesSyncController: PagesSyncController,
         val accountSyncController: AccountSyncController,
-        val foldersSyncController: FoldersSyncController,
+        val subjectsSyncController: SubjectsSyncController,
         val mapper: ObjectMapper,
         val fcmService: FCMService
 ) {
@@ -34,11 +34,11 @@ open class SyncController @Autowired constructor(
 
     @RequestMapping("/fetch")
     fun fetch(@AuthenticationPrincipal user: Account): Map<*, *> {
-        val folders = foldersRepo.findByOwner(user)
+        val subjects = subjectRepo.findByOwner(user)
         val lessons = lessonRepo.findByOwner(user)
         return mapOf(
                 "user" to user,
-                "folders" to folders,
+                "subjects" to subjects,
                 "lessons" to lessons
         )
     }
@@ -71,7 +71,7 @@ open class SyncController @Autowired constructor(
         return when (group) {
             "lessons" -> lessonsSyncController.processTask(localTask)
             "pages" -> pagesSyncController.processTask(localTask)
-            "folders" -> foldersSyncController.processTask(localTask)
+            "subjects" -> subjectsSyncController.processTask(localTask)
             "account" -> accountSyncController.processTask(localTask)
             else -> throw NoSuchMethodException("SyncController cannot resolve $group")
         }

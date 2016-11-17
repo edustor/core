@@ -16,7 +16,7 @@ open class Lesson() : Comparable<Lesson> {
     @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
-    lateinit var folder: Folder
+    lateinit var subject: Subject
 
     @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -46,8 +46,8 @@ open class Lesson() : Comparable<Lesson> {
             }
         }
 
-    constructor(folder: Folder, date: LocalDate) : this() {
-        this.folder = folder
+    constructor(subject: Subject, date: LocalDate) : this() {
+        this.subject = subject
         this.date = date
     }
 
@@ -56,6 +56,6 @@ open class Lesson() : Comparable<Lesson> {
     }
 
     override fun toString(): String {
-        return "$folder ${topic ?: "No topic"} on ${date.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
+        return "$subject ${topic ?: "No topic"} on ${date.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
     }
 }

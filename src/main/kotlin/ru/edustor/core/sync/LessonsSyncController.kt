@@ -7,9 +7,9 @@ import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.exceptions.NotFoundException
 import ru.edustor.core.model.Page
 import ru.edustor.core.model.internal.sync.SyncTask
-import ru.edustor.core.repository.FoldersRepository
 import ru.edustor.core.repository.LessonsRepository
 import ru.edustor.core.repository.PagesRepository
+import ru.edustor.core.repository.SubjectRepository
 import ru.edustor.core.rest.LessonsController
 import java.time.LocalDate
 
@@ -17,7 +17,7 @@ import java.time.LocalDate
 open class LessonsSyncController @Autowired constructor(
         val lessonsController: LessonsController,
         val lessonsRepository: LessonsRepository,
-        val folcersRepo: FoldersRepository,
+        val folcersRepo: SubjectRepository,
         val pagesRepository: PagesRepository
 ) {
     fun processTask(task: SyncTask): Any {
@@ -34,11 +34,11 @@ open class LessonsSyncController @Autowired constructor(
     fun create(task: SyncTask) {
         val id = task.params["id"]
         val epochDay = task.params["date"]!!.toLong()
-        val folderId = task.params["folder"]!!
+        val subjectId = task.params["subject"]!!
 
-        val folder = folcersRepo.findOne(folderId)
+        val subject = folcersRepo.findOne(subjectId)
 
-        lessonsController.create(id!!, folder, LocalDate.ofEpochDay(epochDay))
+        lessonsController.create(id!!, subject, LocalDate.ofEpochDay(epochDay))
     }
 
     fun setTopic(task: SyncTask) {

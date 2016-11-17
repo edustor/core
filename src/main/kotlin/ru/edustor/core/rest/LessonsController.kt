@@ -7,9 +7,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
-import ru.edustor.core.model.Folder
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
+import ru.edustor.core.model.Subject
 import ru.edustor.core.repository.LessonsRepository
 import ru.edustor.core.repository.PagesRepository
 import ru.edustor.core.util.extensions.assertHasAccess
@@ -25,8 +25,8 @@ open class LessonsController @Autowired constructor(
 ) {
 
     @RequestMapping("/{lessonId}", method = arrayOf(RequestMethod.POST))
-    fun create(lessonId: String, folder: Folder, date: LocalDate) {
-        val lesson = Lesson(folder, date)
+    fun create(lessonId: String, subject: Subject, date: LocalDate) {
+        val lesson = Lesson(subject, date)
         lesson.id = lessonId
         lessonsRepo.save(lesson)
     }

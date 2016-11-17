@@ -8,7 +8,7 @@ import java.util.*
 import javax.persistence.*
 
 @Entity
-open class Folder() : Comparable<Folder> {
+open class Subject() : Comparable<Subject> {
 
     @Column(nullable = false)
     lateinit var name: String
@@ -17,15 +17,8 @@ open class Folder() : Comparable<Folder> {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore lateinit var owner: Account
 
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @ManyToOne
-    var parent: Folder? = null
-
-    @OneToMany(mappedBy = "parent", cascade = arrayOf(CascadeType.REMOVE))
-    var childFolders: MutableList<Folder> = mutableListOf()
-
     @JsonIgnore
-    @OneToMany(mappedBy = "folder", cascade = arrayOf(CascadeType.REMOVE), fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "subject", cascade = arrayOf(CascadeType.REMOVE), fetch = FetchType.LAZY)
     var lessons: MutableList<Lesson> = mutableListOf()
 
     @Id var id: String = UUID.randomUUID().toString()
@@ -42,19 +35,18 @@ open class Folder() : Comparable<Folder> {
             }
         }
 
-    constructor(name: String, owner: Account, parent: Folder? = null) : this() {
+    constructor(name: String, owner: Account) : this() {
         this.name = name
         this.owner = owner
-        this.parent = parent
     }
 
 
-    override fun compareTo(other: Folder): Int {
+    override fun compareTo(other: Subject): Int {
         return name.compareTo(other.name)
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is Folder) return false
+        if (other !is Subject) return false
         return this.id == other.id
     }
 
@@ -63,12 +55,6 @@ open class Folder() : Comparable<Folder> {
     }
 
     override fun toString(): String {
-        val breadcrumbs = mutableListOf(this)
-
-        while (breadcrumbs.lastOrNull()?.parent != null) {
-            breadcrumbs.add(breadcrumbs.last().parent!!)
-        }
-
-        return breadcrumbs.reversed().map { it.name }.joinToString("/", "[", "]")
+        return "[$name]"
     }
 }

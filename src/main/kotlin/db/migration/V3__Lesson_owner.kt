@@ -4,16 +4,16 @@ import org.flywaydb.core.api.migration.spring.SpringJdbcMigration
 import org.springframework.jdbc.core.JdbcTemplate
 
 @Suppress("unused")
-class V4__Lesson_owner : SpringJdbcMigration {
+class V3__Lesson_owner : SpringJdbcMigration {
     override fun migrate(jdbcTemplate: JdbcTemplate) {
 
         jdbcTemplate.execute("ALTER TABLE lesson ADD COLUMN owner_id character varying(255);")
 
-        val folderOwners = jdbcTemplate.queryForList("SELECT id, owner_id FROM folder;")
+        val subjectOwners = jdbcTemplate.queryForList("SELECT id, owner_id FROM subject;")
                 .associateBy({ it["id"] }, { it["owner_id"] })
 
-        jdbcTemplate.queryForList("SELECT id, folder_id FROM lesson;").forEach { lessonMap ->
-            val ownerId = folderOwners[lessonMap["folder_id"]]
+        jdbcTemplate.queryForList("SELECT id, subject_id FROM lesson;").forEach { lessonMap ->
+            val ownerId = subjectOwners[lessonMap["subject_id"]]
             val id = lessonMap["id"]
             jdbcTemplate.update("UPDATE lesson SET owner_id = '$ownerId' WHERE id = '$id';")
         }
