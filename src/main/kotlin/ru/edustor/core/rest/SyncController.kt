@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
+import ru.edustor.core.model.Page
 import ru.edustor.core.model.internal.sync.SyncTask
 import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.repository.SubjectRepository
@@ -34,8 +35,11 @@ open class SyncController @Autowired constructor(
 
     @RequestMapping("/fetch")
     fun fetch(@AuthenticationPrincipal user: Account): Map<*, *> {
-        val subjects = subjectRepo.findByOwner(user)
-        val lessons = lessonRepo.findByOwner(user)
+        val subjects = subjectRepo.findByOwner(user).filter { it.removed == false }
+
+        val lessons = lessonRepo.findBySubjectIn(subjects)
+        lessons.forEach { it.pages = (it.pages.filter { it.removed == false } as MutableList<Page>) }
+
         return mapOf(
                 "user" to user,
                 "subjects" to subjects,

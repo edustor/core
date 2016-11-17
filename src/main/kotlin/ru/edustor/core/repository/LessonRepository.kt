@@ -9,5 +9,6 @@ import java.time.Instant
 interface LessonRepository : JpaRepository<Lesson, String> {
     fun findBySubject(subject: Subject): List<Lesson>
     fun findByOwner(account: Account): List<Lesson>
+    fun findBySubjectIn(subjects: List<Subject>): List<Lesson>
     fun findByRemovedOnLessThan(removedOn: Instant): List<Lesson>
 }

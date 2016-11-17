@@ -45,9 +45,10 @@ open class Lesson() : Comparable<Lesson> {
             }
         }
 
-    constructor(subject: Subject, date: LocalDate) : this() {
+    constructor(subject: Subject, date: LocalDate, owner: Account) : this() {
         this.subject = subject
         this.date = date
+        this.owner = owner
     }
 
     override fun compareTo(other: Lesson): Int {

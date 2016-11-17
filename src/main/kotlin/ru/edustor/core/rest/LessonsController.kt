@@ -25,8 +25,9 @@ open class LessonsController @Autowired constructor(
 ) {
 
     @RequestMapping("/{lessonId}", method = arrayOf(RequestMethod.POST))
-    fun create(lessonId: String, subject: Subject, date: LocalDate) {
-        val lesson = Lesson(subject, date)
+    fun create(lessonId: String, subject: Subject, date: LocalDate, @AuthenticationPrincipal user: Account) {
+        user.assertHasAccess(subject)
+        val lesson = Lesson(subject, date, user)
         lesson.id = lessonId
         lessonRepo.save(lesson)
     }
