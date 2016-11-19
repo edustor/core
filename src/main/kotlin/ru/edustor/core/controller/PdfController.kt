@@ -72,6 +72,7 @@ class PdfController @Autowired constructor(val pdfStorage: PdfStorage, val pdfGe
         val outputStream = ByteArrayOutputStream()
         val copy = PdfCopy(document, outputStream)
         document.open()
+        document.addTitle("$lesson")
 
         lesson.pages
                 .filter { it.isUploaded == true }
