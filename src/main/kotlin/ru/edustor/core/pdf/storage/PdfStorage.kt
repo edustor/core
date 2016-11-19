@@ -4,14 +4,11 @@ import io.minio.MinioClient
 import io.minio.errors.MinioException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.data.mongodb.core.query.Query
-import org.springframework.data.mongodb.gridfs.GridFsCriteria
-import org.springframework.data.mongodb.gridfs.GridFsOperations
 import org.springframework.stereotype.Component
 import java.io.InputStream
 
 @Component
-open class PdfStorage(val gfs: GridFsOperations) {
+open class PdfStorage() {
 
     val BUCKET_NAME = "edustor-pages"
 
@@ -30,9 +27,6 @@ open class PdfStorage(val gfs: GridFsOperations) {
     }
 
     fun put(id: String, content: InputStream, size: Long) {
-        val existedQuery = Query.query(GridFsCriteria.whereFilename().`is`(id))
-        gfs.delete(existedQuery)
-
         logger.debug("Saving PDF $id...")
         binaryStorage.putObject(BUCKET_NAME, "$id.pdf", content, size, "application/pdf")
         logger.info("Save finished: $id")
