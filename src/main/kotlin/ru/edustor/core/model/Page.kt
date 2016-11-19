@@ -41,9 +41,6 @@ open class Page() {
     var removedOn: Instant? = null
     var index: Int = 0
 
-    val fileMD5: String?
-        get() = ps.getMD5(id)
-
     var removed: Boolean = false
         set(value) {
             field = value
@@ -67,6 +64,11 @@ open class Page() {
 
     constructor(qr: String?) : this() {
         this.qr = qr
+    }
+
+    @JsonIgnore
+    fun getFileMD5(): String? {
+        return ps.getMD5(id)
     }
 
     @Autowired
