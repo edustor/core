@@ -2,7 +2,7 @@ group 'ru.edustor'
 version '0.5.0.3'
 
 buildscript {
-    ext.kotlin_version = '1.0.4'
+    ext.kotlin_version = '1.0.5-2'
     ext.spring_boot_version = '1.4.1.RELEASE'
     repositories {
         mavenCentral()
