@@ -2,6 +2,7 @@ package ru.edustor.core.rest
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -33,7 +34,7 @@ open class SyncController @Autowired constructor(
         val fcmService: FCMService
 ) {
     val delimiterRegex = "/".toRegex()
-    val logger = LoggerFactory.getLogger(SyncController::class.java)
+    val logger: Logger = LoggerFactory.getLogger(SyncController::class.java)
 
     @RequestMapping("/fetch")
     fun fetch(@AuthenticationPrincipal user: Account): Map<*, *> {

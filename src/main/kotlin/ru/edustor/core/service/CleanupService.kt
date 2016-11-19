@@ -1,5 +1,6 @@
 package ru.edustor.core.service
 
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -22,7 +23,7 @@ open class CleanupService(
         val pdfStorage: PdfStorage
 ) {
 
-    val logger = LoggerFactory.getLogger(CleanupService::class.java)
+    val logger: Logger = LoggerFactory.getLogger(CleanupService::class.java)
 
     @Scheduled(cron = "0 0 4 * * *", zone = "Europe/Moscow")
     @PostConstruct

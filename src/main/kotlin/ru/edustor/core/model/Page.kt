@@ -3,9 +3,6 @@ package ru.edustor.core.model
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Configuration
-import ru.edustor.core.pdf.storage.PdfStorage
 import java.time.Instant
 import java.util.*
 import javax.persistence.Column
@@ -13,7 +10,6 @@ import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.ManyToOne
 
-@Configuration
 @Entity
 open class Page() {
 
@@ -51,10 +47,6 @@ open class Page() {
             }
         }
 
-    companion object {
-        lateinit private var ps: PdfStorage
-    }
-
     constructor(qr: String?, owner: Account, timestamp: Instant, id: String) : this() {
         this.qr = qr
         this.owner = owner
@@ -64,16 +56,6 @@ open class Page() {
 
     constructor(qr: String?) : this() {
         this.qr = qr
-    }
-
-    @JsonIgnore
-    fun getFileMD5(): String? {
-        return ps.getMD5(id)
-    }
-
-    @Autowired
-    fun setPdfStorage(ps: PdfStorage) {
-        Page.ps = ps
     }
 
     override fun equals(other: Any?): Boolean {

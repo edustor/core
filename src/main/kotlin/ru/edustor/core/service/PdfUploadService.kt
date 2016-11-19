@@ -130,7 +130,7 @@ class PdfUploadService @Autowired constructor(
             page.lesson = it
         }
 
-        pdfStorage.put(page.id, pdfPage.binary!!.inputStream())
+        pdfStorage.put(page.id, pdfPage.binary!!.inputStream(), pdfPage.binary!!.size.toLong())
 
         page.isUploaded = true
         page.uploadedTimestamp = Instant.now()

@@ -42,7 +42,7 @@ open class LessonsController @Autowired constructor(
     @RequestMapping("/{lesson}/removed")
     fun getLessonRemovedDocs(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: Account): List<Page> {
         user.assertHasAccess(lesson)
-        return lesson.pages.filter { it.removed }
+        return lesson.pages.filter(Page::removed)
     }
 
 
