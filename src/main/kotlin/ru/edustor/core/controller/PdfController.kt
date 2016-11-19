@@ -81,8 +81,8 @@ class PdfController @Autowired constructor(val pdfStorage: PdfStorage, val pdfGe
                     pdfStorage.get(it.id) ?: throw NotFoundException("Cannot find page file: ${it.id}")
                 }
                 .filterNotNull()
-                .map {
-                    val pdfReader = PdfReader(it)
+                .forEach { pageStream ->
+                    val pdfReader = PdfReader(pageStream)
                     copy.addDocument(pdfReader)
                 }
         document.close()

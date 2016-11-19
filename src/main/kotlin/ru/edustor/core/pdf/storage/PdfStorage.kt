@@ -43,12 +43,10 @@ open class PdfStorage(val gfs: GridFsOperations) {
         val fileName = "$id.pdf"
 
         try {
-            binaryStorage.statObject(BUCKET_NAME, fileName)
+            return binaryStorage.getObject(BUCKET_NAME, fileName)
         } catch (e: MinioException) {
             return null
         }
-
-        return binaryStorage.getObject(BUCKET_NAME, fileName)
     }
 
     fun delete(id: String) {
