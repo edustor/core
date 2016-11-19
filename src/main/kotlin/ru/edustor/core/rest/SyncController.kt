@@ -2,6 +2,7 @@ package ru.edustor.core.rest
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.RequestBody
@@ -32,13 +33,20 @@ open class SyncController @Autowired constructor(
         val fcmService: FCMService
 ) {
     val delimiterRegex = "/".toRegex()
+    val logger = LoggerFactory.getLogger(SyncController::class.java)
 
     @RequestMapping("/fetch")
     fun fetch(@AuthenticationPrincipal user: Account): Map<*, *> {
         val subjects = subjectRepo.findByOwner(user).filter { it.removed == false }
 
         val lessons = lessonRepo.findBySubjectIn(subjects)
+
+        logger.debug("FETCH: Database fetch finished")
+
+
         lessons.forEach { it.pages = (it.pages.filter { it.removed == false } as MutableList<Page>) }
+
+        logger.debug("FETCH: Data preprocessing finished")
 
         return mapOf(
                 "user" to user,
