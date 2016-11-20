@@ -55,7 +55,6 @@ open class PdfProcessor {
     }
 
     fun getPage(n: Int): PdfPage {
-        Thread.sleep(500)
         val pageBin = extractPage(n)
         val preview = renderPage(n)
         val (uuid, qrImages) = readQR(preview)
