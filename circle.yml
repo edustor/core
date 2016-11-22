@@ -1,0 +1,43 @@
+machine:
+  pre:
+    - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
+  services:
+    - docker
+  post:
+    - docker login -u wutiarn -e me@wutiarn.ru -p $DOCKER_HUB_PASSWORD
+test:
+  post:
+    - ./gradlew assemble
+    - cp build/dist/*.jar $CIRCLE_ARTIFACTS
+    - (cd $CIRCLE_ARTIFACTS && sha1sum * > sha1sum.txt)
+    - cat $CIRCLE_ARTIFACTS/sha1sum.txt
+deployment:
+  github:
+    tag: /.*/
+    owner: wutiarn
+    commands:
+      - ls -la $CIRCLE_ARTIFACTS
+      - docker run
+        -v $CIRCLE_ARTIFACTS:/artifacts
+        wutiarn/ghr
+        ghr -t $GITHUB_TOKEN
+        -u edustor
+        -r core
+        $CIRCLE_TAG /artifacts
+  production:
+    branch: master
+    commands:
+      - ./ci-base/ci-base.sh Dockerfile.ci
+      - docker build --rm=false -t edustor/core -f Dockerfile.ci .
+      - docker history edustor/core
+      - docker push edustor/core:latest | cat
+      - docker run
+        -e "RANCHER_URL=https://rancher.wutiarn.ru/v1/projects/1a5"
+        -e "RANCHER_STACK_NAME=edustor"
+        -e "RANCHER_SERVICE_NAME=edustor"
+        -e "RANCHER_STACK_ID=$RANCHER_STACK_ID"
+        -e "RANCHER_ACCESS_KEY=$RANCHER_ACCESS_KEY"
+        -e "RANCHER_SECRET_KEY=$RANCHER_SECRET_KEY"
+        wutiarn/rancher-deployer
+# REQUIRED ENVIRONMENTS
+# DOCKER_HUB_PASSWORD RANCHER_STACK_ID RANCHER_ACCESS_KEY RANCHER_SECRET_KEY GITHUB_TOKEN
