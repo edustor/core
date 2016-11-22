@@ -7,6 +7,8 @@ machine:
     - docker login -u wutiarn -e me@wutiarn.ru -p $DOCKER_HUB_PASSWORD
 
 dependencies:
+  override:
+    - ./gradlew compileKotlin compileTestKotlin
   post:
     - ./ci-base/ci-base.sh Dockerfile.ci
 test:
