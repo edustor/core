@@ -13,6 +13,7 @@ test:
   override:
     - docker run
       -v $(pwd):/code
+      -v $HOME:/root
       wutiarn/ci-base-cache:test
       ./gradlew test
   post:
