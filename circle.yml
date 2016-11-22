@@ -18,6 +18,7 @@ test:
       -e GRADLE_USER_HOME=/root/.gradle
       wutiarn/ci-base-cache:test
       ./gradlew test
+    - sudo chown -R $UID $HOME/.gradle .
   post:
     - ./gradlew assemble
     - cp build/dist/*.jar $CIRCLE_ARTIFACTS
