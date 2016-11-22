@@ -13,7 +13,7 @@ test:
   override:
     - docker run wutiarn/ci-base-cache:test echo "$HOME"
     - docker run
-      -u root
+      -e HOME=/root
       -v $(pwd):/code
       -v $HOME:/root
       wutiarn/ci-base-cache:test
