@@ -12,6 +12,7 @@ dependencies:
 test:
   override:
     - docker run
+      -u root
       -v $(pwd):/code
       -v $HOME:/root
       wutiarn/ci-base-cache:test
