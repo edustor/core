@@ -14,9 +14,9 @@ test:
     - docker run wutiarn/ci-base-cache:test echo "$HOME"
     - docker run
       -u $UID
-      -e HOME=/root
-      -v $HOME:/root
       -v $(pwd):/code
+      -v $HOME/.gradle:/root/.gradle
+      -e GRADLE_USER_HOME=/root/.gradle
       wutiarn/ci-base-cache:test
       ./gradlew test
   post:
