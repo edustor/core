@@ -16,13 +16,10 @@ test:
   override:
     - docker run wutiarn/ci-base-cache:test echo "$HOME"
     - docker run
-      -w $PWD
-      -v $PWD:$PWD
-      -v $HOME/.gradle/caches:/root/.gradle/caches
-      -v $HOME/.gradle/wrapper:/root/.gradle/wrapper
+      -w $PWD -v $PWD:$PWD
+      -v $HOME/.gradle/:/root/.gradle/
       -e GRADLE_USER_HOME=/root/.gradle
-      wutiarn/ci-base-cache:test
-      ./gradlew test
+      wutiarn/ci-base-cache:test ./gradlew test
     - sudo chown -R $UID $HOME/.gradle .
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
