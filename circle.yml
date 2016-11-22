@@ -31,7 +31,7 @@ test:
 deployment:
   github:
     tag: /.*/
-    owner: wutiarn
+    owner: edustor
     commands:
       - ls -la $CIRCLE_ARTIFACTS
       - docker run
