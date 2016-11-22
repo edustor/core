@@ -13,9 +13,10 @@ test:
   override:
     - docker run wutiarn/ci-base-cache:test echo "$HOME"
     - docker run
+      -u $UID
       -e HOME=/root
-      -v $(pwd):/code
       -v $HOME:/root
+      -v $(pwd):/code
       wutiarn/ci-base-cache:test
       ./gradlew test
   post:
