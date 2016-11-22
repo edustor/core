@@ -5,7 +5,16 @@ machine:
     - docker
   post:
     - docker login -u wutiarn -e me@wutiarn.ru -p $DOCKER_HUB_PASSWORD
+
+dependencies:
+  post:
+    - ./ci-base/ci-base.sh Dockerfile.ci
 test:
+  override:
+    - docker run
+      -v .:/code
+      wutiarn/ci-base-cache:test
+      ./gradlew test
   post:
     - ./gradlew assemble
     - cp build/dist/*.jar $CIRCLE_ARTIFACTS
@@ -27,7 +36,6 @@ deployment:
   production:
     branch: master
     commands:
-      - ./ci-base/ci-base.sh Dockerfile.ci
       - docker build --rm=false -t edustor/core -f Dockerfile.ci .
       - docker history edustor/core
       - docker push edustor/core:latest | cat

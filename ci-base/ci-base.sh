@@ -5,6 +5,7 @@ BASEDIR=$(pwd)
 cd "$(dirname "$0")"
 
 VERSION_TAG="$(sha1sum Dockerfile.base | sha1sum | cut -d' ' -f1)"
+TEST_IMAGE="wutiarn/ci-base-cache:test"
 IMAGE_ID="wutiarn/ci-base-cache:$VERSION_TAG"
 
 echo -n "$VERSION_TAG" > VERSION_TAG.txt
@@ -21,6 +22,9 @@ else
     echo "Pushing as $IMAGE_ID..."
     docker push "$IMAGE_ID" | cat
 fi;
+
+echo "Tagging $IMAGE_ID as $TEST_IMAGE"
+docker tag ${IMAGE_ID} ${TEST_IMAGE}
 
 docker history "$IMAGE_ID"
 
