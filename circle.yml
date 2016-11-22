@@ -24,7 +24,7 @@ test:
       -e GRADLE_USER_HOME=/root/.gradle
       -w /code
       wutiarn/ci-base-cache:test
-      bash -c "./gradlew test; cp build/test-results/*.xml /test-results"
+      bash -c "./gradlew test; find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} /test-results/ \;"
     - sudo chown -R $UID $HOME/.gradle .
   post:
     - ./gradlew assemble
