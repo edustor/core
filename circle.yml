@@ -22,8 +22,10 @@ test:
       -v $HOME/.gradle/wrapper:/root/.gradle/wrapper
       -e GRADLE_USER_HOME=/root/.gradle
       wutiarn/ci-base-cache:test
-      bash -c "./gradlew test; find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} /test-results/ \;"
+      ./gradlew test
     - sudo chown -R $UID $HOME/.gradle .
+    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+    - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
   post:
     - ./gradlew assemble
     - cp build/dist/*.jar $CIRCLE_ARTIFACTS
