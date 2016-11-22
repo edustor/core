@@ -12,7 +12,7 @@ dependencies:
 test:
   override:
     - docker run
-      -v .:/code
+      -v $(pwd):/code
       wutiarn/ci-base-cache:test
       ./gradlew test
   post:
