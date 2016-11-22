@@ -7,7 +7,6 @@ machine:
     - docker
   post:
     - docker login -u wutiarn -e me@wutiarn.ru -p $DOCKER_HUB_PASSWORD
-
 dependencies:
   override:
     - ./gradlew compileKotlin compileTestKotlin
@@ -18,10 +17,14 @@ test:
     - docker run wutiarn/ci-base-cache:test echo "$HOME"
     - docker run
       -v $(pwd):/code
-      -v $HOME/.gradle:/root/.gradle
+      -v /code/build
+      -v $CIRCLE_TEST_REPORTS/junit:/test-results
+      -v $HOME/.gradle/caches:/root/.gradle/caches
+      -v $HOME/.gradle/wrapper:/root/.gradle/wrapper
       -e GRADLE_USER_HOME=/root/.gradle
+      -w /code
       wutiarn/ci-base-cache:test
-      ./gradlew test
+      bash -c "./gradlew test; cp build/test-results/*.xml /test-results"
     - sudo chown -R $UID $HOME/.gradle .
   post:
     - ./gradlew assemble
