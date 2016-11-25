@@ -19,7 +19,7 @@ apply plugin: 'kotlin'
 apply plugin: 'spring-boot'
 
 group 'ru.edustor'
-version '0.5.0.5'
+version '0.5.0.6'
 
 
 repositories {
@@ -59,6 +59,7 @@ dependencies {
     compile 'io.jsonwebtoken:jjwt:0.7.0'
     compile 'org.flywaydb:flyway-core:4.0.3'
     compile 'io.minio:minio:2.0.4'
+    compile 'commons-codec:commons-codec:1.10'
 
     compile 'net.java.dev.jna:jna:4.1.0'
     compile 'org.hibernate:hibernate-core:5.2.3.Final'

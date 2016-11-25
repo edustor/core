@@ -2,6 +2,7 @@ package ru.edustor.core.service
 
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -130,7 +131,9 @@ class PdfUploadService @Autowired constructor(
             page.lesson = it
         }
 
-        pdfStorage.put(page.id, pdfPage.binary!!.inputStream(), pdfPage.binary!!.size.toLong())
+        val pdfPageBytes = pdfPage.binary!!
+        page.fileMD5 = DigestUtils.md5Hex(pdfPageBytes)
+        pdfStorage.put(page.id, pdfPageBytes.inputStream(), pdfPageBytes.size.toLong())
 
         page.isUploaded = true
         page.uploadedTimestamp = Instant.now()

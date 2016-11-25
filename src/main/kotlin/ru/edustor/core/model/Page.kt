@@ -34,6 +34,7 @@ open class Page() {
     var qr: String? = null
     var contentType: String? = null
     var uploadedTimestamp: Instant? = null
+    @Column(name = "file_md5") var fileMD5: String? = null
     var removedOn: Instant? = null
     var index: Int = 0
 
