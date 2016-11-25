@@ -12,6 +12,7 @@ import ru.edustor.core.pdf.upload.PdfPage
 import ru.edustor.core.pdf.upload.PdfProcessor
 import ru.edustor.core.repository.AccountRepository
 import ru.edustor.core.repository.PageRepository
+import ru.edustor.core.util.extensions.calculateMD5
 import rx.Observable
 import rx.schedulers.Schedulers
 import java.io.InputStream
@@ -129,6 +130,8 @@ class PdfUploadService @Autowired constructor(
         uploadPreferences.lesson?.let {
             page.lesson = it
         }
+
+        page.fileMD5 = pdfPage.binary!!.calculateMD5()
 
         pdfStorage.put(page.id, pdfPage.binary!!.inputStream(), pdfPage.binary!!.size.toLong())
 
