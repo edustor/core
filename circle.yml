@@ -5,12 +5,11 @@ machine:
     - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
   services:
     - docker
-  post:
-    - docker login -u wutiarn -e me@wutiarn.ru -p $DOCKER_HUB_PASSWORD
 dependencies:
   override:
     - ./gradlew resolveConfigurations
   post:
+    - docker login -u wutiarn+circleci_cache -e me@wutiarn.ru -p $QUAY_CACHE_PASSWORD quay.io
     - ./ci-base/ci-base.sh Dockerfile.ci
 test:
   override:
@@ -44,8 +43,15 @@ deployment:
   production:
     branch: master
     commands:
-      - docker build --rm=false -t edustor/core -f Dockerfile.ci .
-      - docker history edustor/core
-      - docker push edustor/core:latest | cat
+      - docker login -u edustor+circleci -e me@wutiarn.ru -p $QUAY_EDUSTOR_PASSWORD quay.io
+      - docker build --rm=false -t result -f Dockerfile.ci .
+      - docker history result
+      - docker tag result quay.io/edustor/core:ci-$CIRCLE_BUILD_NUM
+      - docker tag result quay.io/edustor/core:latest
+      - docker push quay.io/edustor/core:ci-$CIRCLE_BUILD_NUM | cat
+      - docker push quay.io/edustor/core:latest | cat
+      - docker run quay.io/wutiarn/kubectl
+        kubectl --server https://k8s.wutiarn.ru --token $K8S_TOKEN
+        set image -n edustor deployment/core core="quay.io/edustor/core:ci-$CIRCLE_BUILD_NUM"
 # REQUIRED ENVIRONMENTS
-# DOCKER_HUB_PASSWORD GITHUB_TOKEN
+# QUAY_CACHE_PASSWORD QUAY_EDUSTOR_PASSWORD K8S_TOKEN GITHUB_TOKEN
