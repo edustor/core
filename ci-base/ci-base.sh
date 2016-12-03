@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 
 VERSION_TAG="$(sha1sum Dockerfile.base | sha1sum | cut -d' ' -f1)"
 TEST_IMAGE="wutiarn/ci-base-cache:test"
-IMAGE_ID="wutiarn/ci-base-cache:$VERSION_TAG"
+IMAGE_ID="quay.io/wutiarn/ci-base-cache:$VERSION_TAG"
 
 echo -n "$VERSION_TAG" > VERSION_TAG.txt
 
