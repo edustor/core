@@ -44,12 +44,14 @@ test {
 dependencies {
     compile "ru.edustor.commons:storage:$edustor_commons_version"
     compile "ru.edustor.commons:auth:$edustor_commons_version"
+    compile "ru.edustor.commons:rabbit:$edustor_commons_version"
 
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.springframework.boot:spring-boot-starter-web"
     compile "org.springframework.boot:spring-boot-starter-data-jpa"
     compile "org.springframework.boot:spring-boot-starter-freemarker"
     compile "org.springframework.boot:spring-boot-starter-logging"
+    compile "org.springframework.boot:spring-boot-starter-amqp"
     compile "com.google.zxing:core:3.2.1"
     compile "com.google.zxing:javase:3.2.1"
     compile 'com.itextpdf:itextpdf:5.5.8'

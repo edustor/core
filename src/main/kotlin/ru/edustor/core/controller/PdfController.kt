@@ -40,7 +40,7 @@ class PdfController @Autowired constructor(val storage: BinaryObjectStorageServi
                 .filter { it.removed == false }
                 .filter { it.contentType == "application/pdf" }
                 .map {
-                    storage.get(PAGE, it.id) ?: throw NotFoundException("Cannot find page file: ${it.id}")
+                    it.fileId?.let { storage.get(PAGE, it) } ?: throw NotFoundException("Cannot find page file: ${it.fileId}")
                 }
                 .filterNotNull()
                 .forEach { pageStream ->
