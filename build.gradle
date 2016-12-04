@@ -1,6 +1,7 @@
 buildscript {
     ext.kotlin_version = '1.0.5-2'
     ext.spring_boot_version = '1.4.1.RELEASE'
+    ext.edustor_commons_version = '5c18bae'
     repositories {
         mavenCentral()
     }
@@ -25,6 +26,7 @@ version '0.6.0a1'
 repositories {
     mavenCentral()
     jcenter()
+    maven { url 'https://jitpack.io' }
 }
 
 //noinspection GroovyAssignabilityCheck
@@ -40,6 +42,8 @@ test {
 }
 
 dependencies {
+    compile "ru.edustor.commons:storage:$edustor_commons_version"
+
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.springframework.boot:spring-boot-starter-web"
     compile "org.springframework.boot:spring-boot-starter-data-jpa"

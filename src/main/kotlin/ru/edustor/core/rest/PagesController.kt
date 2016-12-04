@@ -4,15 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.multipart.MultipartFile
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
-import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
 import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.repository.PageRepository
-import ru.edustor.core.service.PdfUploadService
 import ru.edustor.core.util.extensions.assertHasAccess
 import ru.edustor.core.util.extensions.assertIsOwner
 import ru.edustor.core.util.extensions.recalculateIndexes
@@ -23,30 +20,12 @@ import java.util.*
 @RequestMapping("/api/pages")
 class PagesController @Autowired constructor(
         val lessonRepo: LessonRepository,
-        val pageRepository: PageRepository,
-        val PdfUploadService: PdfUploadService
+        val pageRepository: PageRepository
 ) {
-    @RequestMapping("upload", method = arrayOf(RequestMethod.POST))
-    fun upload(@RequestParam("file") file: MultipartFile,
-               @AuthenticationPrincipal user: Account,
-               @RequestParam(required = false) lesson: Lesson?
-    ): String? {
-        val uploadPreferences = PdfUploadPreferences(uploader = user, lesson = lesson)
-        when (file.contentType) {
-            "application/pdf" -> {
-                PdfUploadService.processPdfUpload(file.inputStream, uploadPreferences)
-            }
-            else -> {
-                throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "Unsupported content type: ${file.contentType}")
-            }
-        }
-        return "Successfully uploaded"
-    }
-
     @RequestMapping("/qr/{qr}")
     fun pageByQr(@PathVariable qr: String, @AuthenticationPrincipal user: Account): Page? {
         val page = pageRepository.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        user.assertHasAccess(page, lessonRepo)
+        user.assertHasAccess(page)
         return page
     }
 

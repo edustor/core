@@ -7,8 +7,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.edustor.core.model.Account
-import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
-import ru.edustor.core.pdf.upload.PdfPage
 import ru.edustor.core.util.extensions.getAsByteArray
 import java.awt.image.BufferedImage
 
@@ -32,15 +30,15 @@ class TelegramService {
         )
     }
 
-    fun onUploadingComplete(uploaded: List<PdfPage>, uploadPreferences: PdfUploadPreferences) {
-        val user = uploadPreferences.uploader
-
-        val total = uploaded.count()
-        val noUuid = uploaded.count { it.qrData == null }
-        val failed = uploaded.count { it.exception != null }
-
-        val text = "Processing finished. Total pages: $total. Read errors: $noUuid. Failed: $failed"
-
-        sendText(user, text)
-    }
+//    fun onUploadingComplete(uploaded: List<PdfPage>, uploadPreferences: PdfUploadPreferences) {
+//        val user = uploadPreferences.uploader
+//
+//        val total = uploaded.count()
+//        val noUuid = uploaded.count { it.qrData == null }
+//        val failed = uploaded.count { it.exception != null }
+//
+//        val text = "Processing finished. Total pages: $total. Read errors: $noUuid. Failed: $failed"
+//
+//        sendText(user, text)
+//    }
 }

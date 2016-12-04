@@ -4,17 +4,12 @@ import com.pengrad.telegrambot.TelegramBot
 import com.pengrad.telegrambot.model.Message
 import com.pengrad.telegrambot.model.Update
 import com.pengrad.telegrambot.request.AbstractSendRequest
-import com.pengrad.telegrambot.request.GetFile
 import com.pengrad.telegrambot.request.SendMessage
 import org.springframework.stereotype.Service
-import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
-import ru.edustor.core.repository.AccountRepository
-import ru.edustor.core.service.PdfUploadService
-import ru.edustor.core.util.extensions.cid
 import ru.edustor.core.util.extensions.replyText
 
 @Service
-open class TelegramEventsRouter(val bot: TelegramBot, val pdfUploadService: PdfUploadService, val userRepository: AccountRepository) {
+open class TelegramEventsRouter(val bot: TelegramBot) {
 
     private val commandRegex = "/(\\w*)".toRegex()
 
@@ -29,21 +24,23 @@ open class TelegramEventsRouter(val bot: TelegramBot, val pdfUploadService: PdfU
         val msg = update.message()
         if (msg != null) {
             if (msg.document() != null) {
-                val fileId = msg.document().fileId()
-                val file = bot.execute(GetFile(fileId)).file()
-                val url = bot.getFullFilePath(file)
-
-                val user = userRepository.findByTelegramChatId(msg.cid())
-                if (user == null) {
-                    bot.execute(msg.replyText("You're not logged in"))
-                    return
-                }
-
-                try {
-                    pdfUploadService.processFromURL(url, PdfUploadPreferences(user))
-                } catch (e: Exception) {
-                    bot.execute(msg.replyText("Failed to process file: $e"))
-                }
+                bot.execute(msg.replyText("Uploads are temporarily unsupported"))
+                return
+//                val fileId = msg.document().fileId()
+//                val file = bot.execute(GetFile(fileId)).file()
+//                val url = bot.getFullFilePath(file)
+//
+//                val user = userRepository.findByTelegramChatId(msg.cid())
+//                if (user == null) {
+//                    bot.execute(msg.replyText("You're not logged in"))
+//                    return
+//                }
+//
+//                try {
+//                    pdfUploadService.processFromURL(url, PdfUploadPreferences(user))
+//                } catch (e: Exception) {
+//                    bot.execute(msg.replyText("Failed to process file: $e"))
+//                }
 
             } else if (msg.text() != null) {
                 routeTextMessage(msg)
