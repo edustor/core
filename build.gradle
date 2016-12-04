@@ -1,7 +1,7 @@
 buildscript {
     ext.kotlin_version = '1.0.5-2'
     ext.spring_boot_version = '1.4.1.RELEASE'
-    ext.edustor_commons_version = '5c18bae'
+    ext.edustor_commons_version = 'ce55145'
     repositories {
         mavenCentral()
     }
@@ -43,11 +43,11 @@ test {
 
 dependencies {
     compile "ru.edustor.commons:storage:$edustor_commons_version"
+    compile "ru.edustor.commons:auth:$edustor_commons_version"
 
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.springframework.boot:spring-boot-starter-web"
     compile "org.springframework.boot:spring-boot-starter-data-jpa"
-    compile "org.springframework.boot:spring-boot-starter-security"
     compile "org.springframework.boot:spring-boot-starter-freemarker"
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "com.google.zxing:core:3.2.1"

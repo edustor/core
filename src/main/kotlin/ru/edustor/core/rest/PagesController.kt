@@ -2,7 +2,6 @@ package ru.edustor.core.rest
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
@@ -23,7 +22,7 @@ class PagesController @Autowired constructor(
         val pageRepository: PageRepository
 ) {
     @RequestMapping("/qr/{qr}")
-    fun pageByQr(@PathVariable qr: String, @AuthenticationPrincipal user: Account): Page? {
+    fun pageByQr(@PathVariable qr: String, user: Account): Page? {
         val page = pageRepository.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
         user.assertHasAccess(page)
         return page
@@ -33,7 +32,7 @@ class PagesController @Autowired constructor(
     fun activateQr(@RequestParam qr: String,
                    @RequestParam lesson: Lesson,
                    @RequestParam(required = false) instant: Instant?,
-                   @AuthenticationPrincipal user: Account,
+                   user: Account,
                    @RequestParam id: String = UUID.randomUUID().toString()
     ) {
         user.assertHasAccess(lesson)
@@ -56,14 +55,14 @@ class PagesController @Autowired constructor(
     }
 
     @RequestMapping("/{page}", method = arrayOf(RequestMethod.DELETE))
-    fun delete(@AuthenticationPrincipal user: Account, @PathVariable page: Page) {
+    fun delete(user: Account, @PathVariable page: Page) {
         page.assertIsOwner(user)
         page.removed = true
         pageRepository.save(page)
     }
 
     @RequestMapping("/{page}/restore")
-    fun restore(@AuthenticationPrincipal user: Account, @PathVariable page: Page) {
+    fun restore(user: Account, @PathVariable page: Page) {
         page.assertIsOwner(user)
         page.removed = false
         pageRepository.save(page)

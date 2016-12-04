@@ -13,6 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 
+// TODO: Manually call fcmService from all mutating methods
 @Service
 open class FCMService @Autowired constructor(
         val objectMapper: ObjectMapper,
