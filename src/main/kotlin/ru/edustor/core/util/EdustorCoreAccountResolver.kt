@@ -20,7 +20,6 @@ open class EdustorCoreAccountResolver(val repo: AccountRepository,
         val protoAccount = super.resolveArgument(parameter, mavContainer, webRequest, binderFactory) as EdustorAccount
         val account = repo.findOne(protoAccount.uuid)
 
-//        TODO: Handle case when Core account doesn't exist, but token is valid
-        return account
+        return account ?: Account(protoAccount.uuid)
     }
 }

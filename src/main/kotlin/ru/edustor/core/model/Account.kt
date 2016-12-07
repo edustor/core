@@ -15,6 +15,10 @@ open class Account() {
     @ElementCollection(targetClass = String::class, fetch = FetchType.EAGER)
     val fcmTokens: MutableSet<String> = mutableSetOf()
 
+    constructor(id: String) : this() {
+        this.id = id
+    }
+
     override fun equals(other: Any?): Boolean {
         if (other !is Account) return false
         return id == other.id
