@@ -6,18 +6,14 @@ import javax.persistence.*
 
 @Entity
 open class Account() {
-    lateinit var email: String
+    @Id var id: String = UUID.randomUUID().toString()
+
     var telegramChatId: String? = null
     var telegramLinkToken: String? = null
-    @Id var id: String = UUID.randomUUID().toString()
     @Embedded var pendingUpload: PendingUploadRequest? = null
 
     @ElementCollection(targetClass = String::class, fetch = FetchType.EAGER)
     val fcmTokens: MutableSet<String> = mutableSetOf()
-
-    constructor(email: String) : this() {
-        this.email = email
-    }
 
     override fun equals(other: Any?): Boolean {
         if (other !is Account) return false
@@ -29,7 +25,7 @@ open class Account() {
     }
 
     override fun toString(): String {
-        return "Account<$email>"
+        return "Account<$id>"
     }
 
     @Embeddable

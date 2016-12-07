@@ -20,6 +20,6 @@ open class MeCommandHandler(telegramEventsRouter: TelegramEventsRouter, val user
     override fun process(msg: Message): AbstractSendRequest<SendMessage>? {
         val user = userRepository.findByTelegramChatId(msg.cid()) ?: return msg.replyText("You're not logged in")
 
-        return msg.replyText("You're logged in as ${user.email}")
+        return msg.replyText("You're logged in as ${user.id}")
     }
 }
