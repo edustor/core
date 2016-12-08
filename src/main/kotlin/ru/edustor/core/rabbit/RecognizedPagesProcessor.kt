@@ -13,6 +13,7 @@ import ru.edustor.core.repository.AccountRepository
 import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.repository.getForAccountId
+import ru.edustor.core.util.extensions.hasAccess
 import java.time.Instant
 
 @Component
@@ -34,50 +35,9 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
     fun handleUploadedPage(msg: ByteArray) {
         val event = PageRecognizedEvent.parseFrom(msg)
 
-        val targetLessonId = event.targetLessonId
-
-//        TODO: Create exception and wrap everything in another function to get rid of storage.delete(...)
-
-        if (event.qrUuid == null && targetLessonId == null) {
-            logger.info("Failed to find target page in database. Skipping")
+        val page = getTargetPage(event) ?: let {
             storage.delete(PAGE, event.pageUuid)
-        }
-
-        val page = (if (event.qrUuid != null) pageRepository.findByQr(event.qrUuid) else null) ?: let {
-            if (targetLessonId == null) {
-                logger.warn("Can't find page with qr ${event.qrUuid}. Skipping")
-                storage.delete(PAGE, event.pageUuid)
-                return
-            }
-
-            val p = Page(null)
-            p.owner = accountRepository.getForAccountId(event.userId)
-            if (event.uploadedTimestamp != 0L) {
-                p.timestamp = Instant.ofEpochSecond(event.uploadedTimestamp)
-            }
-            return@let p
-        }
-
-        if (event.uploadedTimestamp != 0L) {
-            page.uploadedTimestamp = Instant.ofEpochSecond(event.uploadedTimestamp)
-        }
-
-        targetLessonId?.let {
-            val lesson = lessonRepository.findOne(targetLessonId) ?: let {
-                logger.warn("Failed to find explicitly specified target lesson in database. Skipping")
-                storage.delete(PAGE, event.pageUuid)
-                return
-            }
-
-//            TODO: Check user access to lesson
-
-            page.lesson = lesson
-        }
-
-        if (page.owner.id != event.userId) {
-            logger.warn("Unauthorized upload. Page: $page. " +
-                    "Page file id: ${event.pageUuid}. Uploader: ${event.userId}")
-            storage.delete(PAGE, event.pageUuid)
+            logger.warn("Skipping ${event.pageUuid} page")
             return
         }
 
@@ -89,5 +49,52 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
         page.contentType = "application/pdf"
         pageRepository.save(page)
         logger.info("Page ${page.id} updated. New file id is ${event.pageUuid}")
+    }
+
+    private fun getTargetPage(event: PageRecognizedEvent): Page? {
+        val targetLessonId = event.targetLessonId
+
+        if (event.qrUuid == null && targetLessonId == null) {
+            logger.info("Failed to find target page in database. Skipping")
+            storage.delete(PAGE, event.pageUuid)
+        }
+
+        // ?: is used to handle case when event.qrUuid is presented, but pageRepository.findByQr returned null
+        val page = (if (event.qrUuid != null) pageRepository.findByQr(event.qrUuid) else null) ?: let {
+            if (targetLessonId == null) {
+                logger.warn("Can't find page with qr ${event.qrUuid}. Skipping")
+                return null
+            }
+
+            val p = Page(null)
+            p.owner = accountRepository.getForAccountId(event.userId)
+            if (event.uploadedTimestamp != 0L) {
+                p.timestamp = Instant.ofEpochSecond(event.uploadedTimestamp)
+            }
+            return@let p
+        }
+
+        if (page.owner.id != event.userId) {
+            logger.warn("Unauthorized upload. Page: $page. " +
+                    "Page file id: ${event.pageUuid}. Uploader: ${event.userId}")
+            return null
+        }
+
+        targetLessonId?.let {
+            val lesson = lessonRepository.findOne(targetLessonId) ?: let {
+                logger.warn("Failed to find explicitly specified target lesson in database. Skipping")
+                return null
+            }
+
+            if (!page.owner.hasAccess(lesson)) {
+                logger.warn("User doesn't have access to target lesson ${lesson.id}. Page: ${page.id}. " +
+                        "Page file id: ${event.pageUuid}. Uploader: ${event.userId}")
+                return null
+            }
+
+            page.lesson = lesson
+        }
+
+        return page
     }
 }
