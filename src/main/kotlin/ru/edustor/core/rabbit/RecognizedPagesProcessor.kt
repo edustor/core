@@ -54,14 +54,14 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
     private fun getTargetPage(event: PageRecognizedEvent): Page? {
         val targetLessonId = event.targetLessonId
 
-        if (event.qrUuid == null && targetLessonId == null) {
+        if (event.qrUuid == null && targetLessonId == "") {
             logger.info("Failed to find target page in database. Skipping")
             storage.delete(PAGE, event.pageUuid)
         }
 
         // ?: is used to handle case when event.qrUuid is presented, but pageRepository.findByQr returned null
         val page = (if (event.qrUuid != null) pageRepository.findByQr(event.qrUuid) else null) ?: let {
-            if (targetLessonId == null) {
+            if (targetLessonId == "") {
                 logger.warn("Can't find page with qr ${event.qrUuid}. Skipping")
                 return null
             }
@@ -82,7 +82,7 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
 
         targetLessonId?.let {
             val lesson = lessonRepository.findOne(targetLessonId) ?: let {
-                logger.warn("Failed to find explicitly specified target lesson in database. Skipping")
+                logger.warn("Failed to find explicitly specified target lesson $targetLessonId in database. Skipping")
                 return null
             }
 
