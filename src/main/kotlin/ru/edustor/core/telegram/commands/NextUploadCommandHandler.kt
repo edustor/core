@@ -38,6 +38,7 @@ open class NextUploadCommandHandler(telegramEventsRouter: TelegramEventsRouter,
         val lessonId = uuidRegex.find(arg)?.value ?: return msg.replyText("Invalid URL/UUID")
         val lesson = lessonRepository.findOne(lessonId) ?: return msg.replyText("Unknown lesson")
 
+//        TODO: Forward requests to upload microservice
         user.pendingUpload = Account.PendingUploadRequest(lesson, Instant.now().plus(10, ChronoUnit.MINUTES))
         userRepository.save(user)
 
