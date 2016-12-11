@@ -4,20 +4,17 @@ import com.pengrad.telegrambot.model.Message
 import com.pengrad.telegrambot.request.AbstractSendRequest
 import com.pengrad.telegrambot.request.SendMessage
 import org.springframework.stereotype.Component
-import ru.edustor.core.model.Account
+import ru.edustor.commons.api.UploadApi
 import ru.edustor.core.repository.AccountRepository
-import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.telegram.TelegramEventsRouter
 import ru.edustor.core.telegram.TelegramHandler
 import ru.edustor.core.util.extensions.cid
 import ru.edustor.core.util.extensions.replyText
-import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 @Component
 open class NextUploadCommandHandler(telegramEventsRouter: TelegramEventsRouter,
                                     val userRepository: AccountRepository,
-                                    val lessonRepository: LessonRepository) : TelegramHandler {
+                                    val uploadApi: UploadApi) : TelegramHandler {
 
     companion object {
         val uuidRegex = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}".toRegex()
@@ -36,12 +33,12 @@ open class NextUploadCommandHandler(telegramEventsRouter: TelegramEventsRouter,
             return msg.replyText("Pending upload request has been cleared")
         }
         val lessonId = uuidRegex.find(arg)?.value ?: return msg.replyText("Invalid URL/UUID")
-        val lesson = lessonRepository.findOne(lessonId) ?: return msg.replyText("Unknown lesson")
 
-//        TODO: Forward requests to upload microservice
-        user.pendingUpload = Account.PendingUploadRequest(lesson, Instant.now().plus(10, ChronoUnit.MINUTES))
-        userRepository.save(user)
+        val resp = uploadApi.setNextUploadTarget(user.id, lessonId).execute()
 
-        return msg.replyText("Done. First uploaded file within next 10 minutes will be saved to $lesson")
+        return when (resp.code()) {
+            204 -> msg.replyText("Upload server confirmed target override")
+            else -> msg.replyText("Error: Upload server returned code ${resp.code()}")
+        }
     }
 }
