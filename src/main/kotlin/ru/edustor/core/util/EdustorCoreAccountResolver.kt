@@ -6,7 +6,7 @@ import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.ModelAndViewContainer
 import ru.edustor.commons.auth.EdustorTokenValidator
 import ru.edustor.commons.auth.internal.EdustorAccountResolver
-import ru.edustor.commons.protobuf.proto.internal.EdustorAccountsProtos.EdustorAccount
+import ru.edustor.commons.models.internal.accounts.EdustorAccount
 import ru.edustor.core.model.Account
 import ru.edustor.core.repository.AccountRepository
 
