@@ -10,6 +10,7 @@ import ru.edustor.core.telegram.TelegramEventsRouter
 import ru.edustor.core.telegram.TelegramHandler
 import ru.edustor.core.util.extensions.cid
 import ru.edustor.core.util.extensions.replyText
+import java.io.IOException
 
 @Component
 open class NextUploadCommandHandler(telegramEventsRouter: TelegramEventsRouter,
@@ -34,11 +35,14 @@ open class NextUploadCommandHandler(telegramEventsRouter: TelegramEventsRouter,
         }
         val lessonId = uuidRegex.find(arg)?.value ?: return msg.replyText("Invalid URL/UUID")
 
-        val resp = uploadApi.setNextUploadTarget(user.id, lessonId).execute()
-
-        return when (resp.code()) {
-            204 -> msg.replyText("Upload server confirmed target override to $lessonId")
-            else -> msg.replyText("Error: Upload server returned code ${resp.code()}")
+        try {
+            val resp = uploadApi.setNextUploadTarget(user.id, lessonId).execute()
+            return when (resp.code()) {
+                204 -> msg.replyText("Upload server confirmed target override to $lessonId")
+                else -> msg.replyText("Error: Upload server returned code ${resp.code()}")
+            }
+        } catch (e: IOException) {
+            return msg.replyText("IO exception occurred $e")
         }
     }
 }
