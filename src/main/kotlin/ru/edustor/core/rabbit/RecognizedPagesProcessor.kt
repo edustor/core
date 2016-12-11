@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.amqp.core.ExchangeTypes
 import org.springframework.amqp.rabbit.annotation.*
 import org.springframework.stereotype.Component
-import ru.edustor.commons.protobuf.proto.internal.EdustorPdfProcessingProtos.PageRecognizedEvent
+import ru.edustor.commons.models.internal.processing.pdf.PageRecognizedEvent
 import ru.edustor.commons.storage.service.BinaryObjectStorageService
 import ru.edustor.commons.storage.service.BinaryObjectStorageService.ObjectType.PAGE
 import ru.edustor.core.model.Page
@@ -32,9 +32,7 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
                     durable = "true"),
             key = "recognized.pages.processing"
     )))
-    fun handleUploadedPage(msg: ByteArray) {
-        val event = PageRecognizedEvent.parseFrom(msg)
-
+    fun handleUploadedPage(event: PageRecognizedEvent) {
         val page = getTargetPage(event) ?: let {
             storage.delete(PAGE, event.pageUuid)
             logger.warn("Skipping ${event.pageUuid} page")
@@ -54,22 +52,22 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
     private fun getTargetPage(event: PageRecognizedEvent): Page? {
         val targetLessonId = event.targetLessonId
 
-        if (event.qrUuid == null && targetLessonId == "") {
+        if (event.qrUuid == null && targetLessonId == null) {
             logger.info("Failed to find target page in database. Skipping")
             storage.delete(PAGE, event.pageUuid)
         }
 
         // ?: is used to handle case when event.qrUuid is presented, but pageRepository.findByQr returned null
-        val page = (if (event.qrUuid != null) pageRepository.findByQr(event.qrUuid) else null) ?: let {
-            if (targetLessonId == "") {
+        val page = (if (event.qrUuid != null) pageRepository.findByQr(event.qrUuid!!) else null) ?: let {
+            if (targetLessonId != null) {
                 logger.warn("Can't find page with qr ${event.qrUuid}. Skipping")
                 return null
             }
 
             val p = Page(null)
             p.owner = accountRepository.getForAccountId(event.userId)
-            if (event.uploadedTimestamp != 0L) {
-                p.timestamp = Instant.ofEpochSecond(event.uploadedTimestamp)
+            if (event.uploadedTimestamp != null) {
+                p.timestamp = event.uploadedTimestamp!!
             }
             return@let p
         }
