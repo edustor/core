@@ -59,7 +59,7 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
 
         // ?: is used to handle case when event.qrUuid is presented, but pageRepository.findByQr returned null
         val page = (if (event.qrUuid != null) pageRepository.findByQr(event.qrUuid!!) else null) ?: let {
-            if (targetLessonId != null) {
+            if (targetLessonId == null) {
                 logger.warn("Can't find page with qr ${event.qrUuid}. Skipping")
                 return null
             }
