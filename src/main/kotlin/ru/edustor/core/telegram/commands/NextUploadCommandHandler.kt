@@ -37,7 +37,7 @@ open class NextUploadCommandHandler(telegramEventsRouter: TelegramEventsRouter,
         val resp = uploadApi.setNextUploadTarget(user.id, lessonId).execute()
 
         return when (resp.code()) {
-            204 -> msg.replyText("Upload server confirmed target override")
+            204 -> msg.replyText("Upload server confirmed target override to $lessonId")
             else -> msg.replyText("Error: Upload server returned code ${resp.code()}")
         }
     }
