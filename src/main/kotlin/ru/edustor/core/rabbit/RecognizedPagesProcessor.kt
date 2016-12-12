@@ -45,6 +45,7 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
         page.isUploaded = true
         page.uploadedTimestamp = Instant.now()
         page.contentType = "application/pdf"
+        page.fileMD5 = event.fileMD5
         pageRepository.save(page)
         logger.info("Page ${page.id} updated. New file id is ${event.pageUuid}")
     }
