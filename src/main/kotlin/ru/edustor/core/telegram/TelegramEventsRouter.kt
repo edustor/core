@@ -4,12 +4,18 @@ import com.pengrad.telegrambot.TelegramBot
 import com.pengrad.telegrambot.model.Message
 import com.pengrad.telegrambot.model.Update
 import com.pengrad.telegrambot.request.AbstractSendRequest
+import com.pengrad.telegrambot.request.GetFile
 import com.pengrad.telegrambot.request.SendMessage
 import org.springframework.stereotype.Service
+import ru.edustor.commons.api.UploadApi
+import ru.edustor.core.repository.AccountRepository
+import ru.edustor.core.util.extensions.cid
 import ru.edustor.core.util.extensions.replyText
 
 @Service
-open class TelegramEventsRouter(val bot: TelegramBot) {
+open class TelegramEventsRouter(val bot: TelegramBot,
+                                val userRepository: AccountRepository,
+                                val uploadApi: UploadApi) {
 
     private val commandRegex = "/(\\w*)".toRegex()
 
@@ -24,24 +30,24 @@ open class TelegramEventsRouter(val bot: TelegramBot) {
         val msg = update.message()
         if (msg != null) {
             if (msg.document() != null) {
-                bot.execute(msg.replyText("Uploads are temporarily unsupported"))
-                return
-//                val fileId = msg.document().fileId()
-//                val file = bot.execute(GetFile(fileId)).file()
-//                val url = bot.getFullFilePath(file)
-//
-//                val user = userRepository.findByTelegramChatId(msg.cid())
-//                if (user == null) {
-//                    bot.execute(msg.replyText("You're not logged in"))
-//                    return
-//                }
-//
-//                try {
-//                    pdfUploadService.processFromURL(url, PdfUploadPreferences(user))
-//                } catch (e: Exception) {
-//                    bot.execute(msg.replyText("Failed to process file: $e"))
-//                }
+                val fileId = msg.document().fileId()
+                val file = bot.execute(GetFile(fileId)).file()
+                val url = bot.getFullFilePath(file)
 
+                val account = userRepository.findByTelegramChatId(msg.cid())
+                if (account == null) {
+                    bot.execute(msg.replyText("You're not logged in"))
+                    return
+                }
+
+                bot.execute(msg.replyText("Forwarding file to upload server..."))
+
+                val resp = uploadApi.uploadPdfByUrl(url, account.id).execute()
+
+                when (resp.isSuccessful) {
+                    true -> bot.execute(msg.replyText("Successfully uploaded"))
+                    false -> bot.execute(msg.replyText("Something went wrong: upload server returned ${resp.code()}"))
+                }
             } else if (msg.text() != null) {
                 routeTextMessage(msg)
             }

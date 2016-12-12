@@ -1,7 +1,7 @@
 buildscript {
     ext.kotlin_version = '1.0.5-2'
     ext.spring_boot_version = '1.4.1.RELEASE'
-    ext.edustor_commons_version = '3fa1232'
+    ext.edustor_commons_version = '44f0fab'
     repositories {
         mavenCentral()
     }
