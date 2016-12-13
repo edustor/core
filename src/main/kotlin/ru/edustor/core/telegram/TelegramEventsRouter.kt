@@ -62,10 +62,14 @@ open class TelegramEventsRouter(val bot: TelegramBot,
             val handler = handlers[command]
             val resp: AbstractSendRequest<*>?
 
-            if (handler != null) {
-                resp = handler.process(msg)
+            resp = if (handler != null) {
+                try {
+                    handler.process(msg)
+                } catch (e: Exception) {
+                    msg.replyText("Exception occurred $e")
+                }
             } else {
-                resp = SendMessage(msg.chat().id(), "Unsupported command")
+                msg.replyText("Unsupported command")
             }
             resp?.let { bot.execute(it) }
         } else {
