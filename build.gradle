@@ -1,13 +1,18 @@
+import org.ajoberstar.grgit.Grgit
+
+import java.time.Instant
+
 buildscript {
     ext.kotlin_version = '1.0.5-2'
     ext.spring_boot_version = '1.4.1.RELEASE'
-    ext.edustor_commons_version = 'a6a0065'
+    ext.edustor_commons_version = '06c0899'
     repositories {
         mavenCentral()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:$spring_boot_version"
+        classpath 'org.ajoberstar:gradle-git:1.6.0'
     }
 }
 
@@ -40,6 +45,25 @@ test {
         events "PASSED", "FAILED", "SKIPPED"
     }
 }
+
+ext {
+    def grgit = Grgit.open()
+    commitId = grgit.head().getAbbreviatedId()
+}
+
+task createProperties(dependsOn: processResources) {
+    doLast {
+        new File("$buildDir/resources/main/build.properties").withWriter { w ->
+            def p = new Properties()
+            p['edustor.build.version'] = "${project.version}-$commitId".toString()
+            p['edustor.build.date'] = Instant.now().toString()
+            p['edustor.build.commitId'] = commitId
+            p.store(w, null)
+        }
+    }
+}
+
+processResources.finalizedBy createProperties
 
 dependencies {
     compile "ru.edustor.commons:storage:$edustor_commons_version"

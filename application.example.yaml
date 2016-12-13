@@ -1,0 +1,11 @@
+server:
+  port: 8080
+edustor:
+  storage:
+    url: https://s3.example.com
+    access-key:
+    secret-key:
+  api:
+    token:
+  core:
+    telegram-token:
