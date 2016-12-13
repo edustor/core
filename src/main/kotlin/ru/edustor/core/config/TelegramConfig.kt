@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration
 import java.util.concurrent.TimeUnit
 
 @Configuration
-open class TelegramConfig(@Value("edustor.core.telegram-token") val telegramToken: String) {
+open class TelegramConfig(@Value("\${edustor.core.telegram-token}") val telegramToken: String) {
     @Bean
     open fun telegramBot(): TelegramBot {
         val client = OkHttpClient().newBuilder().readTimeout(70, TimeUnit.SECONDS).build()

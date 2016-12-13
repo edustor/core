@@ -18,6 +18,7 @@ open class VersionCommandHandler(telegramEventsRouter: TelegramEventsRouter,
     }
 
     override fun process(msg: Message): AbstractSendRequest<SendMessage>? {
-        return msg.replyText("Edustor Core v${versionInfoHolder.version}")
+        return msg.replyText("Edustor Core v${versionInfoHolder.version} by Dmitry Romanov (@wutiarn).\n" +
+                "Last included commit: https://github.com/edustor/core/commit/${versionInfoHolder.commitId}")
     }
 }

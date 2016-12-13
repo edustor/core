@@ -48,14 +48,15 @@ test {
 
 ext {
     def grgit = Grgit.open()
-    commitId = grgit.head().getAbbreviatedId()
+    shortCommitId = grgit.head().getAbbreviatedId()
+    commitId = grgit.head().id
 }
 
 task createProperties(dependsOn: processResources) {
     doLast {
         new File("$buildDir/resources/main/build.properties").withWriter { w ->
             def p = new Properties()
-            p['edustor.build.version'] = "${project.version}-$commitId".toString()
+            p['edustor.build.version'] = "${project.version}-$shortCommitId".toString()
             p['edustor.build.date'] = Instant.now().toString()
             p['edustor.build.commitId'] = commitId
             p.store(w, null)

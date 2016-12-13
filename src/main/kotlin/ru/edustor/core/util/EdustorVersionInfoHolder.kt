@@ -7,5 +7,6 @@ import org.springframework.stereotype.Component
 @Component
 @PropertySource("classpath:build.properties")
 open class EdustorVersionInfoHolder(
-        @Value("edustor.build.version") val version: String
+        @Value("\${edustor.build.version}") val version: String,
+        @Value("\${edustor.build.commitId}") val commitId: String
 )
