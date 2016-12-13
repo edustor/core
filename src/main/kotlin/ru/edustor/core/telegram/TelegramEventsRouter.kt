@@ -42,7 +42,12 @@ open class TelegramEventsRouter(val bot: TelegramBot,
 
                 bot.execute(msg.replyText("Forwarding file to upload server..."))
 
-                val resp = uploadApi.uploadPdfByUrl(url, account.id).execute()
+                val resp = try {
+                    uploadApi.uploadPdfByUrl(url, account.id).execute()
+                } catch (e: Exception) {
+                    bot.execute(msg.replyText("Exception occurred: $e"))
+                    return
+                }
 
                 when (resp.isSuccessful) {
                     true -> bot.execute(msg.replyText("Successfully uploaded"))
@@ -66,7 +71,7 @@ open class TelegramEventsRouter(val bot: TelegramBot,
                 try {
                     handler.process(msg)
                 } catch (e: Exception) {
-                    msg.replyText("Exception occurred $e")
+                    msg.replyText("Exception occurred: $e")
                 }
             } else {
                 msg.replyText("Unsupported command")
