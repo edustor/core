@@ -28,7 +28,6 @@ open class Page() {
 
     @Column(nullable = false)
     var isUploaded: Boolean = false
-    //    TODO: id to fileId migration
     var fileId: String? = null
     var uploadedTimestamp: Instant? = null
     var qr: String? = null
