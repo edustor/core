@@ -81,7 +81,7 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
                         "Page file id: ${event.pageUuid}. Uploader: ${event.userId}")
                 return null
             }
-            return@let null
+            return@let lesson
         }
 
 
