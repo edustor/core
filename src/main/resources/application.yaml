@@ -4,13 +4,11 @@ spring:
       max-file-size: 100Mb
       max-request-size: 100Mb
   datasource:
-      url: jdbc:postgresql://postgres.edustor.svc.cluster.local:5432/edustor_core
+      url: jdbc:postgresql://localhost:5432/edustor_core
       username: postgres
   jpa:
       hibernate:
         ddl-auto: update
       generate-ddl: true
-  rabbitmq:
-    host: rabbit.edustor.svc.cluster.local
 flyway:
   validate-on-migrate: false
