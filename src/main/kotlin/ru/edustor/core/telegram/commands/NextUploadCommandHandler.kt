@@ -27,12 +27,8 @@ open class NextUploadCommandHandler(telegramEventsRouter: TelegramEventsRouter,
     override fun process(msg: Message): AbstractSendRequest<SendMessage>? {
         val user = userRepository.findByTelegramChatId(msg.cid()) ?: return msg.replyText("You're not logged in")
 
-        val arg = msg.text().split(" ").getOrNull(1) ?: let {
-            user.pendingUpload = null
-            userRepository.save(user)
-            return msg.replyText("Pending upload request has been cleared")
-        }
-        val lessonId = uuidRegex.find(arg)?.value ?: return msg.replyText("Invalid URL/UUID")
+        val arg = msg.text().split(" ").getOrNull(1)
+        val lessonId = arg?.let { uuidRegex.find(arg)?.value ?: return msg.replyText("Invalid URL/UUID") }
 
         val resp = uploadApi.setNextUploadTarget(user.id, lessonId).execute()
         return when (resp.code()) {
