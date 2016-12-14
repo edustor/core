@@ -7,14 +7,15 @@ import com.pengrad.telegrambot.request.AbstractSendRequest
 import com.pengrad.telegrambot.request.GetFile
 import com.pengrad.telegrambot.request.SendMessage
 import org.springframework.stereotype.Service
-import ru.edustor.core.model.internal.pdf.PdfUploadPreferences
+import ru.edustor.commons.api.UploadApi
 import ru.edustor.core.repository.AccountRepository
-import ru.edustor.core.service.PdfUploadService
 import ru.edustor.core.util.extensions.cid
 import ru.edustor.core.util.extensions.replyText
 
 @Service
-open class TelegramEventsRouter(val bot: TelegramBot, val pdfUploadService: PdfUploadService, val userRepository: AccountRepository) {
+open class TelegramEventsRouter(val bot: TelegramBot,
+                                val userRepository: AccountRepository,
+                                val uploadApi: UploadApi) {
 
     private val commandRegex = "/(\\w*)".toRegex()
 
@@ -33,18 +34,25 @@ open class TelegramEventsRouter(val bot: TelegramBot, val pdfUploadService: PdfU
                 val file = bot.execute(GetFile(fileId)).file()
                 val url = bot.getFullFilePath(file)
 
-                val user = userRepository.findByTelegramChatId(msg.cid())
-                if (user == null) {
+                val account = userRepository.findByTelegramChatId(msg.cid())
+                if (account == null) {
                     bot.execute(msg.replyText("You're not logged in"))
                     return
                 }
 
-                try {
-                    pdfUploadService.processFromURL(url, PdfUploadPreferences(user))
+                bot.execute(msg.replyText("Forwarding file to upload server..."))
+
+                val resp = try {
+                    uploadApi.uploadPdfByUrl(url, account.id).execute()
                 } catch (e: Exception) {
-                    bot.execute(msg.replyText("Failed to process file: $e"))
+                    bot.execute(msg.replyText("Exception occurred: $e"))
+                    return
                 }
 
+                when (resp.isSuccessful) {
+                    true -> bot.execute(msg.replyText("Successfully uploaded. Id: ${resp.body().uuid.split("-").last()}"))
+                    false -> bot.execute(msg.replyText("Something went wrong: upload server returned ${resp.code()}"))
+                }
             } else if (msg.text() != null) {
                 routeTextMessage(msg)
             }
@@ -59,10 +67,14 @@ open class TelegramEventsRouter(val bot: TelegramBot, val pdfUploadService: PdfU
             val handler = handlers[command]
             val resp: AbstractSendRequest<*>?
 
-            if (handler != null) {
-                resp = handler.process(msg)
+            resp = if (handler != null) {
+                try {
+                    handler.process(msg)
+                } catch (e: Exception) {
+                    msg.replyText("Exception occurred: $e")
+                }
             } else {
-                resp = SendMessage(msg.chat().id(), "Unsupported command")
+                msg.replyText("Unsupported command")
             }
             resp?.let { bot.execute(it) }
         } else {

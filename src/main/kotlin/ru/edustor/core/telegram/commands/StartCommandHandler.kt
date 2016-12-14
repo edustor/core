@@ -28,6 +28,6 @@ open class StartCommandHandler(telegramEventsRouter: TelegramEventsRouter, val a
 
         accountRepository.save(user)
 
-        return msg.replyText("Greetings, ${user.email}. Now your Edustor account is linked with this Telegram account.")
+        return msg.replyText("Greetings, ${user.id}. Now your Edustor account is linked with this Telegram account.")
     }
 }

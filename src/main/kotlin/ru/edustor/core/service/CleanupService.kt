@@ -4,10 +4,11 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import ru.edustor.commons.storage.service.BinaryObjectStorageService
+import ru.edustor.commons.storage.service.BinaryObjectStorageService.ObjectType.PAGE
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
 import ru.edustor.core.model.Subject
-import ru.edustor.core.pdf.storage.PdfStorage
 import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.repository.SubjectRepository
@@ -20,7 +21,7 @@ open class CleanupService(
         val pageRepository: PageRepository,
         val lessonRepository: LessonRepository,
         val subjectRepository: SubjectRepository,
-        val pdfStorage: PdfStorage
+        val pdfStorage: BinaryObjectStorageService
 ) {
 
     val logger: Logger = LoggerFactory.getLogger(CleanupService::class.java)
@@ -52,7 +53,7 @@ open class CleanupService(
     fun deletePage(page: Page) {
         logger.info("Cleaning up page: ${page.id}")
         page.isUploaded.let {
-            pdfStorage.delete(page.id)
+            pdfStorage.delete(PAGE, page.id)
         }
         pageRepository.delete(page)
     }

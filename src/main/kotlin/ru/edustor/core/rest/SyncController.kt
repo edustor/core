@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -37,7 +36,7 @@ open class SyncController @Autowired constructor(
     val logger: Logger = LoggerFactory.getLogger(SyncController::class.java)
 
     @RequestMapping("/fetch")
-    fun fetch(@AuthenticationPrincipal user: Account): Map<*, *> {
+    fun fetch(user: Account): Map<*, *> {
         val subjects = subjectRepo.findByOwner(user).filter { it.removed == false }
 
         val lessons = lessonRepo.findBySubjectIn(subjects)
@@ -57,7 +56,7 @@ open class SyncController @Autowired constructor(
     }
 
     @RequestMapping("/push")
-    fun push(@RequestBody body: String, @AuthenticationPrincipal user: Account): MutableList<Any?> {
+    fun push(@RequestBody body: String, user: Account): MutableList<Any?> {
         val tasks = mapper.readValue<List<SyncTask>>(body, object : TypeReference<List<SyncTask>>() {})
         val results = mutableListOf<Any?>()
         tasks.forEach {

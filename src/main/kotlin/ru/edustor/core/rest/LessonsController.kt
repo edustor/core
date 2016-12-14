@@ -3,7 +3,6 @@ package ru.edustor.core.rest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
@@ -25,7 +24,7 @@ open class LessonsController @Autowired constructor(
 ) {
 
     @RequestMapping("/{lessonId}", method = arrayOf(RequestMethod.POST))
-    fun create(lessonId: String, subject: Subject, date: LocalDate, @AuthenticationPrincipal user: Account) {
+    fun create(lessonId: String, subject: Subject, date: LocalDate, user: Account) {
         user.assertHasAccess(subject)
         val lesson = Lesson(subject, date, user)
         lesson.id = lessonId
@@ -33,48 +32,48 @@ open class LessonsController @Autowired constructor(
     }
 
     @RequestMapping("/{lesson}")
-    fun getLesson(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: Account): Lesson {
+    fun getLesson(@PathVariable lesson: Lesson, user: Account): Lesson {
         user.assertHasAccess(lesson)
         lesson.pages = lesson.pages.filter { !it.removed }.toMutableList()
         return lesson
     }
 
     @RequestMapping("/{lesson}/removed")
-    fun getLessonRemovedDocs(@PathVariable lesson: Lesson, @AuthenticationPrincipal user: Account): List<Page> {
+    fun getLessonRemovedDocs(@PathVariable lesson: Lesson, user: Account): List<Page> {
         user.assertHasAccess(lesson)
         return lesson.pages.filter(Page::removed)
     }
 
 
     @RequestMapping("/{lesson}", method = arrayOf(RequestMethod.DELETE))
-    fun delete(@AuthenticationPrincipal user: Account, @PathVariable lesson: Lesson) {
+    fun delete(user: Account, @PathVariable lesson: Lesson) {
         user.assertHasAccess(lesson)
         lesson.removed = true
         lessonRepo.save(lesson)
     }
 
     @RequestMapping("/{lesson}/pages")
-    fun lessonPages(@AuthenticationPrincipal user: Account, @PathVariable lesson: Lesson): List<Page> {
+    fun lessonPages(user: Account, @PathVariable lesson: Lesson): List<Page> {
         user.assertHasAccess(lesson)
         return lesson.pages
     }
 
     @RequestMapping("/{lesson}/restore")
-    fun restore(@AuthenticationPrincipal user: Account, @PathVariable lesson: Lesson) {
+    fun restore(user: Account, @PathVariable lesson: Lesson) {
         user.assertHasAccess(lesson)
         lesson.removed = false
         lessonRepo.save(lesson)
     }
 
     @RequestMapping("/{lesson}/topic", method = arrayOf(RequestMethod.POST))
-    fun setTopic(@PathVariable lesson: Lesson, @RequestParam(required = false) topic: String?, @AuthenticationPrincipal user: Account) {
+    fun setTopic(@PathVariable lesson: Lesson, @RequestParam(required = false) topic: String?, user: Account) {
         user.assertHasAccess(lesson)
         lesson.topic = topic
         lessonRepo.save(lesson)
     }
 
     @RequestMapping("/qr/{qr}")
-    fun byPageQR(@AuthenticationPrincipal user: Account, @PathVariable qr: String): Lesson {
+    fun byPageQR(user: Account, @PathVariable qr: String): Lesson {
         val page = pageRepository.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Page is not found")
         user.assertHasAccess(page.lesson)
 
@@ -82,7 +81,7 @@ open class LessonsController @Autowired constructor(
     }
 
     @RequestMapping("/{lesson}/pages/reorder")
-    fun reorderPages(@AuthenticationPrincipal user: Account, @PathVariable lesson: Lesson, @RequestParam page: Page, @RequestParam(required = false) after: Page?) {
+    fun reorderPages(user: Account, @PathVariable lesson: Lesson, @RequestParam page: Page, @RequestParam(required = false) after: Page?) {
         Observable.just(lesson)
                 .map { lesson ->
                     user.assertHasAccess(lesson)

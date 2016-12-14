@@ -19,21 +19,19 @@ open class Page() {
 
     @Id var id: String = UUID.randomUUID().toString()
 
-
-    @Column(nullable = false)
-    var isUploaded: Boolean = false
-
     @JsonIgnore
     @ManyToOne(optional = false)
     lateinit var lesson: Lesson
 
-
     @Column(nullable = false)
     var timestamp: Instant = Instant.now()
 
+    @Column(nullable = false)
+    var isUploaded: Boolean = false
+    var fileId: String? = null
+    var uploadedTimestamp: Instant? = null
     var qr: String? = null
     var contentType: String? = null
-    var uploadedTimestamp: Instant? = null
     @Column(name = "file_md5") var fileMD5: String? = null
     var removedOn: Instant? = null
     var index: Int = 0

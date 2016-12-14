@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.mashape.unirest.http.Unirest
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.internal.sync.FCMRequest
@@ -13,13 +14,13 @@ import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 
+// TODO: Manually call fcmService from all mutating methods
 @Service
 open class FCMService @Autowired constructor(
         val objectMapper: ObjectMapper,
-        val accountRepository: AccountRepository
+        val accountRepository: AccountRepository,
+        @Value("\${edustor.core.fcm-token}") val FCM_KEY: String?
 ) {
-    val FCM_KEY: String? = System.getenv("FCM_KEY")
-
     private val queue = LinkedBlockingQueue<FCMRequest>()
     private val logger = LoggerFactory.getLogger(FCMService::class.java)
 
