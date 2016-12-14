@@ -10,5 +10,7 @@ spring:
       hibernate:
         ddl-auto: update
       generate-ddl: true
+  rabbitmq:
+    host: rabbit.edustor.svc.cluster.local
 flyway:
   validate-on-migrate: false
