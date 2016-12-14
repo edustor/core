@@ -50,7 +50,7 @@ open class TelegramEventsRouter(val bot: TelegramBot,
                 }
 
                 when (resp.isSuccessful) {
-                    true -> bot.execute(msg.replyText("Successfully uploaded"))
+                    true -> bot.execute(msg.replyText("Successfully uploaded. Id: ${resp.body().uuid.split("-").last()}"))
                     false -> bot.execute(msg.replyText("Something went wrong: upload server returned ${resp.code()}"))
                 }
             } else if (msg.text() != null) {
