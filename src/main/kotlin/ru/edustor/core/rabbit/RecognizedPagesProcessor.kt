@@ -41,12 +41,12 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
         val page = getTargetPage(event) ?: let {
             storage.delete(PAGE, event.pageUuid)
             telegramService.sendText(accountRepository.getForAccountId(event.userId),
-                    "[FAIL] Upload: $shortUploadId Page ${event.pageIndex}. QR: $shortQrId. No target lesson found.")
+                    "[FAIL] Upload: $shortUploadId Page ${event.pageIndex?.plus(1)} of ${event.totalPageCount}. QR: $shortQrId. No target lesson found.")
             logger.warn("Skipping ${event.pageUuid} page")
             return
         }
 
-        telegramService.sendText(page.owner, "[OK] Upload: $shortUploadId Page ${event.pageIndex}. QR: $shortQrId. " +
+        telegramService.sendText(page.owner, "[OK] Upload: $shortUploadId Page ${event.pageIndex?.plus(1)} of ${event.totalPageCount}. QR: $shortQrId. " +
                 "Target: ${page.lesson}.")
 
         page.fileId?.let { storage.delete(PAGE, it) } // TODO: Preserve old files
