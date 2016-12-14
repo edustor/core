@@ -9,3 +9,4 @@ edustor:
     token:
   core:
     telegram-token:
+    fcm-token:
