@@ -5,7 +5,7 @@ import java.time.Instant
 buildscript {
     ext.kotlin_version = '1.0.5-2'
     ext.spring_boot_version = '1.4.1.RELEASE'
-    ext.edustor_commons_version = 'de2bda4'
+    ext.edustor_commons_version = 'c8cfdc1'
     repositories {
         mavenCentral()
     }
