@@ -13,6 +13,7 @@ import ru.edustor.core.repository.AccountRepository
 import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.repository.getForAccountId
+import ru.edustor.core.service.TelegramService
 import ru.edustor.core.util.extensions.hasAccess
 import java.time.Instant
 
@@ -20,7 +21,8 @@ import java.time.Instant
 open class RecognizedPagesProcessor(val pageRepository: PageRepository,
                                     var storage: BinaryObjectStorageService,
                                     val accountRepository: AccountRepository,
-                                    val lessonRepository: LessonRepository) {
+                                    val lessonRepository: LessonRepository,
+                                    val telegramService: TelegramService) {
     val logger: Logger = LoggerFactory.getLogger(RecognizedPagesProcessor::class.java)
 
     @RabbitListener(bindings = arrayOf(QueueBinding(
@@ -33,11 +35,19 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
             key = "recognized.pages.processing"
     )))
     fun handleUploadedPage(event: PageRecognizedEvent) {
+        val shortUploadId = event.uploadUuid.split("-").last()
+        val shortQrId = event.qrUuid?.split("-")?.last()
+
         val page = getTargetPage(event) ?: let {
             storage.delete(PAGE, event.pageUuid)
+            telegramService.sendText(accountRepository.getForAccountId(event.userId),
+                    "[FAIL] Upload: $shortUploadId Page ${event.pageIndex}. QR: $shortQrId. No target lesson found.")
             logger.warn("Skipping ${event.pageUuid} page")
             return
         }
+
+        telegramService.sendText(page.owner, "[OK] Upload: $shortUploadId Page ${event.pageIndex}. QR: $shortQrId. " +
+                "Target: ${page.lesson}.")
 
         page.fileId?.let { storage.delete(PAGE, it) } // TODO: Preserve old files
 

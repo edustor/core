@@ -19,15 +19,19 @@ class TelegramService {
     private val logger = LoggerFactory.getLogger(TelegramService::class.java)
 
     fun sendText(user: Account, text: String, disableNotification: Boolean = true) {
-        bot.execute(SendMessage(user.telegramChatId, text).disableNotification(disableNotification))
+        user.telegramChatId?.let { cid ->
+            bot.execute(SendMessage(cid, text).disableNotification(disableNotification))
+        }
     }
 
     fun sendImage(user: Account, image: BufferedImage, caption: String, disableNotification: Boolean = true) {
-        bot.execute(
-                SendPhoto(user.telegramChatId, image.getAsByteArray())
-                        .caption(caption)
-                        .disableNotification(disableNotification)
-        )
+        user.telegramChatId?.let { cid ->
+            bot.execute(
+                    SendPhoto(cid, image.getAsByteArray())
+                            .caption(caption)
+                            .disableNotification(disableNotification)
+            )
+        }
     }
 
 //    fun onUploadingComplete(uploaded: List<PdfPage>, uploadPreferences: PdfUploadPreferences) {
