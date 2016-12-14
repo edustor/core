@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 import ru.edustor.commons.models.internal.processing.pdf.PageRecognizedEvent
 import ru.edustor.commons.storage.service.BinaryObjectStorageService
 import ru.edustor.commons.storage.service.BinaryObjectStorageService.ObjectType.PAGE
+import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
 import ru.edustor.core.repository.AccountRepository
 import ru.edustor.core.repository.LessonRepository
@@ -68,6 +69,22 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
             storage.delete(PAGE, event.pageUuid)
         }
 
+        val uploaderAccount = accountRepository.getForAccountId(event.userId)
+        val targetLesson: Lesson? = targetLessonId?.let {
+            val lesson = lessonRepository.findOne(targetLessonId) ?: let {
+                logger.warn("Failed to find explicitly specified target lesson $targetLessonId in database. Skipping")
+                return null
+            }
+
+            if (!uploaderAccount.hasAccess(lesson)) {
+                logger.warn("User doesn't have access to target lesson ${lesson.id}. " +
+                        "Page file id: ${event.pageUuid}. Uploader: ${event.userId}")
+                return null
+            }
+            return@let null
+        }
+
+
         // ?: is used to handle case when event.qrUuid is presented, but pageRepository.findByQr returned null
         val page = (if (event.qrUuid != null) pageRepository.findByQr(event.qrUuid!!) else null) ?: let {
             if (targetLessonId == null) {
@@ -75,8 +92,9 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
                 return null
             }
 
-            val p = Page(null)
-            p.owner = accountRepository.getForAccountId(event.userId)
+            val p = Page(event.qrUuid)
+            p.owner = uploaderAccount
+            p.index = targetLesson!!.pages.lastIndex + 1
             if (event.uploadedTimestamp != null) {
                 p.timestamp = event.uploadedTimestamp!!
             }
@@ -89,20 +107,7 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
             return null
         }
 
-        targetLessonId?.let {
-            val lesson = lessonRepository.findOne(targetLessonId) ?: let {
-                logger.warn("Failed to find explicitly specified target lesson $targetLessonId in database. Skipping")
-                return null
-            }
-
-            if (!page.owner.hasAccess(lesson)) {
-                logger.warn("User doesn't have access to target lesson ${lesson.id}. Page: ${page.id}. " +
-                        "Page file id: ${event.pageUuid}. Uploader: ${event.userId}")
-                return null
-            }
-
-            page.lesson = lesson
-        }
+        targetLesson?.let { page.lesson = it }
 
         return page
     }
