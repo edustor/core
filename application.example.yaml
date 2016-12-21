@@ -10,5 +10,4 @@ edustor:
     upload:
       url: http://localhost:8083/api/v1/
   core:
-    telegram-token:
     fcm-token:

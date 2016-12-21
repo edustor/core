@@ -1,16 +1,14 @@
 package ru.edustor.core.model
 
-import java.time.Instant
 import java.util.*
-import javax.persistence.*
+import javax.persistence.ElementCollection
+import javax.persistence.Entity
+import javax.persistence.FetchType
+import javax.persistence.Id
 
 @Entity
 open class Account() {
     @Id var id: String = UUID.randomUUID().toString()
-
-    var telegramChatId: String? = null
-    var telegramLinkToken: String? = null
-    @Embedded var pendingUpload: PendingUploadRequest? = null
 
     @ElementCollection(targetClass = String::class, fetch = FetchType.EAGER)
     val fcmTokens: MutableSet<String> = mutableSetOf()
@@ -30,20 +28,5 @@ open class Account() {
 
     override fun toString(): String {
         return "Account<$id>"
-    }
-
-    @Embeddable
-    class PendingUploadRequest() {
-        @ManyToOne
-        @JoinColumn(name = "pending_upload_lesson_id")
-        lateinit var lesson: Lesson
-
-        @Column(name = "pending_upload_valid_until")
-        lateinit var validUntil: Instant
-
-        constructor(lesson: Lesson, validUntil: Instant) : this() {
-            this.lesson = lesson
-            this.validUntil = validUntil
-        }
     }
 }
