@@ -4,7 +4,9 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.core.ExchangeTypes
 import org.springframework.amqp.rabbit.annotation.*
+import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Component
+import ru.edustor.commons.models.internal.processing.pdf.PageProcessedEvent
 import ru.edustor.commons.models.internal.processing.pdf.PageRecognizedEvent
 import ru.edustor.commons.storage.service.BinaryObjectStorageService
 import ru.edustor.commons.storage.service.BinaryObjectStorageService.ObjectType.PAGE
@@ -14,7 +16,6 @@ import ru.edustor.core.repository.AccountRepository
 import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.repository.getForAccountId
-import ru.edustor.core.service.TelegramService
 import ru.edustor.core.util.extensions.hasAccess
 import java.time.Instant
 
@@ -23,7 +24,7 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
                                     var storage: BinaryObjectStorageService,
                                     val accountRepository: AccountRepository,
                                     val lessonRepository: LessonRepository,
-                                    val telegramService: TelegramService) {
+                                    val rabbitTemplate: RabbitTemplate) {
     val logger: Logger = LoggerFactory.getLogger(RecognizedPagesProcessor::class.java)
 
     @RabbitListener(bindings = arrayOf(QueueBinding(
@@ -36,19 +37,29 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
             key = "recognized.pages.processing"
     )))
     fun handleUploadedPage(event: PageRecognizedEvent) {
-        val shortUploadId = event.uploadUuid.split("-").last()
-        val shortQrId = event.qrUuid?.split("-")?.last()
+        val page = getTargetPage(event)
 
-        val page = getTargetPage(event) ?: let {
-            storage.delete(PAGE, event.pageUuid)
-            telegramService.sendText(accountRepository.getForAccountId(event.userId),
-                    "[FAIL] Upload: $shortUploadId Page ${event.pageIndex?.plus(1)} of ${event.totalPageCount}. QR: $shortQrId. No target lesson found.")
+        val processedEvent = PageProcessedEvent(
+                userId = event.userId,
+                uploadUuid = event.uploadUuid,
+                totalPageCount = event.totalPageCount,
+                pageIndex = event.pageIndex,
+                pageUuid = event.pageUuid,
+                qrUuid = event.qrUuid,
+                success = page != null,
+                targetLessonId = page?.lesson?.id,
+                targetLessonName = page?.lesson?.toString())
+
+        rabbitTemplate.convertAndSend(
+                "internal.edustor",
+                "finished.pages.processing",
+                processedEvent
+        )
+
+        page ?: let {
             logger.warn("Skipping ${event.pageUuid} page")
             return
         }
-
-        telegramService.sendText(page.owner, "[OK] Upload: $shortUploadId Page ${event.pageIndex?.plus(1)} of ${event.totalPageCount}. QR: $shortQrId. " +
-                "Target: ${page.lesson}.")
 
         page.fileId?.let { storage.delete(PAGE, it) } // TODO: Preserve old files
 

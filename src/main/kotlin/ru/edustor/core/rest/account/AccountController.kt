@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import ru.edustor.core.model.Account
 import ru.edustor.core.repository.AccountRepository
-import java.util.*
 
 @RestController
 @RequestMapping("/api/account")
@@ -25,14 +24,5 @@ class AccountController @Autowired constructor(val accountRepository: AccountRep
             account.fcmTokens.add(token)
             accountRepository.save(account)
         }
-    }
-
-    @RequestMapping("/telegram/link")
-    fun getTelegramLink(user: Account): String {
-        val token = UUID.randomUUID().toString()
-        user.telegramLinkToken = token
-        accountRepository.save(user)
-
-        return "https://telegram.me/edustor_bot?start=$token"
     }
 }
