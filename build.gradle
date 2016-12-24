@@ -25,7 +25,7 @@ apply plugin: 'kotlin'
 apply plugin: 'spring-boot'
 
 group 'ru.edustor'
-version '0.6.1'
+version '0.6.2'
 
 
 repositories {
@@ -56,9 +56,11 @@ task createProperties(dependsOn: processResources) {
     doLast {
         new File("$buildDir/resources/main/build.properties").withWriter { w ->
             def p = new Properties()
+            p['edustor.build.name'] = "Edustor Core"
             p['edustor.build.version'] = "${project.version}-$shortCommitId".toString()
-            p['edustor.build.date'] = Instant.now().toString()
+            p['edustor.build.date'] = Instant.now().epochSecond.toString()
             p['edustor.build.commitId'] = commitId
+            p['edustor.build.repo'] = "https://github.com/edustor/core"
             p.store(w, null)
         }
     }
