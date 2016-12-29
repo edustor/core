@@ -50,8 +50,13 @@ deployment:
       - docker tag result quay.io/edustor/core:latest
       - docker push quay.io/edustor/core:ci-$CIRCLE_BUILD_NUM | cat
       - docker push quay.io/edustor/core:latest | cat
-      - docker run quay.io/wutiarn/kubectl
-        kubectl --server https://k8s.wutiarn.ru --token $K8S_TOKEN
-        set image -n edustor deployment/core core="quay.io/edustor/core:ci-$CIRCLE_BUILD_NUM"
+      - docker run
+        -e DOCKER_HOST=swarm.wutiarn.ru:2376
+        -e DOCKER_TLS_VERIFY=1
+        -e CA_URL=https://wutiarn.keybase.pub/swarm/ca.pem
+        -e CERT_URL=https://wutiarn.keybase.pub/swarm/cert.pem
+        -e KEY="$DOCKER_KEY"
+        quay.io/wutiarn/docker-deployer
+        docker service update --image quay.io/edustor/core:ci-$CIRCLE_BUILD_NUM edustor_core
 # REQUIRED ENVIRONMENTS
-# QUAY_CACHE_PASSWORD QUAY_EDUSTOR_PASSWORD K8S_TOKEN GITHUB_TOKEN
+# QUAY_CACHE_PASSWORD QUAY_EDUSTOR_PASSWORD DOCKER_KEY GITHUB_TOKEN
