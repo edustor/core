@@ -57,6 +57,7 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
         )
 
         page ?: let {
+            storage.delete(PAGE, event.pageUuid)
             logger.warn("Skipping ${event.pageUuid} page")
             return
         }
