@@ -65,4 +65,20 @@ open class Page() {
     override fun hashCode(): Int {
         return id.hashCode()
     }
+
+    fun toDTO(): PageDTO {
+        return PageDTO(id, lesson.id, timestamp, isUploaded, uploadedTimestamp, qr, contentType, removedOn, index)
+    }
+
+    data class PageDTO(
+            val id: String,
+            val lesson: String,
+            val timestamp: Instant,
+            val uploaded: Boolean,
+            val uploadedTimestamp: Instant?,
+            val qr: String?,
+            val contentType: String?,
+            val removedOn: Instant?,
+            val index: Int
+    )
 }

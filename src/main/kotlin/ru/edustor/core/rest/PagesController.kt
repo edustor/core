@@ -22,10 +22,10 @@ class PagesController @Autowired constructor(
         val pageRepository: PageRepository
 ) {
     @RequestMapping("/qr/{qr}")
-    fun pageByQr(@PathVariable qr: String, user: Account): Page? {
+    fun pageByQr(@PathVariable qr: String, user: Account): Page.PageDTO? {
         val page = pageRepository.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
         user.assertHasAccess(page)
-        return page
+        return page.toDTO()
     }
 
     @RequestMapping("/qr/activate")
@@ -39,7 +39,7 @@ class PagesController @Autowired constructor(
 
         val existingDoc = pageRepository.findByQr(qr)
         if (existingDoc != null) {
-            if (existingDoc.removed == true) {
+            if (existingDoc.removed) {
                 pageRepository.delete(existingDoc)
             } else {
                 throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This QR is already activated")

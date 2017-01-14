@@ -61,7 +61,7 @@ open class Lesson() : Comparable<Lesson> {
     }
 
     fun toDTO(): LessonDTO {
-        return LessonDTO(id, tag.id, topic, date, removed, pages)
+        return LessonDTO(id, tag.id, topic, date, removed, pages.map(Page::toDTO))
     }
 
     data class LessonDTO(
@@ -70,7 +70,6 @@ open class Lesson() : Comparable<Lesson> {
             val topic: String?,
             val date: LocalDate,
             val removed: Boolean,
-            val pages: List<Page>
+            val pages: List<Page.PageDTO>
     )
-
 }
