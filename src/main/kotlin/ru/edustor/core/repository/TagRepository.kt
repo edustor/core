@@ -5,7 +5,7 @@ import ru.edustor.core.model.Account
 import ru.edustor.core.model.Tag
 import java.time.Instant
 
-interface SubjectRepository : JpaRepository<Tag, String> {
+interface TagRepository : JpaRepository<Tag, String> {
     fun findByOwner(user: Account): List<Tag>
     fun findByRemovedOnLessThan(removedOn: Instant): List<Tag>
 }

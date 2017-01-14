@@ -57,4 +57,15 @@ open class Tag() : Comparable<Tag> {
     override fun toString(): String {
         return "[$name]"
     }
+
+    fun toDTO(): TagDTO {
+        return TagDTO(id, owner.id, name, removed)
+    }
+
+    data class TagDTO(
+            val id: String,
+            val owner: String,
+            val name: String,
+            val removed: Boolean
+    )
 }

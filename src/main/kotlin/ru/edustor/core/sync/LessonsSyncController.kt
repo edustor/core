@@ -9,7 +9,7 @@ import ru.edustor.core.model.Page
 import ru.edustor.core.model.internal.sync.SyncTask
 import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.repository.PageRepository
-import ru.edustor.core.repository.SubjectRepository
+import ru.edustor.core.repository.TagRepository
 import ru.edustor.core.rest.LessonsController
 import java.time.LocalDate
 
@@ -17,7 +17,7 @@ import java.time.LocalDate
 open class LessonsSyncController @Autowired constructor(
         val lessonsController: LessonsController,
         val lessonRepository: LessonRepository,
-        val folcersRepo: SubjectRepository,
+        val folcersRepo: TagRepository,
         val pageRepository: PageRepository
 ) {
     fun processTask(task: SyncTask): Any {

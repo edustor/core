@@ -8,16 +8,16 @@ import ru.edustor.core.model.Account
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Tag
 import ru.edustor.core.repository.LessonRepository
-import ru.edustor.core.repository.SubjectRepository
+import ru.edustor.core.repository.TagRepository
 import ru.edustor.core.util.extensions.assertHasAccess
 
 @RestController
 @RequestMapping("/api/subjects")
-class SubjectsController @Autowired constructor(val subjectRepository: SubjectRepository, val lessonRepo: LessonRepository) {
+class SubjectsController @Autowired constructor(val tagRepository: TagRepository, val lessonRepo: LessonRepository) {
 
     @RequestMapping("/list")
     fun listSubjects(user: Account): List<Tag> {
-        val result = subjectRepository.findByOwner(user).filter { !it.removed }
+        val result = tagRepository.findByOwner(user).filter { !it.removed }
         return result.sorted()
     }
 
@@ -26,7 +26,7 @@ class SubjectsController @Autowired constructor(val subjectRepository: SubjectRe
                       @RequestParam name: String
     ): Tag {
         val subject = Tag(name, user)
-        subjectRepository.save(subject)
+        tagRepository.save(subject)
 
         return subject
     }
@@ -41,13 +41,13 @@ class SubjectsController @Autowired constructor(val subjectRepository: SubjectRe
     fun delete(user: Account, @PathVariable tag: Tag) {
         user.assertHasAccess(tag)
         tag.removed = true
-        subjectRepository.save(tag)
+        tagRepository.save(tag)
     }
 
     @RequestMapping("/{subject}/restore")
     fun restore(user: Account, @PathVariable tag: Tag) {
         user.assertHasAccess(tag)
         tag.removed = false
-        subjectRepository.save(tag)
+        tagRepository.save(tag)
     }
 }

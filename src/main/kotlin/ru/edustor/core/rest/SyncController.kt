@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
+import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
+import ru.edustor.core.model.Tag
 import ru.edustor.core.model.internal.sync.SyncTask
 import ru.edustor.core.repository.LessonRepository
-import ru.edustor.core.repository.SubjectRepository
+import ru.edustor.core.repository.TagRepository
 import ru.edustor.core.service.FCMService
 import ru.edustor.core.sync.AccountsSyncController
 import ru.edustor.core.sync.LessonsSyncController
@@ -23,7 +25,7 @@ import ru.edustor.core.sync.SubjectsSyncController
 @RestController
 @RequestMapping("/api/sync")
 open class SyncController @Autowired constructor(
-        val subjectRepo: SubjectRepository,
+        val tagRepo: TagRepository,
         val lessonRepo: LessonRepository,
         val lessonsSyncController: LessonsSyncController,
         val pagesSyncController: PagesSyncController,
@@ -37,18 +39,16 @@ open class SyncController @Autowired constructor(
 
     @RequestMapping("/fetch")
     fun fetch(user: Account): Map<*, *> {
-        val subjects = subjectRepo.findByOwner(user).filter { it.removed == false }
+        val tags = tagRepo.findByOwner(user)
+                .filter { !it.removed }
 
-        val lessons = lessonRepo.findByTagIn(subjects)
-                .map {
-                    it.pages = (it.pages.filter { it.removed == false } as MutableList<Page>)
-                    it.toDTO()
-                }
+        val lessons = lessonRepo.findByTagIn(tags)
+                .map { it.pages = (it.pages.filter { it.removed == false } as MutableList<Page>); it }
 
         return mapOf(
                 "user" to user,
-                "tags" to subjects,
-                "lessons" to lessons
+                "tags" to tags.map(Tag::toDTO),
+                "lessons" to lessons.map(Lesson::toDTO)
         )
     }
 

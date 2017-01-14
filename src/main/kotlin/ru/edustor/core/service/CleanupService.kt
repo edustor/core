@@ -11,7 +11,7 @@ import ru.edustor.core.model.Page
 import ru.edustor.core.model.Tag
 import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.repository.PageRepository
-import ru.edustor.core.repository.SubjectRepository
+import ru.edustor.core.repository.TagRepository
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.annotation.PostConstruct
@@ -20,7 +20,7 @@ import javax.annotation.PostConstruct
 open class CleanupService(
         val pageRepository: PageRepository,
         val lessonRepository: LessonRepository,
-        val subjectRepository: SubjectRepository,
+        val tagRepository: TagRepository,
         val pdfStorage: BinaryObjectStorageService
 ) {
 
@@ -33,7 +33,7 @@ open class CleanupService(
         val cleanupBeforeDate = Instant.now().minus(10, ChronoUnit.DAYS)
         logger.info("Cleaning up entities removed before $cleanupBeforeDate")
 
-        subjectRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteSubject(it) }
+        tagRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteSubject(it) }
         lessonRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteLesson(it) }
         pageRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deletePage(it) }
 
@@ -42,7 +42,7 @@ open class CleanupService(
 
     fun deleteSubject(tag: Tag) {
         logger.info("Cleaning up subject: ${tag.id}")
-        subjectRepository.delete(tag)
+        tagRepository.delete(tag)
     }
 
     fun deleteLesson(lesson: Lesson) {
