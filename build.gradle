@@ -3,9 +3,9 @@ import org.ajoberstar.grgit.Grgit
 import java.time.Instant
 
 buildscript {
-    ext.kotlin_version = '1.0.5-2'
+    ext.kotlin_version = '1.0.6'
     ext.spring_boot_version = '1.4.1.RELEASE'
-    ext.edustor_commons_version = '32116ce'
+    ext.edustor_commons_version = '8979f95'
     repositories {
         mavenCentral()
     }
