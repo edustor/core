@@ -52,7 +52,7 @@ open class CleanupService(
 
     fun deletePage(page: Page) {
         logger.info("Cleaning up page: ${page.id}")
-        page.isUploaded.let {
+        if (page.isUploaded && pdfStorage.has(PAGE, page.id)) {
             pdfStorage.delete(PAGE, page.id)
         }
         pageRepository.delete(page)
