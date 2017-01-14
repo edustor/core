@@ -29,4 +29,12 @@ open class Account() {
     override fun toString(): String {
         return "Account<$id>"
     }
+
+    fun toDTO(): AccountDTO {
+        return AccountDTO(id)
+    }
+
+    data class AccountDTO(
+            val id: String
+    )
 }

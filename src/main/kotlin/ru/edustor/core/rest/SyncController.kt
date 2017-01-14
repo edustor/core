@@ -38,15 +38,15 @@ open class SyncController @Autowired constructor(
     val logger: Logger = LoggerFactory.getLogger(SyncController::class.java)
 
     @RequestMapping("/fetch")
-    fun fetch(user: Account): Map<*, *> {
-        val tags = tagRepo.findByOwner(user)
+    fun fetch(account: Account): Map<*, *> {
+        val tags = tagRepo.findByOwner(account)
                 .filter { !it.removed }
 
         val lessons = lessonRepo.findByTagIn(tags)
                 .map { it.pages = (it.pages.filter { it.removed == false } as MutableList<Page>); it }
 
         return mapOf(
-                "user" to user,
+                "account" to account.toDTO(),
                 "tags" to tags.map(Tag::toDTO),
                 "lessons" to lessons.map(Lesson::toDTO)
         )
