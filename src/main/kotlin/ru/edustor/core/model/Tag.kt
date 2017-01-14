@@ -8,7 +8,7 @@ import java.util.*
 import javax.persistence.*
 
 @Entity
-open class Subject() : Comparable<Subject> {
+open class Tag() : Comparable<Tag> {
 
     @Column(nullable = false)
     lateinit var name: String
@@ -18,7 +18,7 @@ open class Subject() : Comparable<Subject> {
     @JsonIgnore lateinit var owner: Account
 
     @JsonIgnore
-    @OneToMany(mappedBy = "subject", cascade = arrayOf(CascadeType.REMOVE), fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "tag", cascade = arrayOf(CascadeType.REMOVE), fetch = FetchType.LAZY)
     var lessons: MutableList<Lesson> = mutableListOf()
 
     @Id var id: String = UUID.randomUUID().toString()
@@ -41,12 +41,12 @@ open class Subject() : Comparable<Subject> {
     }
 
 
-    override fun compareTo(other: Subject): Int {
+    override fun compareTo(other: Tag): Int {
         return name.compareTo(other.name)
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is Subject) return false
+        if (other !is Tag) return false
         return this.id == other.id
     }
 

@@ -15,7 +15,7 @@ import javax.persistence.*
 open class Lesson() : Comparable<Lesson> {
     @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    lateinit var subject: Subject
+    lateinit var tag: Tag
 
     @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -45,8 +45,8 @@ open class Lesson() : Comparable<Lesson> {
             }
         }
 
-    constructor(subject: Subject, date: LocalDate, owner: Account) : this() {
-        this.subject = subject
+    constructor(tag: Tag, date: LocalDate, owner: Account) : this() {
+        this.tag = tag
         this.date = date
         this.owner = owner
     }
@@ -56,6 +56,6 @@ open class Lesson() : Comparable<Lesson> {
     }
 
     override fun toString(): String {
-        return "$subject ${topic ?: "No topic"} on ${date.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
+        return "$tag ${topic ?: "No topic"} on ${date.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
     }
 }

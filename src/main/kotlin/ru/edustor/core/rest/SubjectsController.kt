@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.Lesson
-import ru.edustor.core.model.Subject
+import ru.edustor.core.model.Tag
 import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.repository.SubjectRepository
 import ru.edustor.core.util.extensions.assertHasAccess
@@ -16,7 +16,7 @@ import ru.edustor.core.util.extensions.assertHasAccess
 class SubjectsController @Autowired constructor(val subjectRepository: SubjectRepository, val lessonRepo: LessonRepository) {
 
     @RequestMapping("/list")
-    fun listSubjects(user: Account): List<Subject> {
+    fun listSubjects(user: Account): List<Tag> {
         val result = subjectRepository.findByOwner(user).filter { !it.removed }
         return result.sorted()
     }
@@ -24,30 +24,30 @@ class SubjectsController @Autowired constructor(val subjectRepository: SubjectRe
     @RequestMapping("/create")
     fun createSubject(user: Account,
                       @RequestParam name: String
-    ): Subject {
-        val subject = Subject(name, user)
+    ): Tag {
+        val subject = Tag(name, user)
         subjectRepository.save(subject)
 
         return subject
     }
 
     @RequestMapping("/{subject}/lessons")
-    fun subjectLessons(@PathVariable subject: Subject?): List<Lesson> {
-        subject ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        return lessonRepo.findBySubject(subject).filter { it.pages.isNotEmpty() && !it.removed }.sortedDescending()
+    fun subjectLessons(@PathVariable tag: Tag?): List<Lesson> {
+        tag ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
+        return lessonRepo.findByTag(tag).filter { it.pages.isNotEmpty() && !it.removed }.sortedDescending()
     }
 
     @RequestMapping("/{subject}", method = arrayOf(RequestMethod.DELETE))
-    fun delete(user: Account, @PathVariable subject: Subject) {
-        user.assertHasAccess(subject)
-        subject.removed = true
-        subjectRepository.save(subject)
+    fun delete(user: Account, @PathVariable tag: Tag) {
+        user.assertHasAccess(tag)
+        tag.removed = true
+        subjectRepository.save(tag)
     }
 
     @RequestMapping("/{subject}/restore")
-    fun restore(user: Account, @PathVariable subject: Subject) {
-        user.assertHasAccess(subject)
-        subject.removed = false
-        subjectRepository.save(subject)
+    fun restore(user: Account, @PathVariable tag: Tag) {
+        user.assertHasAccess(tag)
+        tag.removed = false
+        subjectRepository.save(tag)
     }
 }

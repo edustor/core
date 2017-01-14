@@ -2,10 +2,10 @@ package ru.edustor.core.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
 import ru.edustor.core.model.Account
-import ru.edustor.core.model.Subject
+import ru.edustor.core.model.Tag
 import java.time.Instant
 
-interface SubjectRepository : JpaRepository<Subject, String> {
-    fun findByOwner(user: Account): List<Subject>
-    fun findByRemovedOnLessThan(removedOn: Instant): List<Subject>
+interface SubjectRepository : JpaRepository<Tag, String> {
+    fun findByOwner(user: Account): List<Tag>
+    fun findByRemovedOnLessThan(removedOn: Instant): List<Tag>
 }

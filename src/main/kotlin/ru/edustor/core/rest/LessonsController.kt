@@ -8,7 +8,7 @@ import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
-import ru.edustor.core.model.Subject
+import ru.edustor.core.model.Tag
 import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.util.extensions.assertHasAccess
@@ -24,9 +24,9 @@ open class LessonsController @Autowired constructor(
 ) {
 
     @RequestMapping("/{lessonId}", method = arrayOf(RequestMethod.POST))
-    fun create(lessonId: String, subject: Subject, date: LocalDate, user: Account) {
-        user.assertHasAccess(subject)
-        val lesson = Lesson(subject, date, user)
+    fun create(lessonId: String, tag: Tag, date: LocalDate, user: Account) {
+        user.assertHasAccess(tag)
+        val lesson = Lesson(tag, date, user)
         lesson.id = lessonId
         lessonRepo.save(lesson)
     }

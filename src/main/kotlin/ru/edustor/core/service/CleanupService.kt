@@ -8,7 +8,7 @@ import ru.edustor.commons.storage.service.BinaryObjectStorageService
 import ru.edustor.commons.storage.service.BinaryObjectStorageService.ObjectType.PAGE
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
-import ru.edustor.core.model.Subject
+import ru.edustor.core.model.Tag
 import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.repository.SubjectRepository
@@ -40,9 +40,9 @@ open class CleanupService(
         logger.info("Removed entities cleanup finished")
     }
 
-    fun deleteSubject(subject: Subject) {
-        logger.info("Cleaning up subject: ${subject.id}")
-        subjectRepository.delete(subject)
+    fun deleteSubject(tag: Tag) {
+        logger.info("Cleaning up subject: ${tag.id}")
+        subjectRepository.delete(tag)
     }
 
     fun deleteLesson(lesson: Lesson) {

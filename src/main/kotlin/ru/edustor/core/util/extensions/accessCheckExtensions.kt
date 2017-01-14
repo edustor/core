@@ -5,22 +5,22 @@ import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
-import ru.edustor.core.model.Subject
+import ru.edustor.core.model.Tag
 
-fun Account.hasAccess(subject: Subject): Boolean {
-    return subject.owner == this
+fun Account.hasAccess(tag: Tag): Boolean {
+    return tag.owner == this
 }
 
 fun Account.hasAccess(lesson: Lesson): Boolean {
-    return this.hasAccess(lesson.subject)
+    return this.hasAccess(lesson.tag)
 }
 
 fun Account.hasAccess(page: Page): Boolean {
     return this.hasAccess(page.lesson)
 }
 
-fun Account.assertHasAccess(subject: Subject) {
-    if (!this.hasAccess(subject)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "Subject access forbidden")
+fun Account.assertHasAccess(tag: Tag) {
+    if (!this.hasAccess(tag)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "Subject access forbidden")
 }
 
 fun Account.assertHasAccess(lesson: Lesson) {

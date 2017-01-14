@@ -39,7 +39,7 @@ open class SyncController @Autowired constructor(
     fun fetch(user: Account): Map<*, *> {
         val subjects = subjectRepo.findByOwner(user).filter { it.removed == false }
 
-        val lessons = lessonRepo.findBySubjectIn(subjects)
+        val lessons = lessonRepo.findByTagIn(subjects)
 
         logger.debug("FETCH: Database fetch finished")
 
@@ -50,7 +50,7 @@ open class SyncController @Autowired constructor(
 
         return mapOf(
                 "user" to user,
-                "subjects" to subjects,
+                "tags" to subjects,
                 "lessons" to lessons
         )
     }
