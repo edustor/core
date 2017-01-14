@@ -40,13 +40,10 @@ open class SyncController @Autowired constructor(
         val subjects = subjectRepo.findByOwner(user).filter { it.removed == false }
 
         val lessons = lessonRepo.findByTagIn(subjects)
-
-        logger.debug("FETCH: Database fetch finished")
-
-
-        lessons.forEach { it.pages = (it.pages.filter { it.removed == false } as MutableList<Page>) }
-
-        logger.debug("FETCH: Data preprocessing finished")
+                .map {
+                    it.pages = (it.pages.filter { it.removed == false } as MutableList<Page>)
+                    it.toDTO()
+                }
 
         return mapOf(
                 "user" to user,

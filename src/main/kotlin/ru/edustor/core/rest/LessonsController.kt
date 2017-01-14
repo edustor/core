@@ -32,10 +32,10 @@ open class LessonsController @Autowired constructor(
     }
 
     @RequestMapping("/{lesson}")
-    fun getLesson(@PathVariable lesson: Lesson, user: Account): Lesson {
+    fun getLesson(@PathVariable lesson: Lesson, user: Account): Lesson.LessonDTO {
         user.assertHasAccess(lesson)
         lesson.pages = lesson.pages.filter { !it.removed }.toMutableList()
-        return lesson
+        return lesson.toDTO()
     }
 
     @RequestMapping("/{lesson}/removed")
@@ -73,11 +73,11 @@ open class LessonsController @Autowired constructor(
     }
 
     @RequestMapping("/qr/{qr}")
-    fun byPageQR(user: Account, @PathVariable qr: String): Lesson {
+    fun byPageQR(user: Account, @PathVariable qr: String): Lesson.LessonDTO {
         val page = pageRepository.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Page is not found")
         user.assertHasAccess(page.lesson)
 
-        return page.lesson
+        return page.lesson.toDTO()
     }
 
     @RequestMapping("/{lesson}/pages/reorder")

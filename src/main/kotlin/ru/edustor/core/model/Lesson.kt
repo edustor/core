@@ -13,16 +13,18 @@ import javax.persistence.*
 
 @Entity
 open class Lesson() : Comparable<Lesson> {
+    @Id var id: String = UUID.randomUUID().toString()
+
     @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     lateinit var tag: Tag
 
+    @Column(nullable = false)
+    lateinit var date: LocalDate
+
     @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore lateinit var owner: Account
-
-    @Column(nullable = false)
-    lateinit var date: LocalDate
 
     var topic: String? = null
 
@@ -31,9 +33,8 @@ open class Lesson() : Comparable<Lesson> {
     @Fetch(FetchMode.SUBSELECT)
     var pages: MutableList<Page> = mutableListOf()
 
-    @Id var id: String = UUID.randomUUID().toString()
-
     @JsonIgnore var removedOn: Instant? = null
+
 
     @JsonIgnore var removed: Boolean = false
         set(value) {
@@ -58,4 +59,18 @@ open class Lesson() : Comparable<Lesson> {
     override fun toString(): String {
         return "$tag ${topic ?: "No topic"} on ${date.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
     }
+
+    fun toDTO(): LessonDTO {
+        return LessonDTO(id, tag.id, topic, date, removed, pages)
+    }
+
+    data class LessonDTO(
+            val id: String,
+            val tag: String,
+            val topic: String?,
+            val date: LocalDate,
+            val removed: Boolean,
+            val pages: List<Page>
+    )
+
 }
