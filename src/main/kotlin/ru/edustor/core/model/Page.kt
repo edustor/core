@@ -67,19 +67,17 @@ open class Page() {
     }
 
     fun toDTO(): PageDTO {
-        return PageDTO(id, owner.id, lesson.id, timestamp, isUploaded, uploadedTimestamp, qr, contentType, removedOn, index)
+        return PageDTO(id, index, timestamp, isUploaded, uploadedTimestamp, qr, contentType, removedOn)
     }
 
     data class PageDTO(
             val id: String,
-            val owner: String,
-            val lesson: String,
+            val index: Int,
             val timestamp: Instant,
             val uploaded: Boolean,
             val uploadedTimestamp: Instant?,
             val qr: String?,
             val contentType: String?,
-            val removedOn: Instant?,
-            val index: Int
+            val removedOn: Instant?
     )
 }
