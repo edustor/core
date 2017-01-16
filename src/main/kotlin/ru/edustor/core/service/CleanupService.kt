@@ -33,15 +33,15 @@ open class CleanupService(
         val cleanupBeforeDate = Instant.now().minus(10, ChronoUnit.DAYS)
         logger.info("Cleaning up entities removed before $cleanupBeforeDate")
 
-        tagRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteSubject(it) }
+        tagRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteTag(it) }
         lessonRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteLesson(it) }
         pageRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deletePage(it) }
 
         logger.info("Removed entities cleanup finished")
     }
 
-    fun deleteSubject(tag: Tag) {
-        logger.info("Cleaning up subject: ${tag.id}")
+    fun deleteTag(tag: Tag) {
+        logger.info("Cleaning up tag: ${tag.id}")
         tagRepository.delete(tag)
     }
 

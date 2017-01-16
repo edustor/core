@@ -20,7 +20,7 @@ import ru.edustor.core.service.FCMService
 import ru.edustor.core.sync.AccountsSyncController
 import ru.edustor.core.sync.LessonsSyncController
 import ru.edustor.core.sync.PagesSyncController
-import ru.edustor.core.sync.SubjectsSyncController
+import ru.edustor.core.sync.TagsSyncController
 
 @RestController
 @RequestMapping("/api/sync")
@@ -30,7 +30,7 @@ open class SyncController @Autowired constructor(
         val lessonsSyncController: LessonsSyncController,
         val pagesSyncController: PagesSyncController,
         val accountsSyncController: AccountsSyncController,
-        val subjectsSyncController: SubjectsSyncController,
+        val tagsSyncController: TagsSyncController,
         val mapper: ObjectMapper,
         val fcmService: FCMService
 ) {
@@ -80,7 +80,7 @@ open class SyncController @Autowired constructor(
         return when (group) {
             "lessons" -> lessonsSyncController.processTask(localTask)
             "pages" -> pagesSyncController.processTask(localTask)
-            "subjects" -> subjectsSyncController.processTask(localTask)
+            "tags" -> tagsSyncController.processTask(localTask)
             "account" -> accountsSyncController.processTask(localTask)
             else -> throw NoSuchMethodException("SyncController cannot resolve $group")
         }

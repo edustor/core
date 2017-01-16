@@ -34,11 +34,11 @@ open class LessonsSyncController @Autowired constructor(
     fun create(task: SyncTask) {
         val id = task.params["id"]
         val epochDay = task.params["date"]!!.toLong()
-        val subjectId = task.params["subject"]!!
+        val tagId = task.params["tag"]!!
 
-        val subject = folcersRepo.findOne(subjectId)
+        val tag = folcersRepo.findOne(tagId)
 
-        lessonsController.create(id!!, subject, LocalDate.ofEpochDay(epochDay), task.user)
+        lessonsController.create(id!!, tag, LocalDate.ofEpochDay(epochDay), task.user)
     }
 
     fun setTopic(task: SyncTask) {

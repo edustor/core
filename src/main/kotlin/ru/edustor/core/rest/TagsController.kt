@@ -12,39 +12,37 @@ import ru.edustor.core.repository.TagRepository
 import ru.edustor.core.util.extensions.assertHasAccess
 
 @RestController
-@RequestMapping("/api/subjects")
-class SubjectsController @Autowired constructor(val tagRepository: TagRepository, val lessonRepo: LessonRepository) {
+@RequestMapping("/api/tags")
+class TagsController @Autowired constructor(val tagRepository: TagRepository, val lessonRepo: LessonRepository) {
 
     @RequestMapping("/list")
-    fun listSubjects(user: Account): List<Tag> {
+    fun listTags(user: Account): List<Tag> {
         val result = tagRepository.findByOwner(user).filter { !it.removed }
         return result.sorted()
     }
 
     @RequestMapping("/create")
-    fun createSubject(user: Account,
-                      @RequestParam name: String
-    ): Tag {
-        val subject = Tag(name, user)
-        tagRepository.save(subject)
+    fun createTag(user: Account, @RequestParam name: String): Tag {
+        val tag = Tag(name, user)
+        tagRepository.save(tag)
 
-        return subject
+        return tag
     }
 
-    @RequestMapping("/{subject}/lessons")
-    fun subjectLessons(@PathVariable tag: Tag?): List<Lesson> {
+    @RequestMapping("/{tag}/lessons")
+    fun tagLessons(@PathVariable tag: Tag?): List<Lesson> {
         tag ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
         return lessonRepo.findByTag(tag).filter { it.pages.isNotEmpty() && !it.removed }.sortedDescending()
     }
 
-    @RequestMapping("/{subject}", method = arrayOf(RequestMethod.DELETE))
+    @RequestMapping("/{tag}", method = arrayOf(RequestMethod.DELETE))
     fun delete(user: Account, @PathVariable tag: Tag) {
         user.assertHasAccess(tag)
         tag.removed = true
         tagRepository.save(tag)
     }
 
-    @RequestMapping("/{subject}/restore")
+    @RequestMapping("/{tag}/restore")
     fun restore(user: Account, @PathVariable tag: Tag) {
         user.assertHasAccess(tag)
         tag.removed = false

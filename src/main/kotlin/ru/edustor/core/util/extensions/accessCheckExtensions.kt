@@ -20,7 +20,7 @@ fun Account.hasAccess(page: Page): Boolean {
 }
 
 fun Account.assertHasAccess(tag: Tag) {
-    if (!this.hasAccess(tag)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "Subject access forbidden")
+    if (!this.hasAccess(tag)) throw HttpRequestProcessingException(HttpStatus.FORBIDDEN, "Tag access forbidden")
 }
 
 fun Account.assertHasAccess(lesson: Lesson) {
