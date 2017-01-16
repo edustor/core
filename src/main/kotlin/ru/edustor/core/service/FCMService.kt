@@ -74,12 +74,12 @@ open class FCMService @Autowired constructor(
         }
         val results = respJson.get("results")
 
+        logger.info("FCM push sent to ${fcmRequest.account.id}")
+
         val lastResultsIndex = results.size() - 1
-        for (i in 0..lastResultsIndex) {
-            if (results.get(i).has("error")) {
-                fcmRequest.account.fcmTokens.remove(tokens[i])
-            }
-        }
+        (0..lastResultsIndex)
+                .filter { results.get(it).has("error") }
+                .forEach { fcmRequest.account.fcmTokens.remove(tokens[it]) }
 
         accountRepository.save(fcmRequest.account)
     }
