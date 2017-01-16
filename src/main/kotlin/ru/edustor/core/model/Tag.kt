@@ -10,6 +10,8 @@ import javax.persistence.*
 @Entity
 open class Tag() : Comparable<Tag> {
 
+    @Id var id: String = UUID.randomUUID().toString()
+
     @Column(nullable = false)
     lateinit var name: String
 
@@ -17,13 +19,20 @@ open class Tag() : Comparable<Tag> {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore lateinit var owner: Account
 
+    @ManyToOne(optional = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    var parent: Tag? = null
+
+    @JsonIgnore var removedOn: Instant? = null
+
     @JsonIgnore
     @OneToMany(mappedBy = "tag", cascade = arrayOf(CascadeType.REMOVE), fetch = FetchType.LAZY)
     var lessons: MutableList<Lesson> = mutableListOf()
 
-    @Id var id: String = UUID.randomUUID().toString()
+    @JsonIgnore
+    @OneToMany(mappedBy = "parent", cascade = arrayOf(CascadeType.REMOVE), fetch = FetchType.LAZY)
+    var leaves: MutableList<Tag> = mutableListOf()
 
-    @JsonIgnore var removedOn: Instant? = null
 
     @JsonIgnore var removed: Boolean = false
         set(value) {
@@ -34,6 +43,7 @@ open class Tag() : Comparable<Tag> {
                 removedOn = null
             }
         }
+
 
     constructor(name: String, owner: Account) : this() {
         this.name = name
@@ -59,12 +69,13 @@ open class Tag() : Comparable<Tag> {
     }
 
     fun toDTO(): TagDTO {
-        return TagDTO(id, owner.id, name, removed)
+        return TagDTO(id, owner.id, parent?.id, name, removed)
     }
 
     data class TagDTO(
             val id: String,
             val owner: String,
+            val parent: String?,
             val name: String,
             val removed: Boolean
     )
