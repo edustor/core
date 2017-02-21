@@ -43,7 +43,7 @@ class TagsController @Autowired constructor(val lessonRepo: LessonRepository, va
         accountRepository.save(user)
     }
 
-    @RequestMapping("/{tag}", method = arrayOf(RequestMethod.DELETE))
+    @RequestMapping("/{tag}/restore")
     fun restore(user: Account, @PathVariable("tag") tagId: String) {
         val tag = user.tags.firstOrNull { it.id == tagId } ?: throw NotFoundException()
         tag.removed = false

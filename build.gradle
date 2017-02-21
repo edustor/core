@@ -84,7 +84,6 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-amqp"
     compile 'com.itextpdf:itextpdf:5.5.8'
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.4'
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:2.8.4'
     compile 'io.reactivex:rxjava:1.1.1'
     compile 'io.reactivex:rxkotlin:0.40.1'
     compile 'com.mashape.unirest:unirest-java:1.4.7'

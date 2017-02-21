@@ -7,7 +7,6 @@ import java.util.*
 open class Tag() : Comparable<Tag> {
     @Id var id: String = UUID.randomUUID().toString()
     lateinit var name: String
-    lateinit var ownerId: String
     var path: String = "/"
     var removedOn: Instant? = null
 

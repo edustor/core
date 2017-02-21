@@ -3,7 +3,7 @@ package ru.edustor.core.sync
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import ru.edustor.core.model.internal.sync.SyncTask
-import ru.edustor.core.rest.account.AccountController
+import ru.edustor.core.rest.AccountController
 
 @Component
 open class AccountsSyncController @Autowired constructor(val accountController: AccountController) {
