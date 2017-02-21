@@ -32,6 +32,11 @@ open class Lesson() : Comparable<Lesson> {
             }
         }
 
+    override fun equals(other: Any?): Boolean {
+        if (other !is Lesson) return false
+        return id == other.id
+    }
+
     constructor(tagId: String, date: LocalDate, ownerId: String) : this() {
         this.tagId = tagId
         this.date = date

@@ -5,20 +5,15 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.exceptions.NotFoundException
-import ru.edustor.core.model.Page
 import ru.edustor.core.model.internal.sync.SyncTask
 import ru.edustor.core.repository.LessonRepository
-import ru.edustor.core.repository.PageRepository
-import ru.edustor.core.repository.TagRepository
 import ru.edustor.core.rest.LessonsController
 import java.time.LocalDate
 
 @Component
 open class LessonsSyncController @Autowired constructor(
         val lessonsController: LessonsController,
-        val lessonRepository: LessonRepository,
-        val folcersRepo: TagRepository,
-        val pageRepository: PageRepository
+        val lessonRepository: LessonRepository
 ) {
     fun processTask(task: SyncTask): Any {
         return when (task.method) {
@@ -36,9 +31,7 @@ open class LessonsSyncController @Autowired constructor(
         val epochDay = task.params["date"]!!.toLong()
         val tagId = task.params["tag"]!!
 
-        val tag = folcersRepo.findOne(tagId)
-
-        lessonsController.create(id!!, tag, LocalDate.ofEpochDay(epochDay), task.user)
+        lessonsController.create(id!!, tagId, LocalDate.ofEpochDay(epochDay), task.user)
     }
 
     fun setTopic(task: SyncTask) {
@@ -48,18 +41,11 @@ open class LessonsSyncController @Autowired constructor(
 
     fun reorderPages(task: SyncTask) {
         val lesson = lessonRepository.findOne(task.params["lesson"]!!)
-        val page = getPage(task, required = true)!!
-        val after = getPage(task, "after", false)
+        val page = task.params["page"] ?:
+                throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "'page' field is not provided")
+        val after = task.params["after"]
 
         return lessonsController.reorderPages(task.user, lesson, page, after)
-    }
-
-    private fun getPage(task: SyncTask, field: String = "page", required: Boolean = true): Page? {
-        val key = task.params[field] ?: if (required)
-            throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "$field field is not provided") else return null
-
-        return pageRepository.findOne(key) ?: throw NotFoundException("Page ($field) is not found")
-
     }
 
     fun delete(task: SyncTask) {

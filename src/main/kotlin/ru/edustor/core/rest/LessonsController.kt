@@ -8,25 +8,21 @@ import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
-import ru.edustor.core.model.Tag
 import ru.edustor.core.repository.LessonRepository
-import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.util.extensions.assertHasAccess
-import ru.edustor.core.util.extensions.recalculateIndexes
 import rx.Observable
 import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/lessons")
 open class LessonsController @Autowired constructor(
-        val lessonRepo: LessonRepository,
-        val pageRepository: PageRepository
+        val lessonRepo: LessonRepository
 ) {
-
     @RequestMapping("/{lessonId}", method = arrayOf(RequestMethod.POST))
-    fun create(lessonId: String, tag: Tag, date: LocalDate, user: Account) {
-        user.assertHasAccess(tag)
-        val lesson = Lesson(tag, date, user)
+    fun create(lessonId: String, tag: String, date: LocalDate, account: Account) {
+        account.tags.firstOrNull { it.id == tag }
+                ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Can't find specified tag")
+        val lesson = Lesson(tag, date, account.id)
         lesson.id = lessonId
         lessonRepo.save(lesson)
     }
@@ -74,31 +70,32 @@ open class LessonsController @Autowired constructor(
 
     @RequestMapping("/qr/{qr}")
     fun byPageQR(user: Account, @PathVariable qr: String): Lesson.LessonDTO {
-        val page = pageRepository.findByQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Page is not found")
-        user.assertHasAccess(page.lesson)
+        val lesson = lessonRepo.findByPagesQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Page is not found")
+        user.assertHasAccess(lesson)
 
-        return page.lesson.toDTO()
+        return lesson.toDTO()
     }
 
     @RequestMapping("/{lesson}/pages/reorder")
-    fun reorderPages(user: Account, @PathVariable lesson: Lesson, @RequestParam page: Page, @RequestParam(required = false) after: Page?) {
+    fun reorderPages(user: Account, @PathVariable lesson: Lesson, @RequestParam("page") pageId: String, @RequestParam(value = "after", required = false) afterPageId: String?) {
         Observable.just(lesson)
                 .map { lesson ->
                     user.assertHasAccess(lesson)
 
-                    val pagesCheckList = mutableListOf(page)
-                    after?.let { pagesCheckList.add(after) }
+                    val pageIdsToCheck = mutableListOf(pageId)
+                    afterPageId?.let { pageIdsToCheck.add(afterPageId) }
+                    val pageIds = lesson.pages.map(Page::id)
+                    if (!pageIds.containsAll(pageIdsToCheck)) throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Specified lesson must contain both pages")
 
-                    val pagesList = lesson.pages
+                    val page = lesson.pages.first { it.id == pageId }
+                    val after = lesson.pages.firstOrNull { it.id == afterPageId }
 
-                    if (!lesson.pages.containsAll(pagesCheckList)) throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Specified lesson must contain both pages")
-                    pagesList.remove(page)
+                    lesson.pages.remove(page)
 
                     val targetIndex = if (after != null) lesson.pages.indexOf(after) + 1 else 0
-                    pagesList.add(targetIndex, page)
+                    lesson.pages.add(targetIndex, page)
 
-                    pagesList.recalculateIndexes(lesson)
-                    pageRepository.save(pagesList)
+                    lessonRepo.save(lesson)
                 }
                 // Optimistic locking
                 .retry { i, throwable ->
