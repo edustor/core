@@ -8,7 +8,6 @@ import ru.edustor.core.model.Account
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Tag
 import ru.edustor.core.repository.LessonRepository
-import ru.edustor.core.repository.TagRepository
 import ru.edustor.core.util.extensions.assertHasAccess
 
 @RestController
@@ -32,7 +31,7 @@ class TagsController @Autowired constructor(val tagRepository: TagRepository, va
     @RequestMapping("/{tag}/lessons")
     fun tagLessons(@PathVariable tag: Tag?): List<Lesson> {
         tag ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        return lessonRepo.findByTag(tag).filter { it.pages.isNotEmpty() && !it.removed }.sortedDescending()
+        return lessonRepo.findByTagId(tag).filter { it.pages.isNotEmpty() && !it.removed }.sortedDescending()
     }
 
     @RequestMapping("/{tag}", method = arrayOf(RequestMethod.DELETE))

@@ -15,7 +15,6 @@ import ru.edustor.core.model.Page
 import ru.edustor.core.model.Tag
 import ru.edustor.core.model.internal.sync.SyncTask
 import ru.edustor.core.repository.LessonRepository
-import ru.edustor.core.repository.TagRepository
 import ru.edustor.core.service.FCMService
 import ru.edustor.core.sync.AccountsSyncController
 import ru.edustor.core.sync.LessonsSyncController
@@ -42,7 +41,7 @@ open class SyncController @Autowired constructor(
         val tags = tagRepo.findByOwner(account)
                 .filter { !it.removed }
 
-        val lessons = lessonRepo.findByTagIn(tags)
+        val lessons = lessonRepo.findByTagIdIn(tags)
                 .map { it.pages = (it.pages.filter { it.removed == false } as MutableList<Page>); it }
 
         return mapOf(
