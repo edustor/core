@@ -15,7 +15,7 @@ open class Page() {
     var removedOn: Instant? = null
 
     val isUploaded: Boolean
-        get() = uploadedTimestamp != null
+        get() = fileId != null
 
     var removed: Boolean
         get() = removedOn != null
