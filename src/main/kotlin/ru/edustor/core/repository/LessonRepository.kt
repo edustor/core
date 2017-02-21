@@ -11,5 +11,6 @@ interface LessonRepository : MongoRepository<Lesson, String> {
     fun findByRemovedOnLessThan(removedOn: Instant): List<Lesson>
 
     fun findByPagesQr(qr: String): Lesson?
+    fun findByPagesId(id: String): Lesson?
     fun findByPagesRemovedOnLessThan(removedOn: Instant): List<Lesson>
 }
