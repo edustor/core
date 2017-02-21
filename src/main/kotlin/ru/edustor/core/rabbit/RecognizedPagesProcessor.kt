@@ -14,14 +14,12 @@ import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
 import ru.edustor.core.repository.AccountRepository
 import ru.edustor.core.repository.LessonRepository
-import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.repository.getForAccountId
 import ru.edustor.core.util.extensions.hasAccess
 import java.time.Instant
 
 @Component
-open class RecognizedPagesProcessor(val pageRepository: PageRepository,
-                                    var storage: BinaryObjectStorageService,
+open class RecognizedPagesProcessor(var storage: BinaryObjectStorageService,
                                     val accountRepository: AccountRepository,
                                     val lessonRepository: LessonRepository,
                                     val rabbitTemplate: RabbitTemplate) {
@@ -37,7 +35,7 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
             key = "recognized.pages.processing"
     )))
     fun handleUploadedPage(event: PageRecognizedEvent) {
-        val page = getTargetPage(event)
+        val (lesson, page) = getTargetLessonAndPage(event)
 
         val processedEvent = PageProcessedEvent(
                 userId = event.userId,
@@ -47,8 +45,8 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
                 pageUuid = event.pageUuid,
                 qrUuid = event.qrUuid,
                 success = page != null,
-                targetLessonId = page?.lesson?.id,
-                targetLessonName = page?.lesson?.toString()) // TODO: add more information to targetLessonName
+                targetLessonId = lesson?.id,
+                targetLessonName = lesson.toString()) // TODO: add more information to targetLessonName
 
         rabbitTemplate.convertAndSend(
                 "internal.edustor",
@@ -65,62 +63,55 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
         page.fileId?.let { storage.delete(PAGE, it) } // TODO: Preserve old files
 
         page.fileId = event.pageUuid
-        page.isUploaded = true
         page.uploadedTimestamp = Instant.now()
         page.contentType = "application/pdf"
         page.fileMD5 = event.fileMD5
-        pageRepository.save(page)
+        lessonRepository.save(lesson)
         logger.info("Page ${page.id} updated. New file id is ${event.pageUuid}")
     }
 
-    private fun getTargetPage(event: PageRecognizedEvent): Page? {
-        val targetLessonId = event.targetLessonId
-
-        if (event.qrUuid == null && targetLessonId == null) {
+    private fun getTargetLessonAndPage(event: PageRecognizedEvent): Pair<Lesson?, Page?> {
+        if (event.qrUuid == null && event.targetLessonId == null) {
             logger.info("Failed to find target page in database. Skipping")
             storage.delete(PAGE, event.pageUuid)
         }
 
         val uploaderAccount = accountRepository.getForAccountId(event.userId)
-        val targetLesson: Lesson? = targetLessonId?.let {
-            val lesson = lessonRepository.findOne(targetLessonId) ?: let {
-                logger.warn("Failed to find explicitly specified target lesson $targetLessonId in database. Skipping")
-                return null
-            }
 
-            if (!uploaderAccount.hasAccess(lesson)) {
-                logger.warn("User doesn't have access to target lesson ${lesson.id}. " +
-                        "Page file id: ${event.pageUuid}. Uploader: ${event.userId}")
-                return null
+        val lesson = when {
+            event.targetLessonId != null -> {
+                lessonRepository.findOne(event.targetLessonId) ?: let {
+                    logger.warn("Failed to find explicitly specified target lesson ${event.targetLessonId} in database")
+                    return null to null
+                }
             }
-            return@let lesson
+            event.qrUuid != null -> {
+                lessonRepository.findByPagesQr(event.qrUuid!!) ?: let {
+                    logger.warn("Failed to find page with ${event.qrUuid} qr in database")
+                    return null to null
+                }
+            }
+            else -> {
+                logger.warn("Neither targetLessonId nor qrUuid is specified in event")
+                return null to null
+            }
         }
 
+        if (!uploaderAccount.hasAccess(lesson)) {
+            logger.warn("User doesn't have access to target lesson ${lesson.id}. " +
+                    "Page file id: ${event.pageUuid}. Uploader: ${event.userId}")
+            return null to null
+        }
 
-        // ?: is used to handle case when event.qrUuid is presented, but pageRepository.findByQr returned null
-        val page = (if (event.qrUuid != null) pageRepository.findByQr(event.qrUuid!!) else null) ?: let {
-            if (targetLessonId == null) {
-                logger.warn("Can't find page with qr ${event.qrUuid}. Skipping")
-                return null
-            }
-
+        val page: Page? = event.qrUuid?.let {
+            lesson.pages.firstOrNull { it.qr == event.qrUuid }
+        } ?: let {
             val p = Page(event.qrUuid)
-            p.owner = uploaderAccount
-            p.index = targetLesson!!.pages.lastIndex + 1
-            if (event.uploadedTimestamp != null) {
-                p.timestamp = event.uploadedTimestamp!!
-            }
+            p.timestamp = event.uploadedTimestamp ?: Instant.now()
+            p.qr = event.qrUuid
             return@let p
         }
 
-        if (page.owner.id != event.userId) {
-            logger.warn("Unauthorized upload. Page: $page. " +
-                    "Page file id: ${event.pageUuid}. Uploader: ${event.userId}")
-            return null
-        }
-
-        targetLesson?.let { page.lesson = it }
-
-        return page
+        return lesson to page
     }
 }
