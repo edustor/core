@@ -48,7 +48,7 @@ open class RecognizedPagesProcessor(val pageRepository: PageRepository,
                 qrUuid = event.qrUuid,
                 success = page != null,
                 targetLessonId = page?.lesson?.id,
-                targetLessonName = page?.lesson?.toString())
+                targetLessonName = page?.lesson?.toString()) // TODO: add more information to targetLessonName
 
         rabbitTemplate.convertAndSend(
                 "internal.edustor",
