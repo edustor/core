@@ -7,7 +7,7 @@ import java.time.Instant
 
 interface LessonRepository : MongoRepository<Lesson, String> {
     fun findByTagId(tag: Tag): List<Lesson>
-    fun findByTagIdIn(tags: List<Tag>): List<Lesson>
+    fun findByOwnerId(ownerId: String): List<Lesson>
     fun findByRemovedOnLessThan(removedOn: Instant): List<Lesson>
 
     fun findByPagesQr(qr: String): Lesson?

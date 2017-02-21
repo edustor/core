@@ -12,7 +12,6 @@ import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
-import ru.edustor.core.model.Tag
 import ru.edustor.core.model.internal.sync.SyncTask
 import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.service.FCMService
@@ -24,7 +23,6 @@ import ru.edustor.core.sync.TagsSyncController
 @RestController
 @RequestMapping("/api/sync")
 open class SyncController @Autowired constructor(
-        val tagRepo: TagRepository,
         val lessonRepo: LessonRepository,
         val lessonsSyncController: LessonsSyncController,
         val pagesSyncController: PagesSyncController,
@@ -38,15 +36,11 @@ open class SyncController @Autowired constructor(
 
     @RequestMapping("/fetch")
     fun fetch(account: Account): Map<*, *> {
-        val tags = tagRepo.findByOwner(account)
-                .filter { !it.removed }
-
-        val lessons = lessonRepo.findByTagIdIn(tags)
+        val lessons = lessonRepo.findByOwnerId(account.id)
                 .map { it.pages = (it.pages.filter { it.removed == false } as MutableList<Page>); it }
 
         return mapOf(
                 "account" to account.toDTO(),
-                "tags" to tags.map(Tag::toDTO),
                 "lessons" to lessons.map(Lesson::toDTO)
         )
     }
