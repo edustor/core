@@ -15,14 +15,14 @@ open class PagesSyncController @Autowired constructor(
         val pagesController: PagesController) {
     fun processTask(task: SyncTask): Any {
         return when (task.method) {
-            "qr/activate" -> activateQR(task)
+            "link" -> linkPage(task)
             "delete" -> delete(task)
             "restore" -> restore(task)
             else -> throw NoSuchMethodException("PagesSyncController cannot resolve ${task.method}")
         }
     }
 
-    fun activateQR(task: SyncTask) {
+    fun linkPage(task: SyncTask) {
         val instant = Instant.ofEpochSecond(task.params["instant"]!!.toLong())
         val lesson = lessonRepository.findOne(task.params["lesson"]!!)
         pagesController.linkPage(task.params["qr"]!!, lesson,
