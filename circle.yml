@@ -57,6 +57,6 @@ deployment:
         -e CERT_URL=https://wutiarn.keybase.pub/swarm/cert.pem
         -e KEY="$DOCKER_KEY"
         quay.io/wutiarn/docker-deployer
-        docker service update --image quay.io/edustor/core:ci-$CIRCLE_BUILD_NUM edustor_core
+        docker service update --image quay.io/edustor/core:ci-$CIRCLE_BUILD_NUM sw0_edustor-core
 # REQUIRED ENVIRONMENTS
 # QUAY_CACHE_PASSWORD QUAY_EDUSTOR_PASSWORD DOCKER_KEY GITHUB_TOKEN
