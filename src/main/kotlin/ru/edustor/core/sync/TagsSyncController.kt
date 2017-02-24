@@ -1,15 +1,14 @@
 package ru.edustor.core.sync
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
-import ru.edustor.core.exceptions.NotFoundException
+import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.internal.sync.SyncTask
-import ru.edustor.core.repository.TagRepository
 import ru.edustor.core.rest.TagsController
 
 @Component
 open class TagsSyncController @Autowired constructor(
-        val tagRepo: TagRepository,
         val tagsController: TagsController
 ) {
     fun processTask(task: SyncTask): Any {
@@ -21,14 +20,14 @@ open class TagsSyncController @Autowired constructor(
     }
 
     fun delete(task: SyncTask) {
-        val tag = tagRepo.findOne(task.params["tag"]!!) ?:
-                throw NotFoundException("Tag is not found")
+        val tag = task.params["tag"]
+                ?: throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "'tag' field is not provided")
         tagsController.delete(task.user, tag)
     }
 
     fun restore(task: SyncTask) {
-        val tag = tagRepo.findOne(task.params["tag"]!!) ?:
-                throw NotFoundException("Tag is not found")
+        val tag = task.params["tag"]
+                ?: throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "'tag' field is not provided")
         tagsController.restore(task.user, tag)
     }
 }

@@ -1,17 +1,14 @@
 package ru.edustor.core.model
 
+import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.Document
 import java.util.*
-import javax.persistence.ElementCollection
-import javax.persistence.Entity
-import javax.persistence.FetchType
-import javax.persistence.Id
 
-@Entity
+@Document
 open class Account() {
     @Id var id: String = UUID.randomUUID().toString()
-
-    @ElementCollection(targetClass = String::class, fetch = FetchType.EAGER)
-    val fcmTokens: MutableSet<String> = mutableSetOf()
+    var fcmTokens: MutableSet<String> = mutableSetOf()
+    var tags: MutableList<Tag> = mutableListOf()
 
     constructor(id: String) : this() {
         this.id = id
