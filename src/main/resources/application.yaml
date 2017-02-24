@@ -3,12 +3,8 @@ spring:
     multipart:
       max-file-size: 100Mb
       max-request-size: 100Mb
-  datasource:
-      url: jdbc:postgresql://localhost:5432/edustor_core
-      username: postgres
-  jpa:
-      hibernate:
-        ddl-auto: update
-      generate-ddl: true
+  data:
+    mongodb:
+      database: edustor-core
 flyway:
   validate-on-migrate: false

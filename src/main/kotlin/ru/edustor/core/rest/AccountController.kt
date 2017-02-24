@@ -1,4 +1,4 @@
-package ru.edustor.core.rest.account
+package ru.edustor.core.rest
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestMapping
@@ -12,8 +12,8 @@ import ru.edustor.core.repository.AccountRepository
 @RequestMapping("/api/account")
 class AccountController @Autowired constructor(val accountRepository: AccountRepository) {
     @RequestMapping("/getMe")
-    fun getMe(user: Account): Account {
-        return user
+    fun getMe(user: Account): Account.AccountDTO {
+        return user.toDTO()
     }
 
     @RequestMapping("/FCMToken", method = arrayOf(RequestMethod.PUT))

@@ -6,24 +6,19 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import ru.edustor.commons.storage.service.BinaryObjectStorageService
 import ru.edustor.commons.storage.service.BinaryObjectStorageService.ObjectType.PAGE
-import ru.edustor.core.model.Lesson
-import ru.edustor.core.model.Page
-import ru.edustor.core.model.Tag
+import ru.edustor.core.repository.AccountRepository
 import ru.edustor.core.repository.LessonRepository
-import ru.edustor.core.repository.PageRepository
-import ru.edustor.core.repository.TagRepository
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.annotation.PostConstruct
 
 @Service
 open class CleanupService(
-        val pageRepository: PageRepository,
         val lessonRepository: LessonRepository,
-        val tagRepository: TagRepository,
-        val pdfStorage: BinaryObjectStorageService
+        val pdfStorage: BinaryObjectStorageService,
+        val accountRepository: AccountRepository
 ) {
-
+    // TODO: Make sure this executes only on one application instance (or move to another microservice?)
     val logger: Logger = LoggerFactory.getLogger(CleanupService::class.java)
 
     @Scheduled(cron = "0 0 4 * * *", zone = "Europe/Moscow")
@@ -33,28 +28,31 @@ open class CleanupService(
         val cleanupBeforeDate = Instant.now().minus(10, ChronoUnit.DAYS)
         logger.info("Cleaning up entities removed before $cleanupBeforeDate")
 
-        tagRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteTag(it) }
-        lessonRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deleteLesson(it) }
-        pageRepository.findByRemovedOnLessThan(cleanupBeforeDate).forEach { deletePage(it) }
+//        Cleanup tags
+        accountRepository.findByTagsRemovedOnLessThan(cleanupBeforeDate)
+                .map { account ->
+                    account.tags = account.tags.filter { it.removedOn!! < cleanupBeforeDate }.toMutableList()
+                    accountRepository.save(account)
+                }
+
+//        Cleanup lessons
+        lessonRepository.findByRemovedOnLessThan(cleanupBeforeDate)
+                .map { lesson ->
+                    lesson.pages.forEach { page ->
+                        if (page.isUploaded) {
+                            pdfStorage.delete(PAGE, page.fileId!!)
+                        }
+                        lessonRepository.delete(lesson)
+                    }
+                }
+
+//        Cleanup pages
+        lessonRepository.findByPagesRemovedOnLessThan(cleanupBeforeDate)
+                .map { lesson ->
+                    lesson.pages.filter { it.removedOn!! < cleanupBeforeDate }.toMutableList()
+                    lessonRepository.save(lesson)
+                }
 
         logger.info("Removed entities cleanup finished")
-    }
-
-    fun deleteTag(tag: Tag) {
-        logger.info("Cleaning up tag: ${tag.id}")
-        tagRepository.delete(tag)
-    }
-
-    fun deleteLesson(lesson: Lesson) {
-        logger.info("Cleaning up lesson: ${lesson.id}")
-        lessonRepository.delete(lesson)
-    }
-
-    fun deletePage(page: Page) {
-        logger.info("Cleaning up page: ${page.id}")
-        if (page.isUploaded && pdfStorage.has(PAGE, page.id)) {
-            pdfStorage.delete(PAGE, page.id)
-        }
-        pageRepository.delete(page)
     }
 }
