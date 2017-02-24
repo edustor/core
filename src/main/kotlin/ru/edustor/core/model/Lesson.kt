@@ -52,7 +52,7 @@ open class Lesson() : Comparable<Lesson> {
     }
 
     fun toDTO(): LessonDTO {
-        return LessonDTO(id, id, id, topic, date, removed, pages.map(Page::toDTO))
+        return LessonDTO(id, ownerId, tagId, topic, date, removed, pages.mapIndexed { i, page -> page.toDTO(i) })
     }
 
     data class LessonDTO(

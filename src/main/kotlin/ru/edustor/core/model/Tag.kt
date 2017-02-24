@@ -20,6 +20,9 @@ open class Tag() : Comparable<Tag> {
             }
         }
 
+    val parent: String?
+        get() = parents.lastOrNull()
+
     val parents: List<String>
         get() = path.split("/").filter(String::isNotEmpty)
 
@@ -49,13 +52,15 @@ open class Tag() : Comparable<Tag> {
         return "[$name]"
     }
 
-    fun toDTO(): TagDTO {
-        return TagDTO(id, path, name, removed)
+    fun toDTO(owner: String): TagDTO {
+        return TagDTO(id, owner, path, parent, name, removed)
     }
 
     data class TagDTO(
             val id: String,
+            val owner: String, // Reserved for future, used by android client
             val path: String,
+            val parent: String?, // Last part of path, for clients convenience
             val name: String,
             val removed: Boolean
     )

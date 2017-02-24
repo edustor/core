@@ -46,12 +46,13 @@ open class Page() {
         return id.hashCode()
     }
 
-    fun toDTO(): PageDTO {
-        return PageDTO(id, timestamp, isUploaded, uploadedTimestamp, qr, contentType, fileMD5, removed)
+    fun toDTO(index: Int): PageDTO {
+        return PageDTO(id, index, timestamp, isUploaded, uploadedTimestamp, qr, contentType, fileMD5, removed)
     }
 
     data class PageDTO(
             val id: String,
+            val index: Int, // For client deserialization convenience
             val timestamp: Instant,
             val uploaded: Boolean,
             val uploadedTimestamp: Instant?,

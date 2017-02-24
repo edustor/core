@@ -12,7 +12,6 @@ import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
-import ru.edustor.core.model.Tag
 import ru.edustor.core.model.internal.sync.SyncTask
 import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.service.FCMService
@@ -42,7 +41,7 @@ open class SyncController @Autowired constructor(
 
         return mapOf(
                 "account" to account.toDTO(),
-                "tags" to account.tags.map(Tag::toDTO),
+                "tags" to account.tags.map { it.toDTO(account.id) },
                 "lessons" to lessons.map(Lesson::toDTO)
         )
     }
