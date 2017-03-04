@@ -17,8 +17,6 @@ This is Core microservice which is primarily responsible for storing metadata.
 Right now Edustor is still on early-alpha stage, so there is no public beta available. But we are interested in
 alpha testers anyway, so feel free to contact us.
 
-If you're also familiar with Kotlin/Java and Spring Boot you can join our team and support development.
-
 ## Can I use Edustor source code
 
 Yes, you can, but only for non-profit purposes. Please refer [Non-Profit Open Software License 3.0](https://opensource.org/licenses/NPOSL-3.0)
