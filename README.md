@@ -1,34 +1,39 @@
-# Edustor
+# Edustor Core
 
-Edustor is a cloud service for storing scanned notes.
+Edustor is a cloud service that stores scans of handwritten papers.
 
-## How am I supposed to use this?
+This is Core microservice which is primarily responsible for storing metadata.
 
-* Download specially generated pdf with unique pages from [here](https://edustor.ru/pdf), print it and write whatever 
-  you want on these pages. 
-* Get [Edustor Android app](https://gitlab.com/edustor/android), select subject, select existed/create new class,
-  type topic (optional) and link pages with qr-code scanning.
-* Scan used pages, put them to pdf and upload it to Edustor
-* Now you can access these scans in mobile app on class details screen
+## How does it work?
+
+* Get blank Edustor Pages and print them. Make sure you don't print single page twice, all of them are unique.
+* Write, draw, do whatever you usually do with paper. Just keep QR-code at the right bottom corner safe.
+* Link used pages to a lesson by scanning QR-code with [Edustor Android app](https://gitlab.com/edustor/android)
+* Scan them to PDF and upload to Edustor
+* Now you can access these scans in the app (and share them as PDF)
 
 ## Cool! I wanna try it!
 
-Right now Edustor is on pre-alpha stage, so there is no public beta available. If you're familiar with Docker, MongoDB,
- Kotlin/JVM platform, Gradle and so on, you can try deploy it by yourself.
- 
-And by the way, don't forget that Edustor source code is available under Non-Profit Open Software License 3.0, which
- means that you can't use it for any commercial purposes.
- 
-## Any other options? 
- 
- Of course! If you are interested in testing (or anything else), feel free to contact me at **me@wutiarn.ru** or 
- in [**Telegram**](https://telegram.me/wutiarn).
- 
+Right now Edustor is still on early-alpha stage, so there is no public beta available. But anyway we are interested in
+alpha testers so feel free to contact us.
+
+If you're also familiar with Kotlin/Java and Spring Boot you can join our team and support development.
+
+## Can I use Edustor source code
+
+Yes, you can, but only for non-profit purposes. Please refer [Non-Profit Open Software License 3.0](https://opensource.org/licenses/NPOSL-3.0)
+for details
+
 ## How can I help?
 
-If you want to contribute, please contact me. Due to the fact that I'm currently working on this alone, there is no 
-comprehensive documentation, as well as issues and development plans.
+If you are familiar with Kotlin/Java and Spring Boot and want to contribute, feel free to contact us. We'll be glad
+to get new member in our development team.
 
-## Are there any documentation?
+## How to contact you?
 
-Kind of. **API documentation** can be found [**here**](https://gitlab.com/edustor/core/wikis/api/index)
+Write an e-mail to **me@wutiarn.ru** or a message in [**Telegram**](https://t.me/wutiarn). Questions, support and
+ contributions are always welcome
+
+## Are there any development documentation?
+
+Not yet. But we're working on this. :)
