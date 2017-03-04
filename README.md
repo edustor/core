@@ -8,7 +8,7 @@ This is Core microservice which is primarily responsible for storing metadata.
 
 * Get blank Edustor Pages and print them. Make sure you don't print single page twice, all of them are unique.
 * Write, draw, do whatever you usually do with paper. Just keep QR-code at the right bottom corner safe.
-* Link used pages to a lesson by scanning QR-code with [Edustor Android app](https://gitlab.com/edustor/android)
+* Link used pages to a lesson by scanning QR-code with [Edustor Android app](https://github.com/edustor/android)
 * Scan them to PDF and upload to Edustor
 * Now you can access these scans in the app (and share them as PDF)
 
