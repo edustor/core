@@ -30,7 +30,7 @@ to get new member in our development team.
 ## How to contact you?
 
 Write an e-mail to **me@wutiarn.ru** or a message in [**Telegram**](https://t.me/wutiarn). Questions, support and
- contributions are always welcome
+ contributions are always welcome.
 
 ## Are there any development documentation?
 
