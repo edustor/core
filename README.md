@@ -14,8 +14,8 @@ This is Core microservice which is primarily responsible for storing metadata.
 
 ## Cool! I wanna try it!
 
-Right now Edustor is still on early-alpha stage, so there is no public beta available. But anyway we are interested in
-alpha testers so feel free to contact us.
+Right now Edustor is still on early-alpha stage, so there is no public beta available. But we are interested in
+alpha testers anyway, so feel free to contact us.
 
 If you're also familiar with Kotlin/Java and Spring Boot you can join our team and support development.
 
@@ -26,7 +26,7 @@ for details
 
 ## How can I help?
 
-If you are familiar with Kotlin/Java and Spring Boot and want to contribute, feel free to contact us. We'll be glad
+If you are familiar with Kotlin/Java and Spring Boot and want to contribute, just write us. We'll be glad
 to get new member in our development team.
 
 ## How to contact you?
