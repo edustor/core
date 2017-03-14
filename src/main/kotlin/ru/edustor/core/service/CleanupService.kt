@@ -3,7 +3,6 @@ package ru.edustor.core.service
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
-import org.springframework.stereotype.Service
 import ru.edustor.commons.storage.service.BinaryObjectStorageService
 import ru.edustor.commons.storage.service.BinaryObjectStorageService.ObjectType.PAGE
 import ru.edustor.core.repository.AccountRepository
@@ -12,7 +11,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.annotation.PostConstruct
 
-@Service
+//@Service
 open class CleanupService(
         val lessonRepository: LessonRepository,
         val pdfStorage: BinaryObjectStorageService,
