@@ -4,9 +4,7 @@ build:
   services:
     - quay.io/wutiarn/docker-dind-experimental
   script:
-    - ping quay.io__wutiarn__docker-dind-experimental
     - export DOCKER_HOST=tcp://quay.io__wutiarn__docker-dind-experimental:2735
-    - env
     - docker info
     - docker version
     - docker login -u="edustor+gitlabci" -p="$REGISTRY_PASSWORD" quay.io
