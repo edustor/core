@@ -4,8 +4,7 @@ build:
   services:
     - quay.io/wutiarn/docker-dind-experimental
   script:
-    - ping -c 3 quay.io__wutiarn__docker-dind-experimental
-    - export DOCKER_HOST=quay.io__wutiarn__docker-dind-experimental:2735
+    - export DOCKER_HOST=quay.io__wutiarn__docker-dind-experimental:2375
     - env
     - docker info
     - docker version
