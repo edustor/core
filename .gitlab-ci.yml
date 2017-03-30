@@ -15,8 +15,8 @@ deploy:
     - master
   script:
     - mkdir -p /root/.docker
-    - curl -sSL ${CA_URL} > /root/.docker/ca.pem
-    - curl -sSL ${CERT_URL} > /root/.docker/cert.pem
+    - curl -sSL https://wutiarn.keybase.pub/swarm/ca.pem > /root/.docker/ca.pem
+    - curl -sSL https://wutiarn.keybase.pub/swarm/cert.pem > /root/.docker/cert.pem
     - echo ${DOCKER_KEY} | base64 -d > /root/.docker/key.pem
     - export DOCKER_HOST=swarm.wutiarn.ru:2376
     - export DOCKER_TLS_VERIFY=1
