@@ -19,6 +19,9 @@ deploy:
   only:
     - master
   script:
+    - ping QUAY.IO__WUTIARN__DOCKER_DIND_EXPERIMENTAL
+    - ping quay.io__wutiarn__docker-dind-experimental
+    - export DOCKER_HOST=tcp://quay.io__wutiarn__docker-dind-experimental:2735
     - mkdir -p /root/.docker
     - curl -sSL https://wutiarn.keybase.pub/swarm/ca.pem > /root/.docker/ca.pem
     - curl -sSL https://wutiarn.keybase.pub/swarm/cert.pem > /root/.docker/cert.pem
