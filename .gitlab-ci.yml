@@ -2,8 +2,11 @@ build:
   stage: build
   image: docker:latest
   services:
-    - quay.io/wutiarn/docker-dind-experimental
+    - docker:dind
   script:
+    - env
+    - docker info
+    - docker version
     - docker login -u="edustor+gitlabci" -p="$REGISTRY_PASSWORD" quay.io
     - docker build -t quay.io/edustor/core:ci-$CI_PIPELINE_ID .
     - docker tag quay.io/edustor/core:ci-$CI_PIPELINE_ID quay.io/edustor/core:latest
@@ -19,7 +22,7 @@ deploy:
     - mkdir -p /root/.docker
     - curl -sSL https://wutiarn.keybase.pub/swarm/ca.pem > /root/.docker/ca.pem
     - curl -sSL https://wutiarn.keybase.pub/swarm/cert.pem > /root/.docker/cert.pem
-    - echo ${SWARM_KEY} | base64 -d > /root/.docker/key.pem
+    - echo ${DOCKER_KEY} | base64 -d > /root/.docker/key.pem
     - export DOCKER_HOST=swarm.wutiarn.ru:2376
     - export DOCKER_TLS_VERIFY=1
     - docker login -u="edustor+gitlabci" -p="$REGISTRY_PASSWORD" quay.io
