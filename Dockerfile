@@ -7,7 +7,7 @@ RUN apt-get update && \
 WORKDIR /code
 ADD . /code/src
 
-RUN ./src/gradlew build
+RUN cd src && ./gradlew build
 
 RUN mv ./src/build/dist/edustor.jar .
 
