@@ -13,11 +13,10 @@ deploy:
   stage: deploy
   only:
     - master
-  environment:
-    DOCKER_HOST: swarm.wutiarn.ru:2376
-    DOCKER_TLS_VERIFY: 1
-    CA_URL: https://wutiarn.keybase.pub/swarm/ca.pem
-    CERT_URL: https://wutiarn.keybase.pub/swarm/cert.pem
   script:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
-    - docker service update --with-registry-auth --image registry.gitlab.com/edustor/core:ci-$CI_PIPELINE_ID sw0_edustor-core
+    - DOCKER_HOST=swarm.wutiarn.ru:2376
+      DOCKER_TLS_VERIFY=1
+      CA_URL=https://wutiarn.keybase.pub/swarm/ca.pem
+      CERT_URL=https://wutiarn.keybase.pub/swarm/cert.pem
+      docker service update --with-registry-auth --image registry.gitlab.com/edustor/core:ci-$CI_PIPELINE_ID sw0_edustor-core
