@@ -14,10 +14,11 @@ deploy:
   only:
     - master
   script:
-    - export DOCKER_HOST=swarm.wutiarn.ru:2376
-    - export DOCKER_TLS_VERIFY=1
+    - mkdir -p /root/.docker
     - curl -sSL ${CA_URL} > /root/.docker/ca.pem
     - curl -sSL ${CERT_URL} > /root/.docker/cert.pem
     - echo ${DOCKER_KEY} | base64 -d > /root/.docker/key.pem
+    - export DOCKER_HOST=swarm.wutiarn.ru:2376
+    - export DOCKER_TLS_VERIFY=1
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
     - docker service update --with-registry-auth --image registry.gitlab.com/edustor/core:ci-$CI_PIPELINE_ID sw0_edustor-core
