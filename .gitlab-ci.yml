@@ -2,7 +2,7 @@ build:
   stage: build
   image: docker:latest
   services:
-    - docker:dind
+    - quay.io/wutiarn/docker-dind-experimental
   script:
     - docker login -u="edustor+gitlabci" -p="$REGISTRY_PASSWORD" quay.io
     - docker build -t quay.io/edustor/core:ci-$CI_PIPELINE_ID .
