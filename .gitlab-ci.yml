@@ -28,7 +28,7 @@ deploy:
     - mkdir -p /root/.docker
     - curl -sSL $SWARM_CA_URL > /root/.docker/ca.pem
     - curl -sSL $SWARM_CERT_URL > /root/.docker/cert.pem
-    - echo ${DOCKER_KEY} | base64 -d > /root/.docker/key.pem
+    - echo ${DOCKER_KEY} > /root/.docker/key.pem
     - export DOCKER_HOST=swarm.wutiarn.ru:2376
     - export DOCKER_TLS_VERIFY=1
     - docker login -u="edustor+gitlabci" -p="$REGISTRY_PASSWORD" quay.io
