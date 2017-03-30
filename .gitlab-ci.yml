@@ -1,30 +1,36 @@
+variables:
+  IMAGE_NAME: quay.io/edustor/core
+
 build:
   stage: build
   image: docker:latest
   services:
     - quay.io/wutiarn/docker-dind-experimental
+  variables:
+    DOCKER_HOST: quay.io__wutiarn__docker-dind-experimental:2375
   script:
-    - export DOCKER_HOST=quay.io__wutiarn__docker-dind-experimental:2375
-    - env
     - docker info
     - docker version
     - docker login -u="edustor+gitlabci" -p="$REGISTRY_PASSWORD" quay.io
-    - docker build -t quay.io/edustor/core:ci-$CI_PIPELINE_ID .
-    - docker tag quay.io/edustor/core:ci-$CI_PIPELINE_ID quay.io/edustor/core:latest
-    - docker push quay.io/edustor/core:ci-$CI_PIPELINE_ID
-    - docker push quay.io/edustor/core:latest
+    - docker build -t $IMAGE_NAME:ci-$CI_PIPELINE_ID --squash .
+    - docker tag $IMAGE_NAME:ci-$CI_PIPELINE_ID $IMAGE_NAME:latest
+    - docker push $IMAGE_NAME:ci-$CI_PIPELINE_ID
+    - docker push $IMAGE_NAME:latest
 
 deploy:
   image: docker
   stage: deploy
   only:
     - master
+  variables:
+    SWARM_CA_URL: https://wutiarn.keybase.pub/swarm/ca.pem
+    SWARM_CERT_URL: https://wutiarn.keybase.pub/swarm/cert.pem
   script:
     - mkdir -p /root/.docker
-    - curl -sSL https://wutiarn.keybase.pub/swarm/ca.pem > /root/.docker/ca.pem
-    - curl -sSL https://wutiarn.keybase.pub/swarm/cert.pem > /root/.docker/cert.pem
+    - curl -sSL $SWARM_CA_URL > /root/.docker/ca.pem
+    - curl -sSL $SWARM_CERT_URL > /root/.docker/cert.pem
     - echo ${DOCKER_KEY} | base64 -d > /root/.docker/key.pem
     - export DOCKER_HOST=swarm.wutiarn.ru:2376
     - export DOCKER_TLS_VERIFY=1
     - docker login -u="edustor+gitlabci" -p="$REGISTRY_PASSWORD" quay.io
-    - docker service update --with-registry-auth --image quay.io/edustor/core:ci-$CI_PIPELINE_ID sw0_edustor-core
+    - docker service update --with-registry-auth --image $IMAGE_NAME:ci-$CI_PIPELINE_ID sw0_edustor-core
