@@ -9,8 +9,9 @@ build:
   variables:
     DOCKER_HOST: quay.io__wutiarn__docker-dind-experimental:2375
   script:
-    - docker info
     - docker version
+    - mkdir -p /root/.docker
+    - echo $DOCKER_CONFIG > /root/.docker/config.json
     - docker login -u="edustor+gitlabci" -p="$REGISTRY_PASSWORD" quay.io
     - docker build -t $IMAGE_NAME:ci-$CI_PIPELINE_ID --squash .
     - docker tag $IMAGE_NAME:ci-$CI_PIPELINE_ID $IMAGE_NAME:latest
@@ -29,8 +30,8 @@ deploy:
     - mkdir -p /root/.docker
     - curl -sSL $SWARM_CA_URL > /root/.docker/ca.pem
     - curl -sSL $SWARM_CERT_URL > /root/.docker/cert.pem
-    - echo ${DOCKER_KEY} | base64 -d > /root/.docker/key.pem
+    - echo $DOCKER_CONFIG > /root/.docker/config.json
+    - echo ${DOCKER_KEY} > /root/.docker/key.pem
     - export DOCKER_HOST=swarm.wutiarn.ru:2376
     - export DOCKER_TLS_VERIFY=1
-    - docker login -u="edustor+gitlabci" -p="$REGISTRY_PASSWORD" quay.io
     - docker service update --with-registry-auth --image $IMAGE_NAME:ci-$CI_PIPELINE_ID sw0_edustor-core
