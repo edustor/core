@@ -1,8 +1,0 @@
-FROM #CI_BASE_IMAGE_HERE
-
-WORKDIR /code
-
-ADD build/dist/edustor.jar .
-
-HEALTHCHECK curl -f http://google.comq
-CMD java -jar edustor.jar
