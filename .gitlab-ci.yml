@@ -11,6 +11,7 @@ build:
     DOCKER_HOST: quay.io__wutiarn__docker-dind-experimental:2375
   script:
     - docker version
+    - docker info
     - docker login -u="edustor+gitlabci" -p="$REGISTRY_PASSWORD" quay.io
     - docker build -t $IMAGE_NAME:ci-$CI_PIPELINE_ID --squash .
     - docker tag $IMAGE_NAME:ci-$CI_PIPELINE_ID $IMAGE_NAME:latest
