@@ -1,5 +1,6 @@
 variables:
   IMAGE_NAME: quay.io/edustor/core
+  DOCKER_DRIVER: overlay
 
 build:
   stage: build
