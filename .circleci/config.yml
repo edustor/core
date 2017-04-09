@@ -24,9 +24,14 @@ jobs:
       - store_artifacts:
           path: ~/edustor-core/build/dist
           destination: edustor-core
-      - run: "curl -u ${CIRCLE_API_TOKEN}:
-                -d build_parameters[CIRCLE_JOB]=deploy_swarm
-                https://circleci.com/api/v1.1/project/github/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/tree/$CIRCLE_BRANCH"
+      - run:
+          name: Trigger deploy
+          command: |
+                if [ "${CIRCLE_BRANCH}" == "master" ]; then
+                  curl -u ${CIRCLE_API_TOKEN}: \
+                    -d build_parameters[CIRCLE_JOB]=deploy_swarm \
+                    https://circleci.com/api/v1.1/project/github/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/tree/$CIRCLE_BRANCH
+                fi
   deploy_swarm:
     branches:
       only:
@@ -35,6 +40,7 @@ jobs:
     docker:
       - image: docker:git
     environment:
+      TERM: dumb
       IMAGE_NAME: quay.io/edustor/core
       SWARM_CA_URL: https://wutiarn.keybase.pub/swarm/ca.pem
       SWARM_CERT_URL: https://wutiarn.keybase.pub/swarm/cert.pem
