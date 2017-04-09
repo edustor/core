@@ -20,3 +20,6 @@ jobs:
       - store_artifacts:
           path: ~/edustor-core/build/dist
           destination: edustor-core
+      - setup_remote_docker
+      - run: |
+          docker build -t quay.io/edustor/core:ci-$CIRCLE_BUILD_NUM -f ci.Dockerfile .
