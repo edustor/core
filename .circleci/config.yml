@@ -8,6 +8,8 @@ jobs:
       TERM: dumb
     steps:
       - checkout
+      - restore_cache:
+          key: edustor-core-gradle-{{ checksum "build.gradle" }}
       - run: |
           ./gradlew build
           rm build/dist/*.original
