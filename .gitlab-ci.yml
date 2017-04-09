@@ -27,10 +27,10 @@ deploy:
     SWARM_CA_URL: https://wutiarn.keybase.pub/swarm/ca.pem
     SWARM_CERT_URL: https://wutiarn.keybase.pub/swarm/cert.pem
   script:
-    - mkdir -p /root/.docker
-    - curl -sSL $SWARM_CA_URL > /root/.docker/ca.pem
-    - curl -sSL $SWARM_CERT_URL > /root/.docker/cert.pem
-    - echo ${SWARM_KEY} | base64 -d > /root/.docker/key.pem
+    - mkdir -p ~/.docker
+    - curl -sSL $SWARM_CA_URL > ~/.docker/ca.pem
+    - curl -sSL $SWARM_CERT_URL > ~/.docker/cert.pem
+    - echo ${SWARM_KEY} | base64 -d > ~/.docker/key.pem
     - export DOCKER_HOST=swarm.wutiarn.ru:2376
     - export DOCKER_TLS_VERIFY=1
     - docker login -u="edustor+gitlabci" -p="$REGISTRY_PASSWORD" quay.io
