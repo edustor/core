@@ -12,9 +12,9 @@ jobs:
           ./gradlew build
           rm build/dist/*.original
       - save_cache:
-        paths:
-          - ~/.gradle
-        key: edustor-core-gradle-{{ checksum "build.gradle" }}
+          paths:
+            - ~/.gradle
+          key: edustor-core-gradle-{{ checksum "build.gradle" }}
       - store_artifacts:
           path: ~/edustor-core/build/dist
           destination: edustor-core
