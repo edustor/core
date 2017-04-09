@@ -24,10 +24,9 @@ jobs:
       - store_artifacts:
           path: ~/edustor-core/build/dist
           destination: edustor-core
-      - deploy: >
-          curl -u ${CIRCLE_API_TOKEN}:
-               -d build_parameters[CIRCLE_JOB]=deploy_swarm
-               https://circleci.com/api/v1.1/project/github/edustor/core/tree/master
+      - deploy: curl -u ${CIRCLE_API_TOKEN}:
+                -d build_parameters[CIRCLE_JOB]=deploy_swarm
+                https://circleci.com/api/v1.1/project/github/edustor/core/tree/master
   deploy_swarm:
     branches:
       only:
