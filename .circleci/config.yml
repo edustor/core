@@ -10,6 +10,7 @@ jobs:
       - checkout
       - run: |
           ./gradlew build
+          rm build/dist/*.original
       - store_artifacts:
-          path: ~/edustor-core/build/dist/*.jar
+          path: ~/edustor-core/build/dist
           destination: edustor-core
