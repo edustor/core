@@ -3,10 +3,8 @@ jobs:
   build:
     working_directory: ~/edustor-core
     docker:
-      - image: docker:latest
+      - image: quay.io/edustor/core-base
     steps:
       - checkout
-      - setup_remote_docker
       - run: |
-          docker version
-          docker info
+          ./gradlew build
