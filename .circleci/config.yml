@@ -72,6 +72,7 @@ jobs:
             ls -lah ~/.docker
             cat ~/.docker/ca.pem
             cat ~/.docker/cert.pem
+            env
             docker version
             docker info
             docker service update --with-registry-auth --image $IMAGE_NAME:ci-$CIRCLE_BUILD_NUM sw0_edustor-coret
