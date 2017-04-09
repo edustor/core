@@ -18,9 +18,9 @@ jobs:
           paths:
             - ~/.gradle
       - save_cache:
-        key: edustor-core-gradle-{{ .BuildNum }}
-        paths:
-          - ~/edustor-core/build/dist
+          key: edustor-core-gradle-{{ .BuildNum }}
+          paths:
+            - ~/edustor-core/build/dist
       - store_artifacts:
           path: ~/edustor-core/build/dist
           destination: edustor-core
