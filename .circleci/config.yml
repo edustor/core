@@ -4,6 +4,8 @@ jobs:
     working_directory: ~/edustor-core
     docker:
       - image: quay.io/edustor/core-base
+    environment:
+      TERM: dumb
     steps:
       - checkout
       - run: |
