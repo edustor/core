@@ -36,6 +36,10 @@ jobs:
       - image: docker:git
     environment:
       IMAGE_NAME: quay.io/edustor/core
+      SWARM_CA_URL: https://wutiarn.keybase.pub/swarm/ca.pem
+      SWARM_CERT_URL: https://wutiarn.keybase.pub/swarm/cert.pem
+      DOCKER_HOST: swarm.wutiarn.ru:2376
+      DOCKER_TLS_VERIFY: 1
     steps:
       - checkout
       - restore_cache:
@@ -47,3 +51,8 @@ jobs:
           docker tag $IMAGE_NAME:ci-$CIRCLE_BUILD_NUM $IMAGE_NAME:latest
           docker push $IMAGE_NAME:latest
           docker push $IMAGE_NAME:ci-$CIRCLE_BUILD_NUM
+          mkdir -p /root/.docker
+          curl -sSL $SWARM_CA_URL > /root/.docker/ca.pem
+          curl -sSL $SWARM_CERT_URL > /root/.docker/cert.pem
+          echo ${SWARM_KEY} | base64 -d > /root/.docker/key.pem
+          docker service update --with-registry-auth --image $IMAGE_NAME:ci-$CIRCLE_BUILD_NUM sw0_edustor-core
