@@ -14,12 +14,27 @@ jobs:
           ./gradlew build
           rm build/dist/*.original
       - save_cache:
+          key: edustor-core-gradle-{{ checksum "build.gradle" }}
           paths:
             - ~/.gradle
-          key: edustor-core-gradle-{{ checksum "build.gradle" }}
+      - save_cache:
+        key: edustor-core-gradle-{{ .BuildNum }}
+        paths:
+          - ~/edustor-core/build/dist
       - store_artifacts:
           path: ~/edustor-core/build/dist
           destination: edustor-core
+  deploy:
+    branches:
+      only:
+        - master
+    working_directory: ~/edustor-core
+    docker:
+      - image: docker:git
+    steps:
+      - checkout
+      - restore_cache:
+          key: edustor-core-gradle-{{ .BuildNum }}
       - setup_remote_docker
       - run: |
           docker build -t quay.io/edustor/core:ci-$CIRCLE_BUILD_NUM -f ci.Dockerfile .
