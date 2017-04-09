@@ -71,4 +71,4 @@ jobs:
             export DOCKER_TLS_VERIFY=1
             docker --tlsverify --tlscacert /root/.docker/ca.pem \
               --tlscert /root/.docker/cert.pem --tlskey /root/.docker/key.pem \
-              service update --with-registry-auth --image $IMAGE_NAME:ci-$CIRCLE_BUILD_NUM sw0_edustor-coret
+              service update --with-registry-auth --image $IMAGE_NAME:ci-$CIRCLE_BUILD_NUM sw0_edustor-core
