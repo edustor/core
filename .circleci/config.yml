@@ -11,5 +11,5 @@ jobs:
       - run: |
           ./gradlew build
       - store_artifacts:
-          path: ~/edustor-core/build/dist
+          path: ~/edustor-core/build/dist/*.jar
           destination: edustor-core
