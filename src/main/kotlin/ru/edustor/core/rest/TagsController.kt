@@ -26,6 +26,7 @@ class TagsController @Autowired constructor(val lessonRepo: LessonRepository, va
 //        TODO: Add parent tag param
         val tag = Tag(name)
         user.tags.add(tag)
+        accountRepository.save(user)
 
         return tag
     }
