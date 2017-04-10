@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.mashape.unirest.http.Unirest
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.env.Environment
 import org.springframework.stereotype.Service
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.internal.sync.FCMRequest
@@ -19,10 +19,11 @@ import javax.annotation.PostConstruct
 open class FCMService @Autowired constructor(
         val objectMapper: ObjectMapper,
         val accountRepository: AccountRepository,
-        @Value("\${edustor.core.fcm-token}") val FCM_KEY: String?
+        environment: Environment
 ) {
     private val queue = LinkedBlockingQueue<FCMRequest>()
     private val logger = LoggerFactory.getLogger(FCMService::class.java)
+    private val FCM_KEY: String? = environment.getProperty("edustor.core.fcm-token")
 
     fun sendUserSyncNotification(account: Account) {
         queue.add(FCMRequest(account))
