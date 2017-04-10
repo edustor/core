@@ -26,6 +26,10 @@ open class FCMService @Autowired constructor(
     private val FCM_KEY: String? = environment.getProperty("edustor.core.fcm-token")
 
     fun sendUserSyncNotification(account: Account) {
+        if (FCM_KEY == null) {
+            logger.warn("FCM_KEY env is not set. Dropping sync request.")
+            return
+        }
         queue.add(FCMRequest(account))
     }
 
