@@ -1,4 +1,4 @@
-FROM isuper/java-oracle:server_jre_8
+FROM openjdk:8-jdk
 
 ADD build/dist/edustor.jar .
 
