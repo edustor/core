@@ -1,4 +1,4 @@
-FROM quay.io/edustor/core-base
+FROM isuper/java-oracle:server_jre_8
 
 ADD build/dist/edustor.jar .
 

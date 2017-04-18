@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/edustor-core
     docker:
-      - image: quay.io/edustor/core-base
+      - image: isuper/java-oracle:server_jre_8
     environment:
       TERM: dumb
     steps:
