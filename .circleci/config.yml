@@ -46,6 +46,7 @@ jobs:
       SWARM_CERT_URL: https://wutiarn.keybase.pub/swarm/cert.pem
     steps:
       - checkout
+      - run: git submodule sync && git submodule update --init
       - restore_cache:
           key: edustor-core-{{ .Revision }}
       - setup_remote_docker

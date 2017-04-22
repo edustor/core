@@ -3,9 +3,8 @@ import org.ajoberstar.grgit.Grgit
 import java.time.Instant
 
 buildscript {
-    ext.kotlin_version = '1.0.6'
-    ext.spring_boot_version = '1.4.1.RELEASE'
-    ext.edustor_commons_version = '6d523bc'
+    ext.kotlin_version = '1.1.1'
+    ext.spring_boot_version = '1.5.3.RELEASE'
     repositories {
         mavenCentral()
     }
@@ -16,16 +15,13 @@ buildscript {
     }
 }
 
-plugins {
-    id "com.palantir.configuration-resolver" version "0.1.0"
-}
 
 apply plugin: 'java'
 apply plugin: 'kotlin'
 apply plugin: 'spring-boot'
 
 group 'ru.edustor'
-version '0.8-m2'
+version '0.9-SNAPSHOT'
 
 
 repositories {
@@ -69,12 +65,12 @@ task createProperties(dependsOn: processResources) {
 processResources.finalizedBy createProperties
 
 dependencies {
-    compile "ru.edustor.commons:storage:$edustor_commons_version"
-    compile "ru.edustor.commons:auth:$edustor_commons_version"
-    compile "ru.edustor.commons:rabbit:$edustor_commons_version"
-    compile "ru.edustor.commons:models:$edustor_commons_version"
-    compile "ru.edustor.commons:api:$edustor_commons_version"
-    compile "ru.edustor.commons:version:$edustor_commons_version"
+    compile project(':edustor-commons:auth')
+    compile project(':edustor-commons:version')
+    compile project(':edustor-commons:rabbit')
+    compile project(':edustor-commons:models')
+    compile project(':edustor-commons:api')
+    compile project(':edustor-commons:storage')
 
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.springframework.boot:spring-boot-starter-web"
