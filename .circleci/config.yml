@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/edustor-core
     docker:
-      - image: isuper/java-oracle:server_jre_8
+      - image: openjdk:8-jdk
     environment:
       TERM: dumb
     steps:
