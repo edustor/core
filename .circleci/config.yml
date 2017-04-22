@@ -8,6 +8,7 @@ jobs:
       TERM: dumb
     steps:
       - checkout
+      - run: git submodule sync && git submodule update --init
       - restore_cache:
           key: edustor-core-gradle-{{ checksum "build.gradle" }}
       - run: |
