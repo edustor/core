@@ -12,6 +12,8 @@ class InternalLessonsController {
     @RequestMapping("{lesson}/pages/files")
     @RequiresAuth("internal")
     fun lessonPageFiles(lesson: Lesson): List<String> {
-        return lesson.pages.map(Page::fileId).filterNotNull()
+        return lesson.pages
+                .filter { !it.removed && it.contentType == "application/pdf" }
+                .map(Page::fileId).filterNotNull()
     }
 }
