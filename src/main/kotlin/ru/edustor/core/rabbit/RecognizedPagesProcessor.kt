@@ -6,6 +6,7 @@ import org.springframework.amqp.core.ExchangeTypes
 import org.springframework.amqp.rabbit.annotation.*
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import ru.edustor.commons.models.internal.processing.pdf.PageProcessedEvent
 import ru.edustor.commons.models.internal.processing.pdf.PageRecognizedEvent
 import ru.edustor.commons.storage.service.BinaryObjectStorageService
@@ -36,6 +37,7 @@ open class RecognizedPagesProcessor(var storage: BinaryObjectStorageService,
                     durable = "true"),
             key = "recognized.pages.processing"
     )))
+    @Transactional
     fun handleUploadedPage(event: PageRecognizedEvent) {
         val (lesson, page) = getTargetLessonAndPage(event)
 
