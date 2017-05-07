@@ -9,7 +9,7 @@ open class Tag() : Comparable<Tag> {
     @Id var id: String = UUID.randomUUID().toString()
 
     @ManyToOne(optional = false)
-    lateinit var account: Account
+    lateinit var owner: Account
 
     lateinit var name: String
     var path: String = "/"
@@ -36,7 +36,7 @@ open class Tag() : Comparable<Tag> {
         get() = path.split("/").filter(String::isNotEmpty)
 
     constructor(account: Account, name: String, parent: Tag? = null) : this() {
-        this.account = account
+        this.owner = account
         this.name = name
         parent?.let { setParent(parent) }
     }
@@ -63,7 +63,7 @@ open class Tag() : Comparable<Tag> {
     }
 
     fun toDTO(): TagDTO {
-        return TagDTO(id, account.id, path, parent, name, removed)
+        return TagDTO(id, owner.id, path, parent, name, removed)
     }
 
     data class TagDTO(
