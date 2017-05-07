@@ -8,7 +8,9 @@ import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
+import ru.edustor.core.model.Tag
 import ru.edustor.core.repository.LessonRepository
+import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.util.extensions.assertHasAccess
 import rx.Observable
 import java.time.LocalDate
@@ -16,13 +18,12 @@ import java.time.LocalDate
 @RestController
 @RequestMapping("/api/lessons")
 open class LessonsController @Autowired constructor(
-        val lessonRepo: LessonRepository
+        val lessonRepo: LessonRepository,
+        val pageRepository: PageRepository
 ) {
     @RequestMapping("/{lessonId}", method = arrayOf(RequestMethod.POST))
-    fun create(lessonId: String, tag: String, date: LocalDate, account: Account) {
-        account.tags.firstOrNull { it.id == tag }
-                ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Can't find specified tag")
-        val lesson = Lesson(tag, date, account.id)
+    fun create(lessonId: String, tag: Tag, date: LocalDate, account: Account) {
+        val lesson = Lesson(tag, date, account)
         lesson.id = lessonId
         lessonRepo.save(lesson)
     }
@@ -70,7 +71,7 @@ open class LessonsController @Autowired constructor(
 
     @RequestMapping("/qr/{qr}")
     fun byPageQR(user: Account, @PathVariable qr: String): Lesson.LessonDTO {
-        val lesson = lessonRepo.findByPagesQr(qr) ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Page is not found")
+        val lesson = pageRepository.findByQr(qr)?.lesson ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Requested page is not found")
         user.assertHasAccess(lesson)
 
         return lesson.toDTO()

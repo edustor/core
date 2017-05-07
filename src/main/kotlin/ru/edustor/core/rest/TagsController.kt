@@ -9,11 +9,12 @@ import ru.edustor.core.model.Account
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Tag
 import ru.edustor.core.repository.AccountRepository
-import ru.edustor.core.repository.LessonRepository
+import ru.edustor.core.repository.TagRepository
 
 @RestController
 @RequestMapping("/api/tags")
-class TagsController @Autowired constructor(val lessonRepo: LessonRepository, val accountRepository: AccountRepository) {
+class TagsController @Autowired constructor(val accountRepository: AccountRepository,
+                                            val tagRepository: TagRepository) {
 
     @RequestMapping("/list")
     fun listTags(user: Account): List<Tag> {
@@ -22,19 +23,18 @@ class TagsController @Autowired constructor(val lessonRepo: LessonRepository, va
     }
 
     @RequestMapping("/create")
-    fun createTag(user: Account, @RequestParam name: String): Tag {
+    fun createTag(account: Account, @RequestParam name: String): Tag.TagDTO {
 //        TODO: Add parent tag param
-        val tag = Tag(name)
-        user.tags.add(tag)
-        accountRepository.save(user)
+        val tag = Tag(account, name)
+        tagRepository.save(tag)
 
-        return tag
+        return tag.toDTO()
     }
 
     @RequestMapping("/{tag}/lessons")
     fun tagLessons(@PathVariable tag: Tag?): List<Lesson> {
         tag ?: throw HttpRequestProcessingException(HttpStatus.NOT_FOUND)
-        return lessonRepo.findByTagId(tag).filter { it.pages.isNotEmpty() && !it.removed }.sortedDescending()
+        return tag.lessons.filter { it.pages.isNotEmpty() && !it.removed }.sortedDescending()
     }
 
     @RequestMapping("/{tag}", method = arrayOf(RequestMethod.DELETE))

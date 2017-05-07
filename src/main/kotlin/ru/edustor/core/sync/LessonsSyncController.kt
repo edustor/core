@@ -7,13 +7,15 @@ import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.exceptions.NotFoundException
 import ru.edustor.core.model.internal.sync.SyncTask
 import ru.edustor.core.repository.LessonRepository
+import ru.edustor.core.repository.TagRepository
 import ru.edustor.core.rest.LessonsController
 import java.time.LocalDate
 
 @Component
 open class LessonsSyncController @Autowired constructor(
         val lessonsController: LessonsController,
-        val lessonRepository: LessonRepository
+        val lessonRepository: LessonRepository,
+        val tagRepository: TagRepository
 ) {
     fun processTask(task: SyncTask): Any {
         return when (task.method) {
@@ -31,7 +33,9 @@ open class LessonsSyncController @Autowired constructor(
         val epochDay = task.params["date"]!!.toLong()
         val tagId = task.params["tag"]!!
 
-        lessonsController.create(id!!, tagId, LocalDate.ofEpochDay(epochDay), task.user)
+        val tag = tagRepository.findOne(tagId) ?: throw NotFoundException("Tag is not found")
+
+        lessonsController.create(id!!, tag, LocalDate.ofEpochDay(epochDay), task.user)
     }
 
     fun setTopic(task: SyncTask) {

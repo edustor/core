@@ -20,6 +20,10 @@ open class EdustorCoreAccountResolver(val repo: AccountRepository,
         val authProfile = super.resolveArgument(parameter, mavContainer, webRequest, binderFactory) as EdustorAuthProfile
         val account = repo.findOne(authProfile.accountId)
 
-        return account ?: Account(authProfile.accountId)
+        return account ?: let {
+            val account = Account(authProfile.accountId)
+            repo.save(account)
+            return@let account
+        }
     }
 }

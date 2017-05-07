@@ -1,16 +1,9 @@
 package ru.edustor.core.repository
 
-import org.springframework.data.mongodb.repository.MongoRepository
+import org.springframework.data.jpa.repository.JpaRepository
 import ru.edustor.core.model.Lesson
-import ru.edustor.core.model.Tag
 import java.time.Instant
 
-interface LessonRepository : MongoRepository<Lesson, String> {
-    fun findByTagId(tag: Tag): List<Lesson>
-    fun findByOwnerId(ownerId: String): List<Lesson>
+interface LessonRepository : JpaRepository<Lesson, String> {
     fun findByRemovedOnLessThan(removedOn: Instant): List<Lesson>
-
-    fun findByPagesQr(qr: String): Lesson?
-    fun findByPagesId(id: String): Lesson?
-    fun findByPagesRemovedOnLessThan(removedOn: Instant): List<Lesson>
 }

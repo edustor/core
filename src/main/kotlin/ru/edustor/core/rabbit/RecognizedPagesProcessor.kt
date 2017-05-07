@@ -14,6 +14,7 @@ import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
 import ru.edustor.core.repository.AccountRepository
 import ru.edustor.core.repository.LessonRepository
+import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.repository.getForAccountId
 import ru.edustor.core.util.extensions.hasAccess
 import java.time.Instant
@@ -22,6 +23,7 @@ import java.time.Instant
 open class RecognizedPagesProcessor(var storage: BinaryObjectStorageService,
                                     val accountRepository: AccountRepository,
                                     val lessonRepository: LessonRepository,
+                                    val pageRepository: PageRepository,
                                     val rabbitTemplate: RabbitTemplate) {
     val logger: Logger = LoggerFactory.getLogger(RecognizedPagesProcessor::class.java)
 
@@ -86,7 +88,7 @@ open class RecognizedPagesProcessor(var storage: BinaryObjectStorageService,
                 }
             }
             event.qrUuid != null -> {
-                lessonRepository.findByPagesQr(event.qrUuid!!) ?: let {
+                pageRepository.findByQr(event.qrUuid!!)?.lesson ?: let {
                     logger.warn("Failed to find page with ${event.qrUuid} qr in database")
                     return null to null
                 }

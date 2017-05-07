@@ -1,9 +1,13 @@
 package ru.edustor.core.model
 
-import org.springframework.data.annotation.Id
 import java.time.Instant
 import java.util.*
+import javax.persistence.Basic
+import javax.persistence.Entity
+import javax.persistence.Id
+import javax.persistence.ManyToOne
 
+@Entity
 open class Page() {
     @Id var id: String = UUID.randomUUID().toString()
     var timestamp: Instant = Instant.now()
@@ -13,6 +17,11 @@ open class Page() {
     var qr: String? = null
     var fileMD5: String? = null
     var removedOn: Instant? = null
+
+    @ManyToOne
+    @Basic(optional = false)
+    lateinit var lesson: Lesson
+    var index: Int = 0
 
     val isUploaded: Boolean
         get() = fileId != null

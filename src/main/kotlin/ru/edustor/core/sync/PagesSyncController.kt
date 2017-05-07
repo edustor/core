@@ -4,14 +4,17 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import ru.edustor.core.exceptions.HttpRequestProcessingException
+import ru.edustor.core.exceptions.NotFoundException
 import ru.edustor.core.model.internal.sync.SyncTask
 import ru.edustor.core.repository.LessonRepository
+import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.rest.PagesController
 import java.time.Instant
 
 @Component
 open class PagesSyncController @Autowired constructor(
         val lessonRepository: LessonRepository,
+        val pageRepository: PageRepository,
         val pagesController: PagesController) {
     fun processTask(task: SyncTask): Any {
         return when (task.method) {
@@ -30,14 +33,16 @@ open class PagesSyncController @Autowired constructor(
     }
 
     fun delete(task: SyncTask) {
-        val page = task.params["page"]
+        val pageId = task.params["page"]
                 ?: throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "'page' field is not provided")
+        val page = pageRepository.findOne(pageId) ?: throw NotFoundException("Page is not found")
         pagesController.delete(task.user, page)
     }
 
     fun restore(task: SyncTask) {
-        val page = task.params["page"]
+        val pageId = task.params["page"]
                 ?: throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "'page' field is not provided")
+        val page = pageRepository.findOne(pageId) ?: throw NotFoundException("Page is not found")
         pagesController.restore(task.user, page)
     }
 }
