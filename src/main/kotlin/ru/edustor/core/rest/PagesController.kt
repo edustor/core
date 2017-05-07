@@ -10,6 +10,7 @@ import ru.edustor.core.model.Page
 import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.util.extensions.assertHasAccess
+import ru.edustor.core.util.extensions.setIndexes
 import java.time.Instant
 import java.util.*
 
@@ -33,9 +34,12 @@ class PagesController @Autowired constructor(
             throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This QR is already linked to ${oldPage.lesson.id}")
         }
 
-        val page = oldPage ?: Page(qr = qr, timestamp = instant ?: Instant.now(), id = id)
+        val page = oldPage ?: Page(lesson = lesson, qr = qr, timestamp = instant ?: Instant.now(), id = id)
+        page.removedOn = null
+        lesson.pages.remove(page)
+
         lesson.pages.add(page)
-//        TODO: Page indexes
+        lesson.pages.setIndexes()
         lessonRepo.save(lesson)
     }
 

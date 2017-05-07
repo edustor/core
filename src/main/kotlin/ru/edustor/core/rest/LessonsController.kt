@@ -1,7 +1,6 @@
 package ru.edustor.core.rest
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import ru.edustor.core.exceptions.HttpRequestProcessingException
@@ -12,7 +11,7 @@ import ru.edustor.core.model.Tag
 import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.util.extensions.assertHasAccess
-import rx.Observable
+import ru.edustor.core.util.extensions.setIndexes
 import java.time.LocalDate
 
 @RestController
@@ -79,30 +78,22 @@ open class LessonsController @Autowired constructor(
 
     @RequestMapping("/{lesson}/pages/reorder")
     fun reorderPages(user: Account, @PathVariable lesson: Lesson, @RequestParam("page") pageId: String, @RequestParam(value = "after", required = false) afterPageId: String?) {
-        Observable.just(lesson)
-                .map { lesson ->
-                    user.assertHasAccess(lesson)
+        user.assertHasAccess(lesson)
 
-                    val pageIdsToCheck = mutableListOf(pageId)
-                    afterPageId?.let { pageIdsToCheck.add(afterPageId) }
-                    val pageIds = lesson.pages.map(Page::id)
-                    if (!pageIds.containsAll(pageIdsToCheck)) throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Specified lesson must contain both pages")
+        val pageIdsToCheck = mutableListOf(pageId)
+        afterPageId?.let { pageIdsToCheck.add(afterPageId) }
+        val pageIds = lesson.pages.map(Page::id)
+        if (!pageIds.containsAll(pageIdsToCheck)) throw HttpRequestProcessingException(HttpStatus.NOT_FOUND, "Specified lesson must contain both pages")
 
-                    val page = lesson.pages.first { it.id == pageId }
-                    val after = lesson.pages.firstOrNull { it.id == afterPageId }
+        val page = lesson.pages.first { it.id == pageId }
+        val after = lesson.pages.firstOrNull { it.id == afterPageId }
 
-                    lesson.pages.remove(page)
+        lesson.pages.remove(page)
 
-                    val targetIndex = if (after != null) lesson.pages.indexOf(after) + 1 else 0
-                    lesson.pages.add(targetIndex, page)
+        val targetIndex = if (after != null) lesson.pages.indexOf(after) + 1 else 0
+        lesson.pages.add(targetIndex, page)
+        lesson.pages.setIndexes()
 
-                    lessonRepo.save(lesson)
-                }
-                // Optimistic locking
-                .retry { i, throwable ->
-                    if (throwable !is OptimisticLockingFailureException) return@retry false
-                    return@retry i <= 3
-                }
-                .toBlocking().subscribe()
+        lessonRepo.save(lesson)
     }
 }

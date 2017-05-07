@@ -19,7 +19,7 @@ open class Page() {
 
     @ManyToOne(optional = false)
     lateinit var lesson: Lesson
-    var index: Int = 0
+    var index: Int = -1
 
     val isUploaded: Boolean
         get() = fileId != null
@@ -34,7 +34,8 @@ open class Page() {
             }
         }
 
-    constructor(qr: String?, timestamp: Instant, id: String) : this() {
+    constructor(lesson: Lesson, qr: String?, timestamp: Instant, id: String) : this() {
+        this.lesson = lesson
         this.qr = qr
         this.timestamp = timestamp
         this.id = id
@@ -53,7 +54,7 @@ open class Page() {
         return id.hashCode()
     }
 
-    fun toDTO(index: Int): PageDTO {
+    fun toDTO(): PageDTO {
         return PageDTO(id, index, timestamp, isUploaded, uploadedTimestamp, qr, contentType, fileMD5, removed)
     }
 

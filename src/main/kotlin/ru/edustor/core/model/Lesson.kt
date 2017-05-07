@@ -22,11 +22,11 @@ open class Lesson() : Comparable<Lesson> {
 
     @OneToMany(targetEntity = Page::class, cascade = arrayOf(CascadeType.ALL),
             mappedBy = "lesson", orphanRemoval = true)
-    @OrderColumn(name = "index")
+    @OrderBy("index")
+            //    @OrderColumn is not used due to it allows sparse lists
     var pages: MutableList<Page> = mutableListOf()
 
     @JsonIgnore var removedOn: Instant? = null
-
 
     var removed: Boolean
         get() = removedOn != null
@@ -58,7 +58,7 @@ open class Lesson() : Comparable<Lesson> {
     }
 
     fun toDTO(): LessonDTO {
-        return LessonDTO(id, owner.id, tag.id, topic, date, removed, pages.mapIndexed { i, page -> page.toDTO(i) })
+        return LessonDTO(id, owner.id, tag.id, topic, date, removed, pages.map { page -> page.toDTO() })
     }
 
     data class LessonDTO(
