@@ -2,7 +2,6 @@ package ru.edustor.core.model
 
 import java.time.Instant
 import java.util.*
-import javax.persistence.Basic
 import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.ManyToOne
@@ -18,8 +17,7 @@ open class Page() {
     var fileMD5: String? = null
     var removedOn: Instant? = null
 
-    @ManyToOne
-    @Basic(optional = false)
+    @ManyToOne(optional = false)
     lateinit var lesson: Lesson
     var index: Int = 0
 

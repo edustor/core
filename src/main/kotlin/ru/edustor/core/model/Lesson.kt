@@ -12,17 +12,15 @@ open class Lesson() : Comparable<Lesson> {
     @Id var id: String = UUID.randomUUID().toString()
     lateinit var date: LocalDate
 
-    @ManyToOne
-    @Basic(optional = false)
+    @ManyToOne(optional = false)
     lateinit var tag: Tag
 
-    @ManyToOne
-    @Basic(optional = false)
+    @ManyToOne(optional = false)
     lateinit var owner: Account
 
     var topic: String? = null
 
-    @OneToMany(targetEntity = Page::class, cascade = arrayOf(CascadeType.ALL), fetch = FetchType.LAZY,
+    @OneToMany(targetEntity = Page::class, cascade = arrayOf(CascadeType.ALL),
             mappedBy = "lesson", orphanRemoval = true)
     @OrderColumn(name = "index")
     var pages: MutableList<Page> = mutableListOf()

@@ -8,8 +8,7 @@ import javax.persistence.*
 open class Tag() : Comparable<Tag> {
     @Id var id: String = UUID.randomUUID().toString()
 
-    @ManyToOne
-    @Basic(optional = false)
+    @ManyToOne(optional = false)
     lateinit var account: Account
 
     lateinit var name: String
