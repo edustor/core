@@ -13,7 +13,7 @@ open class Account() {
     @Basic(fetch = FetchType.LAZY)
     var fcmTokens: MutableSet<String> = mutableSetOf()
 
-    @OneToMany(targetEntity = Tag::class, mappedBy = "account", orphanRemoval = true, cascade = arrayOf(CascadeType.ALL))
+    @OneToMany(targetEntity = Tag::class, mappedBy = "owner", orphanRemoval = true, cascade = arrayOf(CascadeType.ALL))
     @Basic(fetch = FetchType.LAZY)
     var tags: MutableList<Tag> = mutableListOf()
 
