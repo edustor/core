@@ -1,26 +1,32 @@
 package ru.edustor.core.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import org.springframework.data.annotation.Id
-import org.springframework.data.mongodb.core.mapping.Document
 import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
+import javax.persistence.*
 
-@Document
+@Entity
 open class Lesson() : Comparable<Lesson> {
     @Id var id: String = UUID.randomUUID().toString()
-    lateinit var tagId: String
     lateinit var date: LocalDate
-    lateinit var ownerId: String
+
+    @ManyToOne(optional = false)
+    lateinit var tag: Tag
+
+    @ManyToOne(optional = false)
+    lateinit var owner: Account
 
     var topic: String? = null
 
+    @OneToMany(targetEntity = Page::class, cascade = arrayOf(CascadeType.ALL),
+            mappedBy = "lesson", orphanRemoval = true)
+    @OrderBy("index")
+            //    @OrderColumn is not used due to it allows sparse lists
     var pages: MutableList<Page> = mutableListOf()
 
     @JsonIgnore var removedOn: Instant? = null
-
 
     var removed: Boolean
         get() = removedOn != null
@@ -37,10 +43,10 @@ open class Lesson() : Comparable<Lesson> {
         return id == other.id
     }
 
-    constructor(tagId: String, date: LocalDate, ownerId: String) : this() {
-        this.tagId = tagId
+    constructor(tag: Tag, date: LocalDate, owner: Account) : this() {
+        this.tag = tag
         this.date = date
-        this.ownerId = ownerId
+        this.owner = owner
     }
 
     override fun compareTo(other: Lesson): Int {
@@ -48,11 +54,11 @@ open class Lesson() : Comparable<Lesson> {
     }
 
     override fun toString(): String {
-        return "Lesson <ID: $id. Tag: $tagId. Topic: $topic. Date: ${date.format(DateTimeFormatter.ISO_LOCAL_DATE)}>"
+        return "Lesson <ID: $id. Tag: $tag. Topic: $topic. Date: ${date.format(DateTimeFormatter.ISO_LOCAL_DATE)}>"
     }
 
     fun toDTO(): LessonDTO {
-        return LessonDTO(id, ownerId, tagId, topic, date, removed, pages.mapIndexed { i, page -> page.toDTO(i) })
+        return LessonDTO(id, owner.id, tag.id, topic, date, removed, pages.map { page -> page.toDTO() })
     }
 
     data class LessonDTO(

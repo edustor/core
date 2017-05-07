@@ -9,6 +9,7 @@ import ru.edustor.commons.auth.internal.EdustorAuthProfileResolver
 import ru.edustor.commons.auth.model.EdustorAuthProfile
 import ru.edustor.core.model.Account
 import ru.edustor.core.repository.AccountRepository
+import ru.edustor.core.repository.getForAccountId
 
 open class EdustorCoreAccountResolver(val repo: AccountRepository,
                                       validator: EdustorTokenValidator) : EdustorAuthProfileResolver(validator) {
@@ -18,8 +19,6 @@ open class EdustorCoreAccountResolver(val repo: AccountRepository,
 
     override fun resolveArgument(parameter: MethodParameter?, mavContainer: ModelAndViewContainer?, webRequest: NativeWebRequest, binderFactory: WebDataBinderFactory?): Any? {
         val authProfile = super.resolveArgument(parameter, mavContainer, webRequest, binderFactory) as EdustorAuthProfile
-        val account = repo.findOne(authProfile.accountId)
-
-        return account ?: Account(authProfile.accountId)
+        return repo.getForAccountId(authProfile.accountId)
     }
 }

@@ -1,11 +1,16 @@
 package ru.edustor.core.model
 
-import org.springframework.data.annotation.Id
 import java.time.Instant
 import java.util.*
+import javax.persistence.*
 
+@Entity
 open class Tag() : Comparable<Tag> {
     @Id var id: String = UUID.randomUUID().toString()
+
+    @ManyToOne(optional = false)
+    lateinit var account: Account
+
     lateinit var name: String
     var path: String = "/"
     var removedOn: Instant? = null
@@ -20,13 +25,18 @@ open class Tag() : Comparable<Tag> {
             }
         }
 
+    @OneToMany(targetEntity = Lesson::class, cascade = arrayOf(CascadeType.ALL), fetch = FetchType.LAZY,
+            mappedBy = "tag", orphanRemoval = true)
+    var lessons: MutableList<Lesson> = mutableListOf()
+
     val parent: String?
         get() = parents.lastOrNull()
 
     val parents: List<String>
         get() = path.split("/").filter(String::isNotEmpty)
 
-    constructor(name: String, parent: Tag? = null) : this() {
+    constructor(account: Account, name: String, parent: Tag? = null) : this() {
+        this.account = account
         this.name = name
         parent?.let { setParent(parent) }
     }
@@ -52,8 +62,8 @@ open class Tag() : Comparable<Tag> {
         return "[$name]"
     }
 
-    fun toDTO(owner: String): TagDTO {
-        return TagDTO(id, owner, path, parent, name, removed)
+    fun toDTO(): TagDTO {
+        return TagDTO(id, account.id, path, parent, name, removed)
     }
 
     data class TagDTO(

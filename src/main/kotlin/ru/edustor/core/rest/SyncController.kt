@@ -37,12 +37,12 @@ open class SyncController @Autowired constructor(
     @RequestMapping("/fetch")
     fun fetch(account: Account): Map<*, *> {
         logger.info("Serving /sync/fetch")
-        val lessons = lessonRepo.findByOwnerId(account.id)
+        val lessons = account.lessons
                 .map { it.pages = (it.pages.filter { it.removed == false } as MutableList<Page>); it }
         logger.info("Data fetched from DB")
         return mapOf(
                 "account" to account.toDTO(),
-                "tags" to account.tags.map { it.toDTO(account.id) },
+                "tags" to account.tags.map { it.toDTO() },
                 "lessons" to lessons.map(Lesson::toDTO)
         )
     }

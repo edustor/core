@@ -3,9 +3,9 @@ package ru.edustor.core.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mashape.unirest.http.Unirest
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.env.Environment
 import org.springframework.stereotype.Service
+import org.springframework.transaction.support.TransactionTemplate
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.internal.sync.FCMRequest
 import ru.edustor.core.repository.AccountRepository
@@ -16,9 +16,10 @@ import javax.annotation.PostConstruct
 
 // TODO: Manually call fcmService from all mutating methods
 @Service
-open class FCMService @Autowired constructor(
+open class FCMService constructor(
         val objectMapper: ObjectMapper,
         val accountRepository: AccountRepository,
+        val transactionTemplate: TransactionTemplate,
         environment: Environment
 ) {
     private val queue = LinkedBlockingQueue<FCMRequest>()
@@ -30,11 +31,11 @@ open class FCMService @Autowired constructor(
             logger.warn("FCM_KEY env is not set. Dropping sync request.")
             return
         }
-        queue.add(FCMRequest(account))
+        queue.add(FCMRequest(account.id))
     }
 
     @PostConstruct
-    private fun handle() {
+    fun handle() {
         if (FCM_KEY == null) {
             logger.warn("FCM_KEY env is not set. Sync notifications are disabled.")
             return
@@ -43,7 +44,9 @@ open class FCMService @Autowired constructor(
             while (true) {
                 val fcmRequest = queue.take()
                 try {
-                    processFCMRequest(fcmRequest)
+                    transactionTemplate.execute {
+                        processFCMRequest(fcmRequest)
+                    }
                 } catch (e: Exception) {
                     logger.warn("Exception thrown while FCM request processing", e)
                 }
@@ -51,9 +54,9 @@ open class FCMService @Autowired constructor(
         }).start()
     }
 
-    private fun processFCMRequest(fcmRequest: FCMRequest) {
-        val tokens = fcmRequest.account.fcmTokens.toList()
-
+    open fun processFCMRequest(fcmRequest: FCMRequest) {
+        val account = accountRepository.findOne(fcmRequest.accountId)
+        val tokens = account.fcmTokens.toList()
         if (tokens.isEmpty()) return
 
         val reqBody = objectMapper.writeValueAsString(mapOf(
@@ -79,13 +82,13 @@ open class FCMService @Autowired constructor(
         }
         val results = respJson.get("results")
 
-        logger.info("FCM push sent to ${fcmRequest.account.id}")
+        logger.info("FCM push sent to ${account.id}")
 
         val lastResultsIndex = results.size() - 1
         (0..lastResultsIndex)
                 .filter { results.get(it).has("error") }
-                .forEach { fcmRequest.account.fcmTokens.remove(tokens[it]) }
+                .forEach { account.fcmTokens.remove(tokens[it]) }
 
-        accountRepository.save(fcmRequest.account)
+        accountRepository.save(account)
     }
 }

@@ -4,19 +4,21 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import ru.edustor.core.exceptions.HttpRequestProcessingException
-import ru.edustor.core.exceptions.NotFoundException
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
 import ru.edustor.core.repository.LessonRepository
+import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.util.extensions.assertHasAccess
+import ru.edustor.core.util.extensions.setIndexes
 import java.time.Instant
 import java.util.*
 
 @RestController
 @RequestMapping("/api/pages")
 class PagesController @Autowired constructor(
-        val lessonRepo: LessonRepository
+        val lessonRepo: LessonRepository,
+        val pageRepository: PageRepository
 ) {
     @RequestMapping("/link")
     fun linkPage(@RequestParam qr: String,
@@ -27,37 +29,31 @@ class PagesController @Autowired constructor(
     ) {
         user.assertHasAccess(lesson)
 
-        val oldPageLesson = lessonRepo.findByPagesQr(qr)
-        if (oldPageLesson != null) {
-            val page = oldPageLesson.pages.first { it.qr == qr }
-            if (page.removed) {
-                lesson.pages.remove(page)
-                lessonRepo.save(oldPageLesson)
-            } else {
-                throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This QR is already linked to ${oldPageLesson.id}")
-            }
+        val oldPage = pageRepository.findByQr(qr)
+        if (oldPage != null && !oldPage.removed) {
+            throw HttpRequestProcessingException(HttpStatus.CONFLICT, "This QR is already linked to ${oldPage.lesson.id}")
         }
 
-        val page = Page(qr = qr, timestamp = instant ?: Instant.now(), id = id)
+        val page = oldPage ?: Page(lesson = lesson, qr = qr, timestamp = instant ?: Instant.now(), id = id)
+        page.removedOn = null
+        lesson.pages.remove(page)
+
         lesson.pages.add(page)
+        lesson.pages.setIndexes()
         lessonRepo.save(lesson)
     }
 
     @RequestMapping("/{page}", method = arrayOf(RequestMethod.DELETE))
-    fun delete(user: Account, @PathVariable("page") pageId: String) {
-        val lesson = lessonRepo.findByPagesId(pageId) ?: throw NotFoundException()
-        val page = lesson.pages.first { it.id == pageId }
-        user.assertHasAccess(lesson)
+    fun delete(user: Account, @PathVariable page: Page) {
+        user.assertHasAccess(page)
         page.removed = true
-        lessonRepo.save(lesson)
+        pageRepository.save(page)
     }
 
     @RequestMapping("/{page}/restore")
-    fun restore(user: Account, @PathVariable("page") pageId: String) {
-        val lesson = lessonRepo.findByPagesId(pageId) ?: throw NotFoundException()
-        val page = lesson.pages.first { it.id == pageId }
-        user.assertHasAccess(lesson)
+    fun restore(user: Account, @PathVariable page: Page) {
+        user.assertHasAccess(page)
         page.removed = false
-        lessonRepo.save(lesson)
+        pageRepository.save(page)
     }
 }
