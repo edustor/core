@@ -33,9 +33,8 @@ open class SyncController @Autowired constructor(
 
     @RequestMapping("/fetch")
     fun fetch(account: Account): Map<*, *> {
-        logger.info("Serving /sync/fetch")
+        logger.info("Serving /sync/fetch for ${account.id}")
         val lessons = account.lessons
-        logger.info("Data fetched from DB")
         return mapOf(
                 "account" to account.toDTO(),
                 "tags" to account.tags.map { it.toDTO() },
@@ -64,9 +63,10 @@ open class SyncController @Autowired constructor(
     }
 
     private fun processTask(task: SyncTask): Any {
-
         val (group, method) = task.method.split(delimiterRegex, 2)
         val localTask = SyncTask(method, task.params, task.account)
+
+        logger.info("Processing sync push by ${task.account.id}: ${task.method} ${task.params}")
 
         return when (group) {
             "lessons" -> lessonsSyncController.processTask(localTask)

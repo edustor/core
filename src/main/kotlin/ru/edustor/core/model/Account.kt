@@ -26,6 +26,10 @@ data class Account(
         return AccountDTO(id)
     }
 
+    override fun toString(): String {
+        return "Account<ID: $id>"
+    }
+
     data class AccountDTO(
             val id: String
     )
