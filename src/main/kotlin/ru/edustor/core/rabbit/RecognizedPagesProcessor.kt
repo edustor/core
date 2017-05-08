@@ -108,13 +108,18 @@ open class RecognizedPagesProcessor(var storage: BinaryObjectStorageService,
             return null to null
         }
 
-        val page: Page? = event.qrUuid?.let {
-            lesson.pages.firstOrNull { it.qr == event.qrUuid }
+        val page: Page = event.qrUuid?.let {
+            pageRepository.findByQr(event.qrUuid!!)
         } ?: let {
             val p = Page(lesson = lesson, qr = event.qrUuid, timestamp = event.uploadedTimestamp ?: Instant.now())
-            lesson.pages.add(p)
-            lesson.pages.setIndexes()
             return@let p
+        }
+
+        page.lesson = lesson
+
+        if (page !in lesson.pages) {
+            lesson.pages.add(page)
+            lesson.pages.setIndexes()
         }
 
         return lesson to page
