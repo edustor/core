@@ -29,20 +29,20 @@ open class PagesSyncController @Autowired constructor(
         val instant = Instant.ofEpochSecond(task.params["instant"]!!.toLong())
         val lesson = lessonRepository.findOne(task.params["lesson"]!!)
         pagesController.linkPage(task.params["qr"]!!, lesson,
-                instant, task.user, task.params["id"]!!)
+                instant, task.account, task.params["id"]!!)
     }
 
     fun delete(task: SyncTask) {
         val pageId = task.params["page"]
                 ?: throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "'page' field is not provided")
         val page = pageRepository.findOne(pageId) ?: throw NotFoundException("Page is not found")
-        pagesController.delete(task.user, page)
+        pagesController.delete(task.account, page)
     }
 
     fun restore(task: SyncTask) {
         val pageId = task.params["page"]
                 ?: throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "'page' field is not provided")
         val page = pageRepository.findOne(pageId) ?: throw NotFoundException("Page is not found")
-        pagesController.restore(task.user, page)
+        pagesController.restore(task.account, page)
     }
 }

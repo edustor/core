@@ -22,12 +22,12 @@ open class TagsSyncController @Autowired constructor(
     fun delete(task: SyncTask) {
         val tag = task.params["tag"]
                 ?: throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "'tag' field is not provided")
-        tagsController.delete(task.user, tag)
+        tagsController.delete(task.account, tag)
     }
 
     fun restore(task: SyncTask) {
         val tag = task.params["tag"]
                 ?: throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "'tag' field is not provided")
-        tagsController.restore(task.user, tag)
+        tagsController.restore(task.account, tag)
     }
 }

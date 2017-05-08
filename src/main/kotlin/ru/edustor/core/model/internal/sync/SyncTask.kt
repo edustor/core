@@ -1,15 +1,15 @@
 package ru.edustor.core.model.internal.sync
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import ru.edustor.core.model.Account
 
-class SyncTask() {
-    lateinit var method: String
-    lateinit var params: Map<String, String>
-    lateinit var user: Account
+data class SyncTask(
+        val method: String,
+        val params: Map<String, String>
+) {
+    @JsonIgnore lateinit var account: Account
 
-    constructor(method: String, params: Map<String, String>, user: Account) : this() {
-        this.method = method
-        this.params = params
-        this.user = user
+    constructor(method: String, params: Map<String, String>, user: Account) : this(method, params) {
+        this.account = user
     }
 }

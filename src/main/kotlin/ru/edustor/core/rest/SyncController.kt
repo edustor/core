@@ -48,7 +48,7 @@ open class SyncController @Autowired constructor(
         val tasks = mapper.readValue<List<SyncTask>>(body, object : TypeReference<List<SyncTask>>() {})
         val results = mutableListOf<Any?>()
         tasks.forEach {
-            it.user = user
+            it.account = user
             try {
                 val taskResult = processTask(it)
                 results.add(mapOf(
@@ -66,7 +66,7 @@ open class SyncController @Autowired constructor(
     private fun processTask(task: SyncTask): Any {
 
         val (group, method) = task.method.split(delimiterRegex, 2)
-        val localTask = SyncTask(method, task.params, task.user)
+        val localTask = SyncTask(method, task.params, task.account)
 
         return when (group) {
             "lessons" -> lessonsSyncController.processTask(localTask)

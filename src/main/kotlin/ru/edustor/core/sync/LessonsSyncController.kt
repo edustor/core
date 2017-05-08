@@ -35,12 +35,12 @@ open class LessonsSyncController @Autowired constructor(
 
         val tag = tagRepository.findOne(tagId) ?: throw NotFoundException("Tag is not found")
 
-        lessonsController.create(id!!, tag, LocalDate.ofEpochDay(epochDay), task.user)
+        lessonsController.create(id!!, tag, LocalDate.ofEpochDay(epochDay), task.account)
     }
 
     fun setTopic(task: SyncTask) {
         val lesson = lessonRepository.findOne(task.params["lesson"]!!)
-        lessonsController.setTopic(lesson, task.params["topic"], task.user)
+        lessonsController.setTopic(lesson, task.params["topic"], task.account)
     }
 
     fun reorderPages(task: SyncTask) {
@@ -49,18 +49,18 @@ open class LessonsSyncController @Autowired constructor(
                 throw HttpRequestProcessingException(HttpStatus.BAD_REQUEST, "'page' field is not provided")
         val after = task.params["after"]
 
-        return lessonsController.reorderPages(task.user, lesson, page, after)
+        return lessonsController.reorderPages(task.account, lesson, page, after)
     }
 
     fun delete(task: SyncTask) {
         val lesson = lessonRepository.findOne(task.params["lesson"]!!) ?:
                 throw NotFoundException("Lesson is not found")
-        lessonsController.delete(task.user, lesson)
+        lessonsController.delete(task.account, lesson)
     }
 
     fun restore(task: SyncTask) {
         val lesson = lessonRepository.findOne(task.params["lesson"]!!) ?:
                 throw NotFoundException("Lesson is not found")
-        lessonsController.restore(task.user, lesson)
+        lessonsController.restore(task.account, lesson)
     }
 }

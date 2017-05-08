@@ -15,6 +15,6 @@ open class AccountsSyncController @Autowired constructor(val accountController: 
     }
 
     fun setFCMToken(syncTask: SyncTask) {
-        accountController.setFCMToken(syncTask.params["token"], syncTask.user)
+        accountController.setFCMToken(syncTask.params["token"], syncTask.account)
     }
 }

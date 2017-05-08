@@ -10,7 +10,7 @@ import javax.persistence.*
         Index(columnList = "qr"),
         Index(columnList = "removedOn")
 ))
-open class Page(
+data class Page(
         @ManyToOne(optional = false)
         var lesson: Lesson,
         var index: Int = -1,
@@ -35,15 +35,6 @@ open class Page(
                 removedOn = null
             }
         }
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is Page) return false
-        return id == other.id
-    }
-
-    override fun hashCode(): Int {
-        return id.hashCode()
-    }
 
     fun toDTO(): PageDTO {
         return PageDTO(id, index, timestamp, isUploaded, uploadedTimestamp, qr, contentType, fileMD5, removed)

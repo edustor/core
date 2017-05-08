@@ -12,7 +12,7 @@ import javax.persistence.*
         Index(columnList = "tag_id"),
         Index(columnList = "removedOn")
 ))
-class Lesson(
+data class Lesson(
         @ManyToOne(optional = false)
         var owner: Account,
 
@@ -39,11 +39,6 @@ class Lesson(
                 removedOn = null
             }
         }
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is Lesson) return false
-        return id == other.id
-    }
 
     override fun compareTo(other: Lesson): Int {
         return date.compareTo(other.date)

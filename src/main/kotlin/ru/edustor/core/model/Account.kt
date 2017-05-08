@@ -5,7 +5,7 @@ import javax.persistence.*
 
 @Entity
 @Table(name = "accounts")
-class Account(
+data class Account(
         @Id val id: String = UUID.randomUUID().toString(),
 
         @ElementCollection
@@ -22,19 +22,6 @@ class Account(
         @Basic(fetch = FetchType.LAZY)
         val lessons: MutableList<Lesson> = mutableListOf()
 ) {
-    override fun equals(other: Any?): Boolean {
-        if (other !is Account) return false
-        return id == other.id
-    }
-
-    override fun hashCode(): Int {
-        return id.hashCode()
-    }
-
-    override fun toString(): String {
-        return "AccountProfile<$id>"
-    }
-
     fun toDTO(): AccountDTO {
         return AccountDTO(id)
     }
