@@ -4,11 +4,12 @@ import java.util.*
 import javax.persistence.*
 
 @Entity
+@Table(name = "accounts")
 open class Account() {
     @Id var id: String = UUID.randomUUID().toString()
 
     @ElementCollection
-    @CollectionTable(name = "account_fcm_tokens")
+    @CollectionTable(name = "account_fcm_tokens", indexes = arrayOf(Index(columnList = "account_id")))
     @Column(name = "fcm_token")
     @Basic(fetch = FetchType.LAZY)
     var fcmTokens: MutableSet<String> = mutableSetOf()

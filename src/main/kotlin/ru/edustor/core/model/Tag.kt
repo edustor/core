@@ -5,6 +5,10 @@ import java.util.*
 import javax.persistence.*
 
 @Entity
+@Table(name = "tags", indexes = arrayOf(
+        Index(columnList = "owner_id"),
+        Index(columnList = "removedOn")
+))
 open class Tag() : Comparable<Tag> {
     @Id var id: String = UUID.randomUUID().toString()
 

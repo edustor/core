@@ -8,6 +8,11 @@ import java.util.*
 import javax.persistence.*
 
 @Entity
+@Table(name = "lessons", indexes = arrayOf(
+        Index(columnList = "owner_id"),
+        Index(columnList = "tag_id"),
+        Index(columnList = "removedOn")
+))
 open class Lesson() : Comparable<Lesson> {
     @Id var id: String = UUID.randomUUID().toString()
     lateinit var date: LocalDate

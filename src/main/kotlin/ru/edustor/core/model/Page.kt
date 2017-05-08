@@ -2,11 +2,14 @@ package ru.edustor.core.model
 
 import java.time.Instant
 import java.util.*
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.ManyToOne
+import javax.persistence.*
 
 @Entity
+@Table(name = "pages", indexes = arrayOf(
+        Index(columnList = "lesson_id"),
+        Index(columnList = "qr"),
+        Index(columnList = "removedOn")
+))
 open class Page() {
     @Id var id: String = UUID.randomUUID().toString()
     var timestamp: Instant = Instant.now()
