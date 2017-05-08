@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 import ru.edustor.core.exceptions.HttpRequestProcessingException
 import ru.edustor.core.model.Account
 import ru.edustor.core.model.Lesson
-import ru.edustor.core.model.Page
 import ru.edustor.core.model.internal.sync.SyncTask
-import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.service.FCMService
 import ru.edustor.core.sync.AccountsSyncController
 import ru.edustor.core.sync.LessonsSyncController
@@ -23,7 +21,6 @@ import ru.edustor.core.sync.TagsSyncController
 @RestController
 @RequestMapping("/api/sync")
 open class SyncController @Autowired constructor(
-        val lessonRepo: LessonRepository,
         val lessonsSyncController: LessonsSyncController,
         val pagesSyncController: PagesSyncController,
         val accountsSyncController: AccountsSyncController,
@@ -38,7 +35,6 @@ open class SyncController @Autowired constructor(
     fun fetch(account: Account): Map<*, *> {
         logger.info("Serving /sync/fetch")
         val lessons = account.lessons
-                .map { it.pages = (it.pages.filter { it.removed == false } as MutableList<Page>); it }
         logger.info("Data fetched from DB")
         return mapOf(
                 "account" to account.toDTO(),

@@ -5,27 +5,23 @@ import javax.persistence.*
 
 @Entity
 @Table(name = "accounts")
-open class Account() {
-    @Id var id: String = UUID.randomUUID().toString()
+class Account(
+        @Id val id: String = UUID.randomUUID().toString(),
 
-    @ElementCollection
-    @CollectionTable(name = "account_fcm_tokens", indexes = arrayOf(Index(columnList = "account_id")))
-    @Column(name = "fcm_token")
-    @Basic(fetch = FetchType.LAZY)
-    var fcmTokens: MutableSet<String> = mutableSetOf()
+        @ElementCollection
+        @CollectionTable(name = "account_fcm_tokens", indexes = arrayOf(Index(columnList = "account_id")))
+        @Column(name = "fcm_token")
+        @Basic(fetch = FetchType.LAZY)
+        val fcmTokens: MutableSet<String> = mutableSetOf(),
 
-    @OneToMany(targetEntity = Tag::class, mappedBy = "owner", orphanRemoval = true, cascade = arrayOf(CascadeType.ALL))
-    @Basic(fetch = FetchType.LAZY)
-    var tags: MutableList<Tag> = mutableListOf()
+        @OneToMany(targetEntity = Tag::class, mappedBy = "owner", orphanRemoval = true, cascade = arrayOf(CascadeType.ALL))
+        @Basic(fetch = FetchType.LAZY)
+        val tags: MutableList<Tag> = mutableListOf(),
 
-    @OneToMany(targetEntity = Lesson::class, mappedBy = "owner", orphanRemoval = true, cascade = arrayOf(CascadeType.ALL))
-    @Basic(fetch = FetchType.LAZY)
-    var lessons: MutableList<Lesson> = mutableListOf()
-
-    constructor(id: String) : this() {
-        this.id = id
-    }
-
+        @OneToMany(targetEntity = Lesson::class, mappedBy = "owner", orphanRemoval = true, cascade = arrayOf(CascadeType.ALL))
+        @Basic(fetch = FetchType.LAZY)
+        val lessons: MutableList<Lesson> = mutableListOf()
+) {
     override fun equals(other: Any?): Boolean {
         if (other !is Account) return false
         return id == other.id

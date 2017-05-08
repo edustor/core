@@ -10,20 +10,19 @@ import javax.persistence.*
         Index(columnList = "qr"),
         Index(columnList = "removedOn")
 ))
-open class Page() {
-    @Id var id: String = UUID.randomUUID().toString()
-    var timestamp: Instant = Instant.now()
-    var uploadedTimestamp: Instant? = null
-    var fileId: String? = null
-    var contentType: String? = null
-    var qr: String? = null
-    var fileMD5: String? = null
-    var removedOn: Instant? = null
-
-    @ManyToOne(optional = false)
-    lateinit var lesson: Lesson
-    var index: Int = -1
-
+open class Page(
+        @ManyToOne(optional = false)
+        var lesson: Lesson,
+        var index: Int = -1,
+        var qr: String? = null,
+        var timestamp: Instant = Instant.now(),
+        var uploadedTimestamp: Instant? = null,
+        var fileId: String? = null,
+        var contentType: String? = null,
+        var fileMD5: String? = null,
+        var removedOn: Instant? = null,
+        @Id val id: String = UUID.randomUUID().toString()
+) {
     val isUploaded: Boolean
         get() = fileId != null
 
@@ -36,17 +35,6 @@ open class Page() {
                 removedOn = null
             }
         }
-
-    constructor(lesson: Lesson, qr: String?, timestamp: Instant, id: String) : this() {
-        this.lesson = lesson
-        this.qr = qr
-        this.timestamp = timestamp
-        this.id = id
-    }
-
-    constructor(qr: String?) : this() {
-        this.qr = qr
-    }
 
     override fun equals(other: Any?): Boolean {
         if (other !is Page) return false

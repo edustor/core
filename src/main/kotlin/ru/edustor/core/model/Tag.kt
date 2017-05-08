@@ -9,16 +9,21 @@ import javax.persistence.*
         Index(columnList = "owner_id"),
         Index(columnList = "removedOn")
 ))
-open class Tag() : Comparable<Tag> {
-    @Id var id: String = UUID.randomUUID().toString()
+class Tag(
+        var name: String,
 
-    @ManyToOne(optional = false)
-    lateinit var owner: Account
+        @ManyToOne(optional = false)
+        var owner: Account,
 
-    lateinit var name: String
-    var path: String = "/"
-    var removedOn: Instant? = null
+        var path: String = "/", // TODO: Replace with parent reference
+        var removedOn: Instant? = null,
 
+        @OneToMany(targetEntity = Lesson::class, cascade = arrayOf(CascadeType.ALL), fetch = FetchType.LAZY,
+                mappedBy = "tag", orphanRemoval = true)
+        val lessons: MutableList<Lesson> = mutableListOf(),
+
+        @Id val id: String = UUID.randomUUID().toString()
+) : Comparable<Tag> {
     var removed: Boolean
         get() = removedOn != null
         set(value) {
@@ -29,21 +34,12 @@ open class Tag() : Comparable<Tag> {
             }
         }
 
-    @OneToMany(targetEntity = Lesson::class, cascade = arrayOf(CascadeType.ALL), fetch = FetchType.LAZY,
-            mappedBy = "tag", orphanRemoval = true)
-    var lessons: MutableList<Lesson> = mutableListOf()
-
     val parent: String?
         get() = parents.lastOrNull()
 
     val parents: List<String>
         get() = path.split("/").filter(String::isNotEmpty)
 
-    constructor(account: Account, name: String, parent: Tag? = null) : this() {
-        this.owner = account
-        this.name = name
-        parent?.let { setParent(parent) }
-    }
 
     fun setParent(parent: Tag) {
         path = "${parent.path}/${parent.id}"

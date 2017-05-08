@@ -18,6 +18,7 @@ import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.repository.getForAccountId
 import ru.edustor.core.util.extensions.hasAccess
+import ru.edustor.core.util.extensions.setIndexes
 import java.time.Instant
 
 @Component
@@ -58,7 +59,7 @@ open class RecognizedPagesProcessor(var storage: BinaryObjectStorageService,
                 processedEvent
         )
 
-        page ?: let {
+        if (page == null || lesson == null) {
             storage.delete(PAGE, event.pageUuid)
             logger.warn("Skipping ${event.pageUuid} page")
             return
@@ -110,9 +111,9 @@ open class RecognizedPagesProcessor(var storage: BinaryObjectStorageService,
         val page: Page? = event.qrUuid?.let {
             lesson.pages.firstOrNull { it.qr == event.qrUuid }
         } ?: let {
-            val p = Page(event.qrUuid)
-            p.timestamp = event.uploadedTimestamp ?: Instant.now()
-            p.qr = event.qrUuid
+            val p = Page(lesson = lesson, qr = event.qrUuid, timestamp = event.uploadedTimestamp ?: Instant.now())
+            lesson.pages.add(p)
+            lesson.pages.setIndexes()
             return@let p
         }
 

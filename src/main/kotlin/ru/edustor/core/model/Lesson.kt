@@ -1,6 +1,5 @@
 package ru.edustor.core.model
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -13,26 +12,24 @@ import javax.persistence.*
         Index(columnList = "tag_id"),
         Index(columnList = "removedOn")
 ))
-open class Lesson() : Comparable<Lesson> {
-    @Id var id: String = UUID.randomUUID().toString()
-    lateinit var date: LocalDate
+class Lesson(
+        @ManyToOne(optional = false)
+        var owner: Account,
 
-    @ManyToOne(optional = false)
-    lateinit var tag: Tag
+        @ManyToOne(optional = false)
+        var tag: Tag,
 
-    @ManyToOne(optional = false)
-    lateinit var owner: Account
+        var date: LocalDate,
+        var topic: String? = null,
+        var removedOn: Instant? = null,
 
-    var topic: String? = null
+        @OneToMany(targetEntity = Page::class, cascade = arrayOf(CascadeType.ALL),
+                mappedBy = "lesson", orphanRemoval = true)
+        @OrderBy("index") // @OrderColumn is not used due to it allows sparse lists
+        val pages: MutableList<Page> = mutableListOf(),
 
-    @OneToMany(targetEntity = Page::class, cascade = arrayOf(CascadeType.ALL),
-            mappedBy = "lesson", orphanRemoval = true)
-    @OrderBy("index")
-            //    @OrderColumn is not used due to it allows sparse lists
-    var pages: MutableList<Page> = mutableListOf()
-
-    @JsonIgnore var removedOn: Instant? = null
-
+        @Id val id: String = UUID.randomUUID().toString()
+) : Comparable<Lesson> {
     var removed: Boolean
         get() = removedOn != null
         set(value) {
@@ -48,12 +45,6 @@ open class Lesson() : Comparable<Lesson> {
         return id == other.id
     }
 
-    constructor(tag: Tag, date: LocalDate, owner: Account) : this() {
-        this.tag = tag
-        this.date = date
-        this.owner = owner
-    }
-
     override fun compareTo(other: Lesson): Int {
         return date.compareTo(other.date)
     }
@@ -63,7 +54,7 @@ open class Lesson() : Comparable<Lesson> {
     }
 
     fun toDTO(): LessonDTO {
-        return LessonDTO(id, owner.id, tag.id, topic, date, removed, pages.map { page -> page.toDTO() })
+        return LessonDTO(id, owner.id, tag.id, topic, date, removed, pages.filter { !it.removed }.map { page -> page.toDTO() })
     }
 
     data class LessonDTO(

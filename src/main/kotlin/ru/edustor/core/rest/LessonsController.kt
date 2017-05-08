@@ -22,15 +22,13 @@ open class LessonsController @Autowired constructor(
 ) {
     @RequestMapping("/{lessonId}", method = arrayOf(RequestMethod.POST))
     fun create(lessonId: String, tag: Tag, date: LocalDate, account: Account) {
-        val lesson = Lesson(tag, date, account)
-        lesson.id = lessonId
+        val lesson = Lesson(id = lessonId, owner = account, tag = tag, date = date)
         lessonRepo.save(lesson)
     }
 
     @RequestMapping("/{lesson}")
     fun getLesson(@PathVariable lesson: Lesson, user: Account): Lesson.LessonDTO {
         user.assertHasAccess(lesson)
-        lesson.pages = lesson.pages.filter { !it.removed }.toMutableList()
         return lesson.toDTO()
     }
 

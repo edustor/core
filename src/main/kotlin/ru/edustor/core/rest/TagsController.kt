@@ -25,7 +25,7 @@ class TagsController @Autowired constructor(val accountRepository: AccountReposi
     @RequestMapping("/create")
     fun createTag(account: Account, @RequestParam name: String): Tag.TagDTO {
 //        TODO: Add parent tag param
-        val tag = Tag(account, name)
+        val tag = Tag(name = name, owner = account)
         tagRepository.save(tag)
 
         return tag.toDTO()
