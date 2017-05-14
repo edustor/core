@@ -7,8 +7,8 @@ import org.springframework.amqp.rabbit.annotation.*
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import ru.edustor.commons.models.internal.processing.pdf.PageProcessedEvent
-import ru.edustor.commons.models.internal.processing.pdf.PageRecognizedEvent
+import ru.edustor.commons.models.internal.processing.pages.PageProcessedEvent
+import ru.edustor.commons.models.internal.processing.pages.PageRecognizedEvent
 import ru.edustor.commons.storage.service.BinaryObjectStorageService
 import ru.edustor.commons.storage.service.BinaryObjectStorageService.ObjectType.PAGE
 import ru.edustor.core.model.Lesson
