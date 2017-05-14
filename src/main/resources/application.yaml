@@ -12,3 +12,4 @@ spring:
     database: postgresql
 flyway:
   validate-on-migrate: false
+  baseline-on-migrate: true

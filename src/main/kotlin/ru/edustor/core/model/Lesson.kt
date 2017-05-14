@@ -27,6 +27,7 @@ data class Lesson(
                 mappedBy = "lesson", orphanRemoval = true)
         @OrderBy("index") // @OrderColumn is not used due to it allows sparse lists
         val pages: MutableList<Page> = mutableListOf(),
+        var assembled: Boolean = false,
 
         @Id val id: String = UUID.randomUUID().toString()
 ) : Comparable<Lesson> {
