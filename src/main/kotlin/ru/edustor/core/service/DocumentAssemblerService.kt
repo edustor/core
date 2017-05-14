@@ -1,5 +1,7 @@
 package ru.edustor.core.service
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.jmx.export.annotation.ManagedOperation
 import org.springframework.jmx.export.annotation.ManagedResource
@@ -15,6 +17,9 @@ import ru.edustor.core.repository.LessonRepository
 @ManagedResource
 class DocumentAssemblerService(private val rabbitTemplate: RabbitTemplate,
                                private val lessonRepository: LessonRepository) {
+
+    val logger: Logger = LoggerFactory.getLogger(DocumentAssemblerService::class.java)
+
     fun assembleLesson(lesson: Lesson) {
         val documentAssembleRequest = DocumentAssembleRequest(lessonId = lesson.id,
                 pages = lesson.pages
@@ -27,6 +32,8 @@ class DocumentAssemblerService(private val rabbitTemplate: RabbitTemplate,
                 "requested.documents.processing",
                 documentAssembleRequest
         )
+
+        logger.info("Document assemble request sent: $lesson ")
     }
 
     @ManagedOperation
@@ -36,8 +43,14 @@ class DocumentAssemblerService(private val rabbitTemplate: RabbitTemplate,
         assembleLesson(lesson)
     }
 
+    @Transactional
     @ManagedOperation
-    fun assembleAllLessons() {
+    fun assembleAllDocuments(reassemble: Boolean = false) {
+        val lessons = when (reassemble) {
+            true -> lessonRepository.findAll()
+            false -> lessonRepository.findByAssembled(false)
+        }
 
+        lessons.forEach { assembleLesson(it) }
     }
 }

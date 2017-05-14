@@ -6,4 +6,5 @@ import java.time.Instant
 
 interface LessonRepository : JpaRepository<Lesson, String> {
     fun findByRemovedOnLessThan(removedOn: Instant): List<Lesson>
+    fun findByAssembled(assembled: Boolean): List<Lesson>
 }
