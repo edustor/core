@@ -36,8 +36,8 @@ class DocumentAssemblerService(private val rabbitTemplate: RabbitTemplate,
         logger.info("Document assemble request sent: $lesson ")
     }
 
-    @ManagedOperation
     @Transactional
+    @ManagedOperation
     fun assembleLesson(lessonId: String) {
         val lesson = lessonRepository.findOne(lessonId) ?: throw NotFoundException("Cannot find lesson with id $lessonId")
         assembleLesson(lesson)
