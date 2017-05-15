@@ -21,7 +21,7 @@ class DocumentAssemblerService(private val rabbitTemplate: RabbitTemplate,
     val logger: Logger = LoggerFactory.getLogger(DocumentAssemblerService::class.java)
 
     fun assembleLesson(lesson: Lesson) {
-        val documentAssembleRequest = DocumentAssembleRequest(lessonId = lesson.id,
+        val documentAssembleRequest = DocumentAssembleRequest(documentId = lesson.id,
                 pages = lesson.pages
                         .filter { it.fileId != null && !it.removed && it.contentType == "application/pdf" }
                         .map { DocumentAssembleRequest.Page(fileId = it.fileId!!) }
@@ -29,7 +29,7 @@ class DocumentAssemblerService(private val rabbitTemplate: RabbitTemplate,
 
         rabbitTemplate.convertAndSend(
                 "internal.edustor",
-                "requested.documents.processing",
+                "requested.assemble.documents.processing",
                 documentAssembleRequest
         )
 
