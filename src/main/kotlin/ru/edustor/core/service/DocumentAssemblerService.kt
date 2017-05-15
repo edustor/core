@@ -20,6 +20,7 @@ class DocumentAssemblerService(private val rabbitTemplate: RabbitTemplate,
 
     val logger: Logger = LoggerFactory.getLogger(DocumentAssemblerService::class.java)
 
+    @Transactional
     fun assembleDocument(lesson: Lesson) {
         val documentAssembleRequest = DocumentAssembleRequest(documentId = lesson.id,
                 pages = lesson.pages
@@ -32,6 +33,9 @@ class DocumentAssemblerService(private val rabbitTemplate: RabbitTemplate,
                 "requested.assemble.documents.processing",
                 documentAssembleRequest
         )
+
+        lesson.assembled = false
+        lessonRepository.save(lesson)
 
         logger.info("Document assemble request sent: $lesson ")
     }
