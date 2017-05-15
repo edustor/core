@@ -9,6 +9,7 @@ import ru.edustor.core.model.Lesson
 import ru.edustor.core.model.Page
 import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.repository.PageRepository
+import ru.edustor.core.service.DocumentAssemblerService
 import ru.edustor.core.util.extensions.assertHasAccess
 import ru.edustor.core.util.extensions.setIndexes
 import java.time.Instant
@@ -18,7 +19,8 @@ import java.util.*
 @RequestMapping("/api/pages")
 class PagesController @Autowired constructor(
         val lessonRepo: LessonRepository,
-        val pageRepository: PageRepository
+        val pageRepository: PageRepository,
+        val documentAssemblerService: DocumentAssemblerService
 ) {
     @RequestMapping("/link")
     fun linkPage(@RequestParam qr: String,
@@ -48,6 +50,10 @@ class PagesController @Autowired constructor(
         user.assertHasAccess(page)
         page.removed = true
         pageRepository.save(page)
+
+        if (page.isUploaded) {
+            documentAssemblerService.assembleDocument(page.lesson)
+        }
     }
 
     @RequestMapping("/{page}/restore")
@@ -55,5 +61,9 @@ class PagesController @Autowired constructor(
         user.assertHasAccess(page)
         page.removed = false
         pageRepository.save(page)
+
+        if (page.isUploaded) {
+            documentAssemblerService.assembleDocument(page.lesson)
+        }
     }
 }

@@ -7,8 +7,8 @@ import org.springframework.amqp.rabbit.annotation.*
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import ru.edustor.commons.models.internal.processing.pdf.PageProcessedEvent
-import ru.edustor.commons.models.internal.processing.pdf.PageRecognizedEvent
+import ru.edustor.commons.models.rabbit.processing.pages.PageProcessedEvent
+import ru.edustor.commons.models.rabbit.processing.pages.PageRecognizedEvent
 import ru.edustor.commons.storage.service.BinaryObjectStorageService
 import ru.edustor.commons.storage.service.BinaryObjectStorageService.ObjectType.PAGE
 import ru.edustor.core.model.Lesson
@@ -17,6 +17,7 @@ import ru.edustor.core.repository.AccountRepository
 import ru.edustor.core.repository.LessonRepository
 import ru.edustor.core.repository.PageRepository
 import ru.edustor.core.repository.getForAccountId
+import ru.edustor.core.service.DocumentAssemblerService
 import ru.edustor.core.util.extensions.hasAccess
 import ru.edustor.core.util.extensions.setIndexes
 import java.time.Instant
@@ -26,7 +27,8 @@ open class RecognizedPagesProcessor(var storage: BinaryObjectStorageService,
                                     val accountRepository: AccountRepository,
                                     val lessonRepository: LessonRepository,
                                     val pageRepository: PageRepository,
-                                    val rabbitTemplate: RabbitTemplate) {
+                                    val rabbitTemplate: RabbitTemplate,
+                                    val documentAssemblerService: DocumentAssemblerService) {
     val logger: Logger = LoggerFactory.getLogger(RecognizedPagesProcessor::class.java)
 
     @RabbitListener(bindings = arrayOf(QueueBinding(
@@ -73,6 +75,8 @@ open class RecognizedPagesProcessor(var storage: BinaryObjectStorageService,
         page.fileMD5 = event.fileMD5
         lessonRepository.save(lesson)
         logger.info("Page ${page.id} updated. New file id is ${event.pageUuid}")
+
+        documentAssemblerService.assembleDocument(lesson)
     }
 
     private fun getTargetLessonAndPage(event: PageRecognizedEvent): Pair<Lesson?, Page?> {
