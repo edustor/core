@@ -7,7 +7,7 @@ import org.springframework.jmx.export.annotation.ManagedOperation
 import org.springframework.jmx.export.annotation.ManagedResource
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import ru.edustor.commons.models.internal.processing.documents.DocumentAssembleRequest
+import ru.edustor.commons.models.rabbit.processing.documents.DocumentAssembleRequest
 import ru.edustor.core.exceptions.NotFoundException
 import ru.edustor.core.model.Lesson
 import ru.edustor.core.repository.LessonRepository
