@@ -20,7 +20,7 @@ class DocumentAssemblerService(private val rabbitTemplate: RabbitTemplate,
 
     val logger: Logger = LoggerFactory.getLogger(DocumentAssemblerService::class.java)
 
-    fun assembleLesson(lesson: Lesson) {
+    fun assembleDocument(lesson: Lesson) {
         val documentAssembleRequest = DocumentAssembleRequest(documentId = lesson.id,
                 pages = lesson.pages
                         .filter { it.fileId != null && !it.removed && it.contentType == "application/pdf" }
@@ -38,9 +38,9 @@ class DocumentAssemblerService(private val rabbitTemplate: RabbitTemplate,
 
     @Transactional
     @ManagedOperation
-    fun assembleLesson(lessonId: String) {
+    fun assembleDocument(lessonId: String) {
         val lesson = lessonRepository.findOne(lessonId) ?: throw NotFoundException("Cannot find lesson with id $lessonId")
-        assembleLesson(lesson)
+        assembleDocument(lesson)
     }
 
     @Transactional
@@ -51,6 +51,6 @@ class DocumentAssemblerService(private val rabbitTemplate: RabbitTemplate,
             false -> lessonRepository.findByAssembled(false)
         }
 
-        lessons.forEach { assembleLesson(it) }
+        lessons.forEach { assembleDocument(it) }
     }
 }
